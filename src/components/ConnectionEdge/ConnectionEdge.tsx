@@ -1,29 +1,34 @@
-import { memo } from 'react';
-import { EdgeProps, getBezierPath, EdgeLabelRenderer } from 'reactflow';
-import { ConnectionType, NetworkMetrics } from '@/types/network.types';
+/**
+ * DEPRECATED: This component is no longer used.
+ * Replaced by IsometricConnection in IsometricCanvas system.
+ * Kept for reference only.
+ */
 
-const connectionColors: Record<ConnectionType, string> = {
-  wan: '#3b82f6',
-  cellular: '#a855f7',
-  wifi: '#22c55e',
-  sfp: '#f97316',
-};
+import { memo } from 'react';
+// import { EdgeProps, getBezierPath, EdgeLabelRenderer } from 'reactflow';
+import { ConnectionType, NetworkMetrics } from '@/types/network.types';
 
 interface EdgeData {
   connectionType?: ConnectionType;
   metrics?: NetworkMetrics;
 }
 
-function ConnectionEdge({
-  id,
-  sourceX,
-  sourceY,
-  targetX,
-  targetY,
-  sourcePosition,
-  targetPosition,
-  data,
-}: EdgeProps<EdgeData>) {
+interface EdgeProps<T = EdgeData> {
+  id: string;
+  sourceX: number;
+  sourceY: number;
+  targetX: number;
+  targetY: number;
+  sourcePosition: string;
+  targetPosition: string;
+  data?: T;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function ConnectionEdge(_props: EdgeProps<EdgeData>) {
+  // This component is deprecated and no longer used
+  return null;
+  /*
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -75,6 +80,7 @@ function ConnectionEdge({
       )}
     </>
   );
+  */
 }
 
 export default memo(ConnectionEdge);

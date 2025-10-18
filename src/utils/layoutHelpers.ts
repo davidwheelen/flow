@@ -1,5 +1,35 @@
+/**
+ * DEPRECATED: These helpers are no longer used.
+ * Replaced by isometricLayout.ts for the new isometric system.
+ * Kept for reference only.
+ */
+
 import { PeplinkDevice } from '@/types/network.types';
-import { Node, Edge } from 'reactflow';
+// import { Node, Edge } from 'reactflow';
+
+type Node = {
+  id: string;
+  type: string;
+  position: { x: number; y: number };
+  data: PeplinkDevice;
+};
+
+type Edge = {
+  id: string;
+  source: string;
+  target: string;
+  type: string;
+  animated: boolean;
+  data: {
+    connectionType?: string;
+    metrics?: {
+      speedMbps: number;
+      latencyMs: number;
+      uploadMbps: number;
+      downloadMbps: number;
+    };
+  };
+};
 
 export interface LayoutOptions {
   horizontalSpacing?: number;
