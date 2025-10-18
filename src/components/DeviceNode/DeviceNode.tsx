@@ -1,5 +1,11 @@
+/**
+ * DEPRECATED: This component is no longer used.
+ * Replaced by IsometricDevice in IsometricCanvas system.
+ * Kept for reference only.
+ */
+
 import { memo } from 'react';
-import { Handle, Position } from 'reactflow';
+// import { Handle, Position } from 'reactflow';
 import { Wifi, Radio, Cable, Network } from 'lucide-react';
 import { PeplinkDevice, ConnectionType } from '@/types/network.types';
 import styles from './DeviceNode.module.css';
@@ -31,8 +37,8 @@ const statusColors = {
 function DeviceNode({ data }: DeviceNodeProps) {
   return (
     <div className={styles.deviceNode}>
-      <Handle type="target" position={Position.Top} className={styles.handle} />
-      <Handle type="source" position={Position.Bottom} className={styles.handle} />
+      {/* <Handle type="target" position={Position.Top} className={styles.handle} />
+      <Handle type="source" position={Position.Bottom} className={styles.handle} /> */}
       
       <div className={styles.header}>
         <div className={styles.deviceName}>{data.name}</div>
