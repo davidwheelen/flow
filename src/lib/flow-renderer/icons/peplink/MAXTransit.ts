@@ -10,6 +10,14 @@ export class MAXTransitIcon extends DeviceIcon {
     super(options);
   }
 
+  public getSeries(): string {
+    return 'max';
+  }
+
+  public getModelName(): string {
+    return 'max-transit';
+  }
+
   protected render(): void {
     this.group.removeChildren();
     

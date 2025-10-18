@@ -2,26 +2,26 @@ import paper from 'paper';
 import { DeviceIcon, DeviceIconOptions } from '../DeviceIcon';
 
 /**
- * Balance 20X - Small router for remote sites
- * Compact desktop unit with WAN and cellular ports
+ * MAX BR1 Mini - Compact mobile router
+ * Very small unit with 1 WAN port and 1 cellular modem
  */
-export class Balance20XIcon extends DeviceIcon {
+export class MAXBR1MiniIcon extends DeviceIcon {
   constructor(options: DeviceIconOptions = {}) {
     super(options);
   }
 
   public getSeries(): string {
-    return 'balance';
+    return 'max';
   }
 
   public getModelName(): string {
-    return 'balance-20x';
+    return 'max-br1-mini';
   }
 
   protected render(): void {
     this.group.removeChildren();
     
-    // Small desktop unit dimensions
+    // Very small compact dimensions
     const width = 50;
     const depth = 40;
     const height = 20;
@@ -33,7 +33,7 @@ export class Balance20XIcon extends DeviceIcon {
     const angle = 30;
     const rad = (angle * Math.PI) / 180;
     
-    // Add status LEDs on front face (power, WAN1, WAN2)
+    // Add status LEDs (power, WAN, cellular)
     const powerLED = this.addLED(
       new paper.Point(5 * this.scale, height * this.scale - 5 * this.scale),
       DeviceIcon.COLORS.ledPower,
@@ -41,46 +41,42 @@ export class Balance20XIcon extends DeviceIcon {
     );
     this.group.addChild(powerLED);
     
-    const wan1LED = this.addLED(
+    const wanLED = this.addLED(
       new paper.Point(10 * this.scale, height * this.scale - 5 * this.scale),
       DeviceIcon.COLORS.ledWAN,
       true
     );
-    this.group.addChild(wan1LED);
+    this.group.addChild(wanLED);
     
-    const wan2LED = this.addLED(
+    const cellLED = this.addLED(
       new paper.Point(15 * this.scale, height * this.scale - 5 * this.scale),
-      DeviceIcon.COLORS.ledWAN,
+      DeviceIcon.COLORS.ledCellular,
       true
     );
-    this.group.addChild(wan2LED);
+    this.group.addChild(cellLED);
     
-    // Add WAN ports on front face with labels
-    const wan1Port = this.addPortWithLabel(
+    // Add 1 WAN port
+    const wanPort = this.addPortWithLabel(
       new paper.Point(8 * this.scale, height * this.scale - 12 * this.scale),
-      'W1'
+      'W1',
+      new paper.Size(8, 5)
     );
-    this.group.addChild(wan1Port);
+    this.group.addChild(wanPort);
     
-    const wan2Port = this.addPortWithLabel(
-      new paper.Point(20 * this.scale, height * this.scale - 12 * this.scale),
-      'W2'
-    );
-    this.group.addChild(wan2Port);
-    
-    // Add cellular antenna indicator on top
-    const cellularAntenna = this.addCellularAntenna(
+    // Add 1 cellular antenna on top
+    const cellAntenna = this.addCellularAntenna(
       new paper.Point(
-        (width * 0.75) * this.scale * Math.cos(rad) + (depth * 0.5) * this.scale * Math.cos(rad),
-        -((width * 0.75) * this.scale * Math.sin(rad) + (depth * 0.5) * this.scale * Math.sin(rad)) - 3 * this.scale
-      )
+        (width * 0.7) * this.scale * Math.cos(rad) + (depth * 0.5) * this.scale * Math.cos(rad),
+        -((width * 0.7) * this.scale * Math.sin(rad) + (depth * 0.5) * this.scale * Math.sin(rad)) - 3 * this.scale
+      ),
+      8
     );
-    this.group.addChild(cellularAntenna);
+    this.group.addChild(cellAntenna);
     
-    // Add model name label on front
+    // Add model name label
     const modelLabel = this.addLabel(
       new paper.Point(5 * this.scale, height * this.scale - 18 * this.scale),
-      'Balance 20X',
+      'BR1 Mini',
       5
     );
     this.group.addChild(modelLabel);

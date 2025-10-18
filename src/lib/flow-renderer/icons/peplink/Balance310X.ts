@@ -10,6 +10,14 @@ export class Balance310XIcon extends DeviceIcon {
     super(options);
   }
 
+  public getSeries(): string {
+    return 'balance';
+  }
+
+  public getModelName(): string {
+    return 'balance-310x';
+  }
+
   protected render(): void {
     this.group.removeChildren();
     
@@ -22,56 +30,68 @@ export class Balance310XIcon extends DeviceIcon {
     const body = this.createIsometricBox(width, depth, height);
     this.group.addChild(body);
     
-    // Add WAN ports on front face
-    const frontPortStart = new paper.Point(
-      10 * this.scale,
-      height * this.scale - 8 * this.scale
-    );
-    const wanPorts = this.addPorts(3, frontPortStart, 12 * this.scale);
-    this.group.addChild(wanPorts);
-    
-    // Add WiFi antennas on top corners
     const angle = 30;
     const rad = (angle * Math.PI) / 180;
     
-    const antenna1Pos = new paper.Point(
-      10 * this.scale * Math.cos(rad),
-      -10 * this.scale * Math.sin(rad) - 5 * this.scale
+    // Add status LEDs on front face (power, WAN x3)
+    const powerLED = this.addLED(
+      new paper.Point(5 * this.scale, height * this.scale - 5 * this.scale),
+      DeviceIcon.COLORS.ledPower,
+      true
     );
-    const antenna1 = new paper.Path.Circle(antenna1Pos, 3 * this.scale);
-    antenna1.fillColor = new paper.Color(DeviceIcon.COLORS.accent);
-    antenna1.strokeColor = new paper.Color('#000000');
-    antenna1.strokeWidth = 0.5;
-    this.group.addChild(antenna1);
+    this.group.addChild(powerLED);
     
-    const antenna2Pos = new paper.Point(
-      (width - 10) * this.scale * Math.cos(rad) + 10 * this.scale * Math.cos(rad),
-      -((width - 10) * this.scale * Math.sin(rad) + 10 * this.scale * Math.sin(rad)) - 5 * this.scale
-    );
-    const antenna2 = new paper.Path.Circle(antenna2Pos, 3 * this.scale);
-    antenna2.fillColor = new paper.Color(DeviceIcon.COLORS.accent);
-    antenna2.strokeColor = new paper.Color('#000000');
-    antenna2.strokeWidth = 0.5;
-    this.group.addChild(antenna2);
+    for (let i = 0; i < 3; i++) {
+      const wanLED = this.addLED(
+        new paper.Point((10 + i * 5) * this.scale, height * this.scale - 5 * this.scale),
+        DeviceIcon.COLORS.ledWAN,
+        true
+      );
+      this.group.addChild(wanLED);
+    }
     
-    // Add cellular indicator
-    const cellularPos = new paper.Point(
-      5 * this.scale,
-      height * this.scale - 16 * this.scale
-    );
-    const cellular = new paper.Path.Rectangle(
-      cellularPos,
-      new paper.Size(6 * this.scale, 4 * this.scale)
-    );
-    cellular.fillColor = new paper.Color('#a855f7');
-    cellular.strokeColor = new paper.Color('#000000');
-    cellular.strokeWidth = 0.5;
-    this.group.addChild(cellular);
+    // Add WAN ports on front face with labels
+    for (let i = 0; i < 3; i++) {
+      const wanPort = this.addPortWithLabel(
+        new paper.Point((8 + i * 12) * this.scale, height * this.scale - 12 * this.scale),
+        `W${i + 1}`
+      );
+      this.group.addChild(wanPort);
+    }
     
-    // Add status LED
-    const ledPos = new paper.Point(5 * this.scale, height * this.scale - 5 * this.scale);
-    const led = this.addLED(ledPos);
-    this.group.addChild(led);
+    // Add WiFi antennas on top corners
+    const wifi1 = this.addWiFiIndicator(
+      new paper.Point(
+        10 * this.scale * Math.cos(rad) + 10 * this.scale * Math.cos(rad),
+        -(10 * this.scale * Math.sin(rad) + 10 * this.scale * Math.sin(rad)) - 3 * this.scale
+      )
+    );
+    this.group.addChild(wifi1);
+    
+    const wifi2 = this.addWiFiIndicator(
+      new paper.Point(
+        (width - 10) * this.scale * Math.cos(rad) + 10 * this.scale * Math.cos(rad),
+        -((width - 10) * this.scale * Math.sin(rad) + 10 * this.scale * Math.sin(rad)) - 3 * this.scale
+      )
+    );
+    this.group.addChild(wifi2);
+    
+    // Add cellular antenna indicator
+    const cellularAntenna = this.addCellularAntenna(
+      new paper.Point(
+        (width * 0.5) * this.scale * Math.cos(rad) + (depth * 0.5) * this.scale * Math.cos(rad),
+        -((width * 0.5) * this.scale * Math.sin(rad) + (depth * 0.5) * this.scale * Math.sin(rad)) - 3 * this.scale
+      )
+    );
+    this.group.addChild(cellularAntenna);
+    
+    // Add model name label on front
+    const modelLabel = this.addLabel(
+      new paper.Point(5 * this.scale, height * this.scale - 20 * this.scale),
+      'Balance 310X',
+      5
+    );
+    this.group.addChild(modelLabel);
     
     // Center the group
     this.group.position = new paper.Point(0, 0);

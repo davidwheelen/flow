@@ -2,10 +2,10 @@ import paper from 'paper';
 import { DeviceIcon, DeviceIconOptions } from '../DeviceIcon';
 
 /**
- * Balance 380 - HQ router
- * Larger unit with multiple WAN ports, cellular, and WiFi
+ * Balance 305 - Multi-WAN SD-WAN router with dual cellular
+ * 3 WAN ports, dual SIM/cellular modems
  */
-export class Balance380Icon extends DeviceIcon {
+export class Balance305Icon extends DeviceIcon {
   constructor(options: DeviceIconOptions = {}) {
     super(options);
   }
@@ -15,16 +15,16 @@ export class Balance380Icon extends DeviceIcon {
   }
 
   public getModelName(): string {
-    return 'balance-380';
+    return 'balance-305';
   }
 
   protected render(): void {
     this.group.removeChildren();
     
-    // Large desktop unit dimensions
-    const width = 100;
-    const depth = 70;
-    const height = 35;
+    // Medium desktop unit dimensions
+    const width = 75;
+    const depth = 55;
+    const height = 28;
     
     // Create main body
     const body = this.createIsometricBox(width, depth, height);
@@ -33,7 +33,7 @@ export class Balance380Icon extends DeviceIcon {
     const angle = 30;
     const rad = (angle * Math.PI) / 180;
     
-    // Add status LEDs on front face (power, WAN x5, cellular x2)
+    // Add status LEDs on front face (power, WAN x3, cellular x2)
     const powerLED = this.addLED(
       new paper.Point(5 * this.scale, height * this.scale - 5 * this.scale),
       DeviceIcon.COLORS.ledPower,
@@ -42,9 +42,9 @@ export class Balance380Icon extends DeviceIcon {
     this.group.addChild(powerLED);
     
     // WAN LEDs
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 3; i++) {
       const wanLED = this.addLED(
-        new paper.Point((10 + i * 4) * this.scale, height * this.scale - 5 * this.scale),
+        new paper.Point((10 + i * 5) * this.scale, height * this.scale - 5 * this.scale),
         DeviceIcon.COLORS.ledWAN,
         true
       );
@@ -54,52 +54,23 @@ export class Balance380Icon extends DeviceIcon {
     // Cellular LEDs
     for (let i = 0; i < 2; i++) {
       const cellLED = this.addLED(
-        new paper.Point((32 + i * 4) * this.scale, height * this.scale - 5 * this.scale),
+        new paper.Point((27 + i * 5) * this.scale, height * this.scale - 5 * this.scale),
         DeviceIcon.COLORS.ledCellular,
         true
       );
       this.group.addChild(cellLED);
     }
     
-    // Add WAN ports on front face with labels
-    for (let i = 0; i < 5; i++) {
+    // Add 3 WAN ports on front face with labels
+    for (let i = 0; i < 3; i++) {
       const wanPort = this.addPortWithLabel(
-        new paper.Point((8 + i * 12) * this.scale, height * this.scale - 14 * this.scale),
+        new paper.Point((8 + i * 12) * this.scale, height * this.scale - 12 * this.scale),
         `W${i + 1}`
       );
       this.group.addChild(wanPort);
     }
     
-    // Add cellular modems with labels
-    for (let i = 0; i < 2; i++) {
-      const cellPort = this.addPortWithLabel(
-        new paper.Point((8 + i * 12) * this.scale, height * this.scale - 24 * this.scale),
-        `C${i + 1}`,
-        new paper.Size(8, 5)
-      );
-      // Change port color to cellular purple
-      cellPort.children[0].fillColor = new paper.Color(DeviceIcon.COLORS.ledCellular);
-      this.group.addChild(cellPort);
-    }
-    
-    // Add WiFi antennas on top
-    const wifi1 = this.addWiFiIndicator(
-      new paper.Point(
-        15 * this.scale * Math.cos(rad) + 15 * this.scale * Math.cos(rad),
-        -(15 * this.scale * Math.sin(rad) + 15 * this.scale * Math.sin(rad)) - 3 * this.scale
-      )
-    );
-    this.group.addChild(wifi1);
-    
-    const wifi2 = this.addWiFiIndicator(
-      new paper.Point(
-        (width - 15) * this.scale * Math.cos(rad) + 15 * this.scale * Math.cos(rad),
-        -((width - 15) * this.scale * Math.sin(rad) + 15 * this.scale * Math.sin(rad)) - 3 * this.scale
-      )
-    );
-    this.group.addChild(wifi2);
-    
-    // Add cellular antennas on top
+    // Add 2 cellular antenna indicators on top
     const cell1 = this.addCellularAntenna(
       new paper.Point(
         (width * 0.3) * this.scale * Math.cos(rad) + (depth * 0.5) * this.scale * Math.cos(rad),
@@ -118,11 +89,26 @@ export class Balance380Icon extends DeviceIcon {
     );
     this.group.addChild(cell2);
     
+    // Add dual SIM labels
+    const sim1Label = this.addLabel(
+      new paper.Point(5 * this.scale, height * this.scale - 20 * this.scale),
+      'SIM1',
+      4
+    );
+    this.group.addChild(sim1Label);
+    
+    const sim2Label = this.addLabel(
+      new paper.Point(20 * this.scale, height * this.scale - 20 * this.scale),
+      'SIM2',
+      4
+    );
+    this.group.addChild(sim2Label);
+    
     // Add model name label on front
     const modelLabel = this.addLabel(
-      new paper.Point(5 * this.scale, height * this.scale - 30 * this.scale),
-      'Balance 380',
-      6
+      new paper.Point(5 * this.scale, height * this.scale - 26 * this.scale),
+      'Balance 305',
+      5
     );
     this.group.addChild(modelLabel);
     
