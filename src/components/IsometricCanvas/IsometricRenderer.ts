@@ -248,6 +248,9 @@ export class IsometricRenderer {
     this.ctx.fillStyle = '#f9fafb';
     this.ctx.fillRect(0, 0, rect.width, rect.height);
 
+    // Draw isometric grid (optional floor)
+    this.drawIsometricGrid();
+
     // Sort objects by depth (back to front)
     const sortedObjects = [...this.objects].sort((a, b) => a.depth - b.depth);
 
@@ -260,6 +263,51 @@ export class IsometricRenderer {
 
     // Call render callback
     this.onRenderCallback?.();
+  }
+
+  /**
+   * Draw isometric grid floor for depth perception
+   */
+  private drawIsometricGrid(): void {
+    const gridSize = 100;
+    const gridExtent = 5; // Number of grid lines in each direction
+    
+    this.ctx.strokeStyle = 'rgba(156, 163, 175, 0.15)'; // Very subtle gray
+    this.ctx.lineWidth = 0.5;
+
+    // Draw grid lines in X direction
+    for (let i = -gridExtent; i <= gridExtent; i++) {
+      const from3D = { x: i * gridSize, y: -gridExtent * gridSize, z: 0 };
+      const to3D = { x: i * gridSize, y: gridExtent * gridSize, z: 0 };
+      
+      const from2D = toIsometric(from3D.x, from3D.y, from3D.z);
+      const to2D = toIsometric(to3D.x, to3D.y, to3D.z);
+      
+      const screenFrom = applyCamera(from2D, this.camera);
+      const screenTo = applyCamera(to2D, this.camera);
+      
+      this.ctx.beginPath();
+      this.ctx.moveTo(screenFrom.x, screenFrom.y);
+      this.ctx.lineTo(screenTo.x, screenTo.y);
+      this.ctx.stroke();
+    }
+
+    // Draw grid lines in Y direction
+    for (let i = -gridExtent; i <= gridExtent; i++) {
+      const from3D = { x: -gridExtent * gridSize, y: i * gridSize, z: 0 };
+      const to3D = { x: gridExtent * gridSize, y: i * gridSize, z: 0 };
+      
+      const from2D = toIsometric(from3D.x, from3D.y, from3D.z);
+      const to2D = toIsometric(to3D.x, to3D.y, to3D.z);
+      
+      const screenFrom = applyCamera(from2D, this.camera);
+      const screenTo = applyCamera(to2D, this.camera);
+      
+      this.ctx.beginPath();
+      this.ctx.moveTo(screenFrom.x, screenFrom.y);
+      this.ctx.lineTo(screenTo.x, screenTo.y);
+      this.ctx.stroke();
+    }
   }
 
   /**
