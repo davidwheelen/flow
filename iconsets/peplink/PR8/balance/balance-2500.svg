@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- 3D Isometric Box (rack mount) -->
+  <!-- Rack ears on left -->
+  <rect x="28" y="100" width="10" height="85" fill="#5d6d7e" stroke="#34495e" stroke-width="0.5" rx="1"/>
+  <circle cx="33" cy="110" r="2" fill="#34495e"/>
+  <circle cx="33" cy="175" r="2" fill="#34495e"/>
+  
+  <!-- Top face (light grey) -->
+  <path d="M 40,95 L 200,130 L 200,155 L 40,120 Z" 
+        fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+  
+  <!-- Front face (medium grey) -->
+  <path d="M 40,120 L 200,155 L 200,185 L 40,150 Z" 
+        fill="#7f8c8d" stroke="#5d6d7e" stroke-width="1"/>
+  
+  <!-- Side face (dark grey) -->
+  <path d="M 200,130 L 220,140 L 220,170 L 200,185 L 200,155 Z" 
+        fill="#5d6d7e" stroke="#34495e" stroke-width="1"/>
+  
+  <!-- Rack ears on right -->
+  <rect x="220" y="100" width="10" height="85" fill="#5d6d7e" stroke="#34495e" stroke-width="0.5" rx="1"/>
+  <circle cx="225" cy="110" r="2" fill="#34495e"/>
+  <circle cx="225" cy="175" r="2" fill="#34495e"/>
+  
+  <!-- Status LEDs on front -->
+  <!-- Power LED (green) -->
+  <circle cx="52" cy="135" r="2.5" fill="#2ecc71" filter="url(#glow)"/>
+  <text x="47" y="145" font-size="5" fill="#ecf0f1">PWR</text>
+  
+  <!-- WAN LEDs (blue) - 8 total -->
+  <circle cx="65" cy="135" r="2" fill="#3498db" filter="url(#glow)"/>
+  <text x="62" y="145" font-size="5" fill="#ecf0f1">1</text>
+  
+  <circle cx="77" cy="135" r="2" fill="#3498db" filter="url(#glow)"/>
+  <text x="74" y="145" font-size="5" fill="#ecf0f1">2</text>
+  
+  <circle cx="89" cy="135" r="2" fill="#3498db" filter="url(#glow)"/>
+  <text x="86" y="145" font-size="5" fill="#ecf0f1">3</text>
+  
+  <circle cx="101" cy="135" r="2" fill="#3498db" filter="url(#glow)"/>
+  <text x="98" y="145" font-size="5" fill="#ecf0f1">4</text>
+  
+  <circle cx="113" cy="135" r="2" fill="#3498db" filter="url(#glow)"/>
+  <text x="110" y="145" font-size="5" fill="#ecf0f1">5</text>
+  
+  <circle cx="125" cy="135" r="2" fill="#3498db" filter="url(#glow)"/>
+  <text x="122" y="145" font-size="5" fill="#ecf0f1">6</text>
+  
+  <circle cx="137" cy="135" r="2" fill="#3498db" filter="url(#glow)"/>
+  <text x="134" y="145" font-size="5" fill="#ecf0f1">7</text>
+  
+  <circle cx="149" cy="135" r="2" fill="#3498db" filter="url(#glow)"/>
+  <text x="146" y="145" font-size="5" fill="#ecf0f1">8</text>
+  
+  <!-- SFP LEDs (orange) -->
+  <circle cx="163" cy="135" r="2" fill="#e67e22" filter="url(#glow)"/>
+  <text x="158" y="145" font-size="4" fill="#ecf0f1">SFP1</text>
+  
+  <circle cx="177" cy="135" r="2" fill="#e67e22" filter="url(#glow)"/>
+  <text x="172" y="145" font-size="4" fill="#ecf0f1">SFP2</text>
+  
+  <!-- WAN Ports (8) -->
+  <rect x="52" y="155" width="8" height="5" fill="#34495e" stroke="#2c3e50" stroke-width="0.4" rx="0.4"/>
+  <rect x="62" y="155" width="8" height="5" fill="#34495e" stroke="#2c3e50" stroke-width="0.4" rx="0.4"/>
+  <rect x="72" y="155" width="8" height="5" fill="#34495e" stroke="#2c3e50" stroke-width="0.4" rx="0.4"/>
+  <rect x="82" y="155" width="8" height="5" fill="#34495e" stroke="#2c3e50" stroke-width="0.4" rx="0.4"/>
+  <rect x="92" y="155" width="8" height="5" fill="#34495e" stroke="#2c3e50" stroke-width="0.4" rx="0.4"/>
+  <rect x="102" y="155" width="8" height="5" fill="#34495e" stroke="#2c3e50" stroke-width="0.4" rx="0.4"/>
+  <rect x="112" y="155" width="8" height="5" fill="#34495e" stroke="#2c3e50" stroke-width="0.4" rx="0.4"/>
+  <rect x="122" y="155" width="8" height="5" fill="#34495e" stroke="#2c3e50" stroke-width="0.4" rx="0.4"/>
+  
+  <!-- SFP Ports (4) -->
+  <rect x="135" y="155" width="12" height="5" fill="#5d6d7e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <text x="137" y="159" font-size="3" fill="#e67e22">SFP1</text>
+  
+  <rect x="149" y="155" width="12" height="5" fill="#5d6d7e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <text x="151" y="159" font-size="3" fill="#e67e22">SFP2</text>
+  
+  <rect x="163" y="155" width="12" height="5" fill="#5d6d7e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <text x="165" y="159" font-size="3" fill="#e67e22">SFP3</text>
+  
+  <rect x="177" y="155" width="12" height="5" fill="#5d6d7e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <text x="179" y="159" font-size="3" fill="#e67e22">SFP4</text>
+  
+  <!-- Model label -->
+  <text x="95" y="175" font-size="10" fill="#ecf0f1" font-weight="bold">Balance 2500</text>
+  
+  <!-- Peplink branding -->
+  <text x="108" y="185" font-size="6" fill="#95a5a6">Peplink</text>
+</svg>

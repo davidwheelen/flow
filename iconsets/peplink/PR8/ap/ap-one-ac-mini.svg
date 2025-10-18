@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <radialGradient id="discGradient">
+      <stop offset="0%" style="stop-color:#95a5a6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7f8c8d;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Circular flat disc (isometric view) -->
+  <!-- Bottom ellipse (shadow) -->
+  <ellipse cx="128" cy="165" rx="45" ry="15" fill="#34495e" opacity="0.3"/>
+  
+  <!-- Disc body - main ellipse -->
+  <ellipse cx="128" cy="130" rx="45" ry="15" fill="url(#discGradient)" stroke="#7f8c8d" stroke-width="1"/>
+  
+  <!-- Top surface -->
+  <ellipse cx="128" cy="120" rx="45" ry="15" fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+  
+  <!-- Center circle (ventilation) -->
+  <circle cx="128" cy="120" r="18" fill="#7f8c8d" stroke="#5d6d7e" stroke-width="1"/>
+  
+  <!-- Inner ventilation ring -->
+  <circle cx="128" cy="120" r="12" fill="#5d6d7e" opacity="0.5"/>
+  
+  <!-- Status LEDs on top -->
+  <!-- Power LED (green) -->
+  <circle cx="115" cy="115" r="2.5" fill="#2ecc71" filter="url(#glow)"/>
+  <text x="110" y="108" font-size="4" fill="#ecf0f1">PWR</text>
+  
+  <!-- WiFi LED (green) -->
+  <circle cx="141" cy="115" r="2.5" fill="#22c55e" filter="url(#glow)"/>
+  <text x="136" y="108" font-size="4" fill="#ecf0f1">WiFi</text>
+  
+  <!-- WiFi waves emanating from center -->
+  <path d="M 128,110 Q 120,105 115,110" fill="none" stroke="#22c55e" stroke-width="1" opacity="0.6"/>
+  <path d="M 128,110 Q 136,105 141,110" fill="none" stroke="#22c55e" stroke-width="1" opacity="0.6"/>
+  <path d="M 128,107 Q 116,99 110,107" fill="none" stroke="#22c55e" stroke-width="1" opacity="0.4"/>
+  <path d="M 128,107 Q 140,99 146,107" fill="none" stroke="#22c55e" stroke-width="1" opacity="0.4"/>
+  <path d="M 128,104 Q 112,93 105,104" fill="none" stroke="#22c55e" stroke-width="1" opacity="0.2"/>
+  <path d="M 128,104 Q 144,93 151,104" fill="none" stroke="#22c55e" stroke-width="1" opacity="0.2"/>
+  
+  <!-- Ethernet port indicator on side -->
+  <rect x="150" y="128" width="8" height="4" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <text x="152" y="131" font-size="3" fill="#95a5a6">PoE</text>
+  
+  <!-- Model label -->
+  <text x="95" y="178" font-size="10" fill="#ecf0f1" font-weight="bold">AP One AC Mini</text>
+  
+  <!-- Peplink branding -->
+  <text x="110" y="191" font-size="7" fill="#95a5a6">Peplink</text>
+</svg>
