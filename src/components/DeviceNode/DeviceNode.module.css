@@ -1,0 +1,189 @@
+.deviceNode {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  min-width: 280px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transition: all 0.3s ease;
+}
+
+.deviceNode:hover {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  border-color: #cbd5e1;
+}
+
+.handle {
+  width: 12px;
+  height: 12px;
+  background: #64748b;
+  border: 2px solid white;
+}
+
+.header {
+  margin-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.deviceName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.deviceModel {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.ipAddress {
+  font-size: 12px;
+  color: #475569;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 12px;
+}
+
+.connections {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.connection {
+  border-left: 3px solid;
+  padding: 8px;
+  background: #f8fafc;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.connection:hover {
+  background: #f1f5f9;
+}
+
+.connectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.connectionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connectionType {
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  flex: 1;
+}
+
+.statusIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.metricLabel {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.metricValue {
+  color: #0f172a;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.dataFlow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 11px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .deviceNode {
+    background: #1e293b;
+    border-color: #334155;
+  }
+
+  .deviceNode:hover {
+    border-color: #475569;
+  }
+
+  .handle {
+    background: #94a3b8;
+  }
+
+  .header {
+    border-bottom-color: #334155;
+  }
+
+  .deviceName {
+    color: #f1f5f9;
+  }
+
+  .deviceModel {
+    color: #94a3b8;
+  }
+
+  .ipAddress {
+    color: #cbd5e1;
+  }
+
+  .connection {
+    background: #0f172a;
+  }
+
+  .connection:hover {
+    background: #1e293b;
+  }
+
+  .connectionType {
+    color: #cbd5e1;
+  }
+
+  .metrics {
+    border-top-color: #334155;
+  }
+
+  .metricLabel {
+    color: #94a3b8;
+  }
+
+  .metricValue {
+    color: #f1f5f9;
+  }
+}
