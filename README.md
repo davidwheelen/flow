@@ -1,26 +1,33 @@
 # Flow - Peplink InControl Network Visualizer
 
-Real-time network visualization tool for Peplink InControl devices with Isoflow-style layouts.
+Real-time network visualization tool for Peplink InControl devices with isometric 3D rendering using custom Flow renderer.
 
 ## Features
 
-- 🌐 Real-time device connection monitoring
-- 📊 Visual data flow representation
-- 🔌 Support for WAN, Cellular, WiFi, and SFP connections
-- ⚡ Live speed (MB/s) and latency (ms) metrics
-- 🎨 Clean, intuitive Isoflow-inspired interface
-- 🔄 Auto-refresh every 5 seconds for real-time updates
-- 📱 Responsive full-viewport layout
+- 🎨 **Isometric 3D Visualization** - Custom Flow renderer using Paper.js for beautiful isometric device rendering
+- 🏢 **Group-Based Organization** - Select and view devices by InControl groups
+- 📡 **Real-time Updates** - WebSocket integration for live device status and metrics
+- 🔌 **Connection Monitoring** - Track WAN, Cellular, WiFi, and SFP connections
+- 📊 **Device Icons** - Custom 3D isometric icons for Peplink device models:
+  - Balance 20X (small router)
+  - Balance 310X (branch router)
+  - Balance 380 (HQ router)
+  - Balance 2500 (rack mount)
+  - MAX Transit (mobile unit)
+- 🔄 **Live Metrics** - Speed, latency, upload/download monitoring
+- 📱 **Responsive Design** - Full-viewport layout with sidebar navigation
 
 ## Tech Stack
 
-- **React 18** - Modern React with hooks and concurrent features
+- **React 18** - Modern React with hooks
 - **TypeScript** - Type-safe development
 - **Vite** - Lightning-fast dev server and optimized builds
-- **React Flow** - Interactive network diagrams
+- **Paper.js** - Canvas-based 2D vector graphics for isometric rendering
+- **Zustand** - State management with Immer for immutability
 - **TailwindCSS** - Utility-first styling
-- **React Query** - Data fetching and caching
 - **Lucide React** - Beautiful icon library
+- **Axios** - HTTP client for API integration
+- **Chroma.js** - Color manipulation
 
 ## Getting Started
 
@@ -69,29 +76,76 @@ npm run lint
 flow/
 ├── src/
 │   ├── components/
-│   │   ├── NetworkDiagram/     # Main React Flow canvas
-│   │   ├── DeviceNode/         # Custom device node component
-│   │   ├── ConnectionEdge/     # Custom edge component
-│   │   └── MetricsPanel/       # Side panel with statistics
-│   ├── hooks/
-│   │   ├── useNetworkData.ts   # React Query hook for devices
-│   │   └── useRealtimeMetrics.ts # Real-time metrics simulation
+│   │   └── Sidebar/             # Group selection sidebar
+│   ├── lib/
+│   │   └── flow-renderer/       # Custom Flow rendering library
+│   │       ├── core/            # FlowNode, FlowConnection classes
+│   │       ├── icons/           # Device icon renderers
+│   │       │   └── peplink/     # Peplink-specific icons
+│   │       └── FlowCanvas.tsx   # Main canvas component
 │   ├── services/
-│   │   └── peplinkApi.ts       # API service layer (mock)
+│   │   └── incontrolApi.ts      # InControl API integration
+│   ├── store/
+│   │   └── appStore.ts          # Zustand state management
 │   ├── types/
-│   │   └── network.types.ts    # TypeScript type definitions
+│   │   └── network.types.ts     # TypeScript type definitions
 │   ├── utils/
-│   │   ├── mockData.ts         # Sample network data
-│   │   └── layoutHelpers.ts    # Layout algorithms
-│   ├── App.tsx                 # Main app component
-│   ├── main.tsx               # React entry point
-│   └── index.css              # Global styles
-├── index.html                  # HTML template
-├── vite.config.ts             # Vite configuration
-├── tsconfig.json              # TypeScript configuration
-├── tailwind.config.js         # TailwindCSS configuration
-└── package.json               # Dependencies and scripts
+│   │   ├── mockData.ts          # Mock device data
+│   │   └── mockGroups.ts        # Mock group data
+│   ├── App.tsx                  # Main app component
+│   ├── main.tsx                # React entry point
+│   └── index.css               # Global styles
+├── index.html                   # HTML template
+├── vite.config.ts              # Vite configuration
+├── tsconfig.json               # TypeScript configuration
+├── tailwind.config.js          # TailwindCSS configuration
+└── package.json                # Dependencies and scripts
 ```
+
+## Flow Renderer Architecture
+
+The Flow renderer is a custom visualization library inspired by Isoflow but tailored for Peplink devices:
+
+### Components
+
+1. **FlowCanvas** - Main React component that manages the Paper.js canvas
+2. **FlowNode** - Represents a network device with isometric 3D rendering
+3. **FlowConnection** - Animated connections between devices
+4. **Device Icons** - Custom 3D isometric representations of each Peplink model
+
+### Rendering Approach
+
+- Uses Paper.js for vector-based canvas rendering
+- Isometric projection with 30° angles for 3D appearance
+- Each device model has a custom icon renderer with:
+  - 3D box representation (top, front, side faces)
+  - Proper shading and depth
+  - Connection ports visualization
+  - Status LEDs and indicators
+
+## InControl API Integration
+
+### Configuration
+
+Set the following environment variables:
+
+```env
+VITE_INCONTROL_API_URL=https://api.ic.peplink.com
+VITE_INCONTROL_CLIENT_ID=your_client_id
+VITE_INCONTROL_CLIENT_SECRET=your_client_secret
+```
+
+### Features
+
+- OAuth2 authentication
+- Group-based device fetching
+- Real-time metrics via WebSocket
+- Automatic device model mapping to icons
+- Connection type detection (WAN, Cellular, WiFi, SFP)
+
+### Mock Data Fallback
+
+When API credentials are not configured, the application automatically uses mock data for development and testing.
 
 ## Design System
 
@@ -108,61 +162,29 @@ flow/
 - **Disconnected**: Red (#ef4444)
 - **Degraded**: Amber (#f59e0b)
 
-## Features in Detail
+### Device Colors
 
-### Device Nodes
-
-Each device node displays:
-- Device name and model
-- IP address
-- All connections with type-specific icons
-- Real-time metrics for active connections:
-  - Speed (Mbps)
-  - Latency (ms)
-  - Upload/Download speeds
-- Color-coded status indicators
-- Animated pulse for active connections
-
-### Network Diagram
-
-- Interactive canvas with pan and zoom
-- Automatic layout with React Flow
-- Animated edges showing data flow
-- Connection type color coding
-- Fit-to-view on load
-
-### Metrics Panel
-
-- Total device count
-- Active vs total connections
-- Breakdown by connection type
-- Real-time update indicator
-- Last updated timestamp
+- **Body**: Dark Grey (#374151)
+- **Body Light**: Medium Grey (#4b5563)
+- **Top**: Light Grey (#6b7280)
+- **Accent**: Blue (#3b82f6)
 
 ## Roadmap
 
-- [ ] Peplink InControl API integration
-- [ ] WebSocket for real-time updates
-- [ ] Device grouping and filtering
+- [x] Custom Flow renderer with Paper.js
+- [x] Isometric 3D device icons
+- [x] InControl API integration
+- [x] Group-based device loading
+- [x] WebSocket real-time updates
+- [x] Sidebar navigation
+- [ ] Interactive device selection
+- [ ] Device detail panel
 - [ ] Historical metrics and analytics
 - [ ] Export/screenshot functionality
 - [ ] Alert notifications
-- [ ] Multi-site support
-- [ ] Custom node layouts
+- [ ] Multi-site topology mapping
 - [ ] Performance optimization for large networks
-- [ ] Mobile responsive improvements
-
-## API Integration
-
-The project is structured for easy API integration. Key files to update:
-
-1. **src/services/peplinkApi.ts** - Replace mock functions with real API calls
-2. **src/hooks/useRealtimeMetrics.ts** - Implement WebSocket connection
-3. Add environment variables in `.env`:
-   ```
-   VITE_API_BASE_URL=https://api.ic.peplink.com
-   VITE_API_KEY=your_api_key_here
-   ```
+- [ ] Advanced layout algorithms
 
 ## Contributing
 
