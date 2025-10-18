@@ -1,34 +1,35 @@
 import { useState, useEffect } from 'react';
 import { NetworkMetrics } from '@/types/network.types';
-import { generateRealtimeMetrics } from '@/utils/mockData';
+import { streamDeviceMetrics } from '@/services/peplinkApi';
 
 /**
- * Hook for simulating real-time metric updates
- * WebSocket ready structure for future implementation
+ * Hook for real-time metric updates via WebSocket
  */
-export function useRealtimeMetrics(deviceId: string, enabled = true) {
-  const [metrics, setMetrics] = useState<NetworkMetrics | null>(null);
+export function useRealtimeMetrics(deviceIds: string[], enabled = true) {
+  const [metrics, setMetrics] = useState<Map<string, NetworkMetrics>>(new Map());
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || deviceIds.length === 0) {
+      setIsConnected(false);
+      return;
+    }
 
-    // Simulate WebSocket connection
     setIsConnected(true);
 
-    // Generate initial metrics
-    setMetrics(generateRealtimeMetrics());
-
-    // Simulate real-time updates every 2 seconds
-    const intervalId = setInterval(() => {
-      setMetrics(generateRealtimeMetrics());
-    }, 2000);
+    const ws = streamDeviceMetrics(deviceIds, (deviceId, newMetrics) => {
+      setMetrics((prev) => {
+        const updated = new Map(prev);
+        updated.set(deviceId, newMetrics);
+        return updated;
+      });
+    });
 
     return () => {
-      clearInterval(intervalId);
+      ws.close();
       setIsConnected(false);
     };
-  }, [deviceId, enabled]);
+  }, [deviceIds.join(','), enabled]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     metrics,
@@ -37,28 +38,13 @@ export function useRealtimeMetrics(deviceId: string, enabled = true) {
 }
 
 /**
- * Future WebSocket implementation structure
+ * Hook for single device metrics
  */
-export function connectToMetricsWebSocket(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _deviceId: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _onMessage: (metrics: NetworkMetrics) => void
-): () => void {
-  // TODO: Implement real WebSocket connection
-  // const ws = new WebSocket(`wss://api.ic.peplink.com/metrics/${deviceId}`);
+export function useDeviceMetrics(deviceId: string, enabled = true) {
+  const { metrics, isConnected } = useRealtimeMetrics([deviceId], enabled);
   
-  // ws.onmessage = (event) => {
-  //   const metrics = JSON.parse(event.data);
-  //   onMessage(metrics);
-  // };
-
-  // ws.onerror = (error) => {
-  //   console.error('WebSocket error:', error);
-  // };
-
-  // Return cleanup function
-  return () => {
-    // ws.close();
+  return {
+    metrics: metrics.get(deviceId) || null,
+    isConnected,
   };
 }
