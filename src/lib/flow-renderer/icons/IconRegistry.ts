@@ -4,12 +4,15 @@ import {
   Balance30LTEIcon,
   Balance210Icon,
   Balance305Icon,
+  Balance3055GIcon,
   Balance310XIcon,
   Balance380Icon,
   Balance710Icon,
+  Balance1350Icon,
   Balance2500Icon,
   MAXTransitIcon,
   MAXBR1MiniIcon,
+  MAXBR1Pro5GIcon,
 } from './peplink';
 
 export type DeviceIconClass = new (options?: DeviceIconOptions) => DeviceIcon;
@@ -27,14 +30,17 @@ export class IconRegistry {
     this.icons.set('balance-30-lte', Balance30LTEIcon);
     this.icons.set('balance-210', Balance210Icon);
     this.icons.set('balance-305', Balance305Icon);
+    this.icons.set('balance-305-5g', Balance3055GIcon);
     this.icons.set('balance-310x', Balance310XIcon);
     this.icons.set('balance-380', Balance380Icon);
     this.icons.set('balance-710', Balance710Icon);
+    this.icons.set('balance-1350', Balance1350Icon);
     this.icons.set('balance-2500', Balance2500Icon);
     
     // MAX Series
     this.icons.set('max-transit', MAXTransitIcon);
     this.icons.set('max-br1-mini', MAXBR1MiniIcon);
+    this.icons.set('max-br1-pro-5g', MAXBR1Pro5GIcon);
   }
 
   /**
