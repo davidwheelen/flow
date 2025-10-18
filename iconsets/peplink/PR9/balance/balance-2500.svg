@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>balance-2500</title>
+  <desc>Peplink balance-2500 - Isometric 3D icon</desc>
+  
+  <!-- Front face -->
+  <polygon points="37.06733260263394,150.5 37.06733260263394,195.5 149.65063509461098,130.5 149.65063509461098,85.50000000000001" 
+           fill="#374151" stroke="#000000" stroke-width="1"/>
+  
+  <!-- Side face -->
+  <polygon points="149.65063509461098,85.50000000000001 149.65063509461098,130.5 218.93266739736606,90.5 218.93266739736606,45.50000000000002" 
+           fill="#4b5563" stroke="#000000" stroke-width="1"/>
+  
+  <!-- Top face -->
+  <polygon points="37.06733260263394,150.5 149.65063509461098,85.50000000000001 218.93266739736606,45.50000000000002 106.34936490538904,110.5" 
+           fill="#6b7280" stroke="#000000" stroke-width="1"/>
+  <rect x="47.06733260263394" y="185.5" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="58.88551442081576" y="185.5" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="70.70369623899758" y="185.5" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="82.52187805717939" y="185.5" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="94.34005987536122" y="185.5" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="106.15824169354303" y="185.5" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="117.97642351172485" y="185.5" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="129.7946053299067" y="185.5" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="141.6127871480885" y="185.5" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="153.4309689662703" y="185.5" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <circle cx="42.06733260263394" cy="190.5" r="2" fill="#22c55e"/>
+  <circle cx="48.06733260263394" cy="190.5" r="2" fill="#3b82f6"/>
+  <circle cx="50.05771365940052" cy="135.0" r="4" fill="#22c55e" stroke="#000000" stroke-width="0.5"/>
+  <circle cx="149.65063509461098" cy="77.5" r="4" fill="#22c55e" stroke="#000000" stroke-width="0.5"/>
+</svg>

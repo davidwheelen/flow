@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>balance-310x</title>
+  <desc>Peplink balance-310x - Isometric 3D icon</desc>
+  
+  <!-- Front face -->
+  <polygon points="74.73943766725702,140.5 74.73943766725702,165.5 139.69134295108992,128.0 139.69134295108992,103.0" 
+           fill="#374151" stroke="#000000" stroke-width="1"/>
+  
+  <!-- Side face -->
+  <polygon points="139.69134295108992,103.0 139.69134295108992,128.0 181.26056233274298,104.0 181.26056233274298,79.0" 
+           fill="#4b5563" stroke="#000000" stroke-width="1"/>
+  
+  <!-- Top face -->
+  <polygon points="74.73943766725702,140.5 139.69134295108992,103.0 181.26056233274298,79.0 116.30865704891008,116.5" 
+           fill="#6b7280" stroke="#000000" stroke-width="1"/>
+  <rect x="84.73943766725702" y="155.5" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="99.73943766725702" y="155.5" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="114.73943766725702" y="155.5" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="129.73943766725702" y="155.5" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <circle cx="79.73943766725702" cy="160.5" r="2" fill="#22c55e"/>
+  <circle cx="85.73943766725702" cy="160.5" r="2" fill="#3b82f6"/>
+  <circle cx="87.7298187240236" cy="125.0" r="4" fill="#22c55e" stroke="#000000" stroke-width="0.5"/>
+  <circle cx="139.69134295108992" cy="95.0" r="4" fill="#22c55e" stroke="#000000" stroke-width="0.5"/>
+</svg>

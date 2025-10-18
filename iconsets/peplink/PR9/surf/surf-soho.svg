@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>surf-soho</title>
+  <desc>Peplink surf-soho - Isometric 3D icon</desc>
+  
+  <!-- Front face -->
+  <polygon points="93.35898384862244,137.0 93.35898384862244,155.0 132.33012701892218,132.5 132.33012701892218,114.5" 
+           fill="#374151" stroke="#000000" stroke-width="1"/>
+  
+  <!-- Side face -->
+  <polygon points="132.33012701892218,114.5 132.33012701892218,132.5 162.64101615137753,115.0 162.64101615137753,97.0" 
+           fill="#4b5563" stroke="#000000" stroke-width="1"/>
+  
+  <!-- Top face -->
+  <polygon points="93.35898384862244,137.0 132.33012701892218,114.5 162.64101615137753,97.0 123.6698729810778,119.5" 
+           fill="#6b7280" stroke="#000000" stroke-width="1"/>
+  <rect x="103.35898384862244" y="145.0" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="112.35898384862244" y="145.0" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="121.35898384862244" y="145.0" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <rect x="130.35898384862244" y="145.0" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <circle cx="98.35898384862244" cy="150.0" r="2" fill="#22c55e"/>
+  <circle cx="104.35898384862244" cy="150.0" r="2" fill="#3b82f6"/>
+  <circle cx="106.34936490538902" cy="121.5" r="4" fill="#22c55e" stroke="#000000" stroke-width="0.5"/>
+  <circle cx="132.33012701892218" cy="106.5" r="4" fill="#22c55e" stroke="#000000" stroke-width="0.5"/>
+</svg>

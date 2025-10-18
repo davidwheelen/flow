@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>max-br1-pro</title>
+  <desc>Peplink max-br1-pro - Isometric 3D icon</desc>
+  
+  <!-- Front face -->
+  <polygon points="89.8948822334847,139.0 89.8948822334847,161.0 133.19615242270663,136.0 133.19615242270663,114.0" 
+           fill="#374151" stroke="#000000" stroke-width="1"/>
+  
+  <!-- Side face -->
+  <polygon points="133.19615242270663,114.0 133.19615242270663,136.0 166.10511776651532,117.0 166.10511776651532,95.0" 
+           fill="#4b5563" stroke="#000000" stroke-width="1"/>
+  
+  <!-- Top face -->
+  <polygon points="89.8948822334847,139.0 133.19615242270663,114.0 166.10511776651532,95.0 122.80384757729337,120.0" 
+           fill="#6b7280" stroke="#000000" stroke-width="1"/>
+  <rect x="99.8948822334847" y="151.0" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <circle cx="94.8948822334847" cy="156.0" r="2" fill="#22c55e"/>
+  <circle cx="100.8948822334847" cy="156.0" r="2" fill="#3b82f6"/>
+  <circle cx="102.88526329025127" cy="123.5" r="4" fill="#22c55e" stroke="#000000" stroke-width="0.5"/>
+  <circle cx="133.19615242270663" cy="106.0" r="4" fill="#22c55e" stroke="#000000" stroke-width="0.5"/>
+</svg>

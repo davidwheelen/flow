@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>ap-one-mini</title>
+  <desc>Peplink ap-one-mini - Isometric 3D icon</desc>
+  
+  <!-- Front face -->
+  <polygon points="97.68911086754464,134.0 97.68911086754464,146.0 128.0,128.5 128.0,116.5" 
+           fill="#374151" stroke="#000000" stroke-width="1"/>
+  
+  <!-- Side face -->
+  <polygon points="128.0,116.5 128.0,128.5 158.31088913245534,111.0 158.31088913245534,99.0" 
+           fill="#4b5563" stroke="#000000" stroke-width="1"/>
+  
+  <!-- Top face -->
+  <polygon points="97.68911086754464,134.0 128.0,116.5 158.31088913245534,99.0 128.0,116.5" 
+           fill="#6b7280" stroke="#000000" stroke-width="1"/>
+  <rect x="107.68911086754464" y="136.0" width="8" height="6" fill="#3b82f6" stroke="#000000" stroke-width="0.5"/>
+  <circle cx="102.68911086754464" cy="141.0" r="2" fill="#22c55e"/>
+  <circle cx="108.68911086754464" cy="141.0" r="2" fill="#3b82f6"/>
+  <circle cx="110.67949192431122" cy="118.5" r="4" fill="#22c55e" stroke="#000000" stroke-width="0.5"/>
+  <circle cx="128.0" cy="108.5" r="4" fill="#22c55e" stroke="#000000" stroke-width="0.5"/>
+</svg>
