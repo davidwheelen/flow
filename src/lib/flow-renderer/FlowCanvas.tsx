@@ -24,10 +24,14 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
     // Setup Paper.js
     paper.setup(canvasRef.current);
     
-    // Set canvas size
-    if (width && height) {
-      paper.view.viewSize = new paper.Size(width, height);
-    }
+    // Set canvas size from parent or specified dimensions
+    const rect = canvasRef.current.getBoundingClientRect();
+    const canvasWidth = width || rect.width || 800;
+    const canvasHeight = height || rect.height || 600;
+    
+    paper.view.viewSize = new paper.Size(canvasWidth, canvasHeight);
+    canvasRef.current.width = canvasWidth;
+    canvasRef.current.height = canvasHeight;
 
     return () => {
       // Cleanup
@@ -91,10 +95,9 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
     setNodes(newNodes);
     setConnections(newConnections);
 
-    // Start animation loop
+    // Start animation loop (Paper.js handles rendering automatically)
     const animate = () => {
       newConnections.forEach(conn => conn.animate());
-      paper.view.update();
       animationFrameRef.current = requestAnimationFrame(animate);
     };
     animate();
@@ -128,6 +131,7 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
         width: width || '100%',
         height: height || '100%',
         display: 'block',
+        backgroundColor: '#f9fafb',
       }}
     />
   );

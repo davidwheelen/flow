@@ -246,6 +246,12 @@ export class InControlWebSocket {
   ) {}
   
   connect(): void {
+    // Don't connect if API is not configured
+    if (!isApiConfigured) {
+      console.log('WebSocket not available (API not configured)');
+      return;
+    }
+    
     const wsUrl = API_CONFIG.baseUrl.replace('https://', 'wss://').replace('http://', 'ws://');
     const url = `${wsUrl}/api/ws/groups/${this.groupId}?token=${authToken}`;
     
