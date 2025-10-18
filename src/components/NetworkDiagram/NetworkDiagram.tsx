@@ -18,6 +18,7 @@ import styles from './NetworkDiagram.module.css';
 
 interface NetworkDiagramProps {
   devices: PeplinkDevice[];
+  groupId?: string | null;
 }
 
 const nodeTypes: NodeTypes = {

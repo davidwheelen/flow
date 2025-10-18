@@ -4,13 +4,18 @@ Real-time network visualization tool for Peplink InControl devices with Isoflow-
 
 ## Features
 
-- 🌐 Real-time device connection monitoring
-- 📊 Visual data flow representation
-- 🔌 Support for WAN, Cellular, WiFi, and SFP connections
-- ⚡ Live speed (MB/s) and latency (ms) metrics
-- 🎨 Clean, intuitive Isoflow-inspired interface
-- 🔄 Auto-refresh every 5 seconds for real-time updates
-- 📱 Responsive full-viewport layout
+- 🌐 **Real-time device connection monitoring**
+- 📊 **Visual data flow representation**
+- 🔌 **Support for WAN, Cellular, WiFi, and SFP connections**
+- ⚡ **Live speed (MB/s) and latency (ms) metrics**
+- 🎨 **Clean, intuitive Isoflow-inspired interface**
+- 🔄 **Auto-refresh every 5 seconds for real-time updates**
+- 📱 **Responsive full-viewport layout**
+- 🏢 **Organization and group navigation**
+- 🔧 **Collapsible sidebar for space efficiency**
+- ⚙️ **API configuration through UI**
+- 🔐 **Secure credential storage**
+- 🎭 **Mock data mode for development/demo**
 
 ## Tech Stack
 
@@ -72,20 +77,25 @@ flow/
 │   │   ├── NetworkDiagram/     # Main React Flow canvas
 │   │   ├── DeviceNode/         # Custom device node component
 │   │   ├── ConnectionEdge/     # Custom edge component
-│   │   └── MetricsPanel/       # Side panel with statistics
+│   │   ├── MetricsPanel/       # Side panel with statistics
+│   │   ├── Sidebar/            # Organization/group navigation
+│   │   ├── Settings/           # API configuration modals
+│   │   └── EmptyState/         # Empty state component
 │   ├── hooks/
 │   │   ├── useNetworkData.ts   # React Query hook for devices
-│   │   └── useRealtimeMetrics.ts # Real-time metrics simulation
+│   │   └── useRealtimeMetrics.ts # Real-time metrics with WebSocket
 │   ├── services/
-│   │   └── peplinkApi.ts       # API service layer (mock)
+│   │   └── peplinkApi.ts       # InControl API service layer
 │   ├── types/
-│   │   └── network.types.ts    # TypeScript type definitions
+│   │   ├── network.types.ts    # Network type definitions
+│   │   └── incontrol.types.ts  # InControl API types
 │   ├── utils/
 │   │   ├── mockData.ts         # Sample network data
 │   │   └── layoutHelpers.ts    # Layout algorithms
 │   ├── App.tsx                 # Main app component
 │   ├── main.tsx               # React entry point
 │   └── index.css              # Global styles
+├── .env.example                # Example environment variables
 ├── index.html                  # HTML template
 ├── vite.config.ts             # Vite configuration
 ├── tsconfig.json              # TypeScript configuration
@@ -141,9 +151,13 @@ Each device node displays:
 
 ## Roadmap
 
-- [ ] Peplink InControl API integration
-- [ ] WebSocket for real-time updates
-- [ ] Device grouping and filtering
+- [x] Peplink InControl API integration
+- [x] Organization and group navigation
+- [x] Collapsible left sidebar
+- [x] API configuration UI
+- [x] Mock data mode for development
+- [ ] WebSocket for real-time updates (currently polling)
+- [ ] Advanced device filtering
 - [ ] Historical metrics and analytics
 - [ ] Export/screenshot functionality
 - [ ] Alert notifications
@@ -154,15 +168,82 @@ Each device node displays:
 
 ## API Integration
 
-The project is structured for easy API integration. Key files to update:
+### Peplink InControl API Setup
 
-1. **src/services/peplinkApi.ts** - Replace mock functions with real API calls
-2. **src/hooks/useRealtimeMetrics.ts** - Implement WebSocket connection
-3. Add environment variables in `.env`:
-   ```
-   VITE_API_BASE_URL=https://api.ic.peplink.com
-   VITE_API_KEY=your_api_key_here
-   ```
+Flow integrates with the Peplink InControl API to provide real-time network monitoring and device management. Follow these steps to configure your API connection:
+
+#### 1. Environment Configuration
+
+Create a `.env` file in the project root (copy from `.env.example`):
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your InControl API credentials:
+
+```env
+# Peplink InControl API Configuration
+VITE_IC_API_URL=https://api.ic.peplink.com/api
+VITE_IC_CLIENT_ID=your_client_id_here
+VITE_IC_CLIENT_SECRET=your_client_secret_here
+
+# Optional: Use mock data instead of real API (true/false)
+VITE_USE_MOCK_DATA=false
+```
+
+#### 2. Obtaining API Credentials
+
+1. Log in to your [Peplink InControl account](https://ic.peplink.com)
+2. Navigate to **System Settings** > **API Access**
+3. Create a new API client
+4. Copy your **Client ID** and **Client Secret**
+5. Add these credentials to your `.env` file
+
+#### 3. Using the Settings UI
+
+Alternatively, you can configure API credentials through the application UI:
+
+1. Click the **Settings** button in the sidebar (gear icon)
+2. Enter your API credentials:
+   - **API Base URL**: `https://api.ic.peplink.com/api`
+   - **Client ID**: Your InControl client ID
+   - **Client Secret**: Your InControl client secret
+3. Click **Test Connection** to verify credentials
+4. Click **Save** to store the configuration
+
+#### 4. Mock Data Mode
+
+For development and testing without API access, enable mock data mode:
+
+- Set `VITE_USE_MOCK_DATA=true` in `.env`, or
+- Check "Use Mock Data" in the Settings modal
+
+Mock mode provides realistic sample data for demonstration purposes.
+
+### API Features
+
+- **Authentication**: OAuth 2.0 client credentials flow with automatic token refresh
+- **Organizations**: Browse all organizations accessible with your credentials
+- **Groups**: View device groups within each organization
+- **Devices**: Monitor devices, connections, and real-time metrics
+- **Real-time Updates**: WebSocket streaming for live metrics (5-second refresh in mock mode)
+
+### Security Notes
+
+⚠️ **Important Security Practices:**
+
+- Never commit your `.env` file to version control (it's in `.gitignore`)
+- Keep your client secret secure and rotate it regularly
+- Use environment variables in production deployments
+- Consider using a backend proxy to hide credentials from the client
+
+### API Rate Limits
+
+Be aware of InControl API rate limits:
+- Organization/Group queries: Cached to minimize API calls
+- Device metrics: Refreshed every 5 seconds
+- Use mock mode for development to avoid hitting rate limits
 
 ## Contributing
 
