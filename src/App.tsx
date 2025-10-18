@@ -1,12 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Network } from 'lucide-react';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { FlowCanvas } from './lib/flow-renderer';
 import { useAppStore } from './store/appStore';
 import { InControlWebSocket } from './services/incontrolApi';
+import { IconShowcase } from './pages/IconShowcase';
 
 function App() {
   const { devices, selectedGroup, setDevices, setError } = useAppStore();
+  const [showIconShowcase, setShowIconShowcase] = useState(false);
 
   // Setup WebSocket for real-time updates when group is selected
   useEffect(() => {
@@ -28,6 +30,21 @@ function App() {
       ws.disconnect();
     };
   }, [selectedGroup, setDevices, setError]);
+
+  // Toggle showcase with keyboard shortcut
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'i' && e.ctrlKey) {
+        setShowIconShowcase(!showIconShowcase);
+      }
+    };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [showIconShowcase]);
+
+  if (showIconShowcase) {
+    return <IconShowcase />;
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">

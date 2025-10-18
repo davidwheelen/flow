@@ -1,4 +1,4 @@
-import { DeviceIcon } from './DeviceIcon';
+import { DeviceIcon, DeviceIconOptions } from './DeviceIcon';
 import {
   Balance20XIcon,
   Balance30LTEIcon,
@@ -12,31 +12,35 @@ import {
   MAXBR1MiniIcon,
 } from './peplink';
 
+export type DeviceIconClass = new (options?: DeviceIconOptions) => DeviceIcon;
+
 /**
  * Registry for all device icons
  * Provides access to all available device icons and their metadata
  */
 export class IconRegistry {
-  private static icons: Map<string, typeof DeviceIcon> = new Map([
+  private static icons: Map<string, DeviceIconClass> = new Map();
+
+  static {
     // Balance Series
-    ['balance-20x', Balance20XIcon],
-    ['balance-30-lte', Balance30LTEIcon],
-    ['balance-210', Balance210Icon],
-    ['balance-305', Balance305Icon],
-    ['balance-310x', Balance310XIcon],
-    ['balance-380', Balance380Icon],
-    ['balance-710', Balance710Icon],
-    ['balance-2500', Balance2500Icon],
+    this.icons.set('balance-20x', Balance20XIcon);
+    this.icons.set('balance-30-lte', Balance30LTEIcon);
+    this.icons.set('balance-210', Balance210Icon);
+    this.icons.set('balance-305', Balance305Icon);
+    this.icons.set('balance-310x', Balance310XIcon);
+    this.icons.set('balance-380', Balance380Icon);
+    this.icons.set('balance-710', Balance710Icon);
+    this.icons.set('balance-2500', Balance2500Icon);
     
     // MAX Series
-    ['max-transit', MAXTransitIcon],
-    ['max-br1-mini', MAXBR1MiniIcon],
-  ]);
+    this.icons.set('max-transit', MAXTransitIcon);
+    this.icons.set('max-br1-mini', MAXBR1MiniIcon);
+  }
 
   /**
    * Get all registered icon classes
    */
-  public static getAllIcons(): Array<{ key: string; iconClass: typeof DeviceIcon }> {
+  public static getAllIcons(): Array<{ key: string; iconClass: DeviceIconClass }> {
     return Array.from(this.icons.entries()).map(([key, iconClass]) => ({
       key,
       iconClass,
@@ -46,7 +50,7 @@ export class IconRegistry {
   /**
    * Get an icon class by model name
    */
-  public static getIcon(modelName: string): typeof DeviceIcon | undefined {
+  public static getIcon(modelName: string): DeviceIconClass | undefined {
     return this.icons.get(modelName);
   }
 
@@ -67,8 +71,8 @@ export class IconRegistry {
   /**
    * Get icons grouped by series
    */
-  public static getIconsBySeries(): Map<string, Array<{ key: string; iconClass: typeof DeviceIcon }>> {
-    const grouped = new Map<string, Array<{ key: string; iconClass: typeof DeviceIcon }>>();
+  public static getIconsBySeries(): Map<string, Array<{ key: string; iconClass: DeviceIconClass }>> {
+    const grouped = new Map<string, Array<{ key: string; iconClass: DeviceIconClass }>>();
     
     this.getAllIcons().forEach(({ key, iconClass }) => {
       // Create temporary instance to get series
