@@ -1,0 +1,170 @@
+.panel {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 280px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  z-index: 10;
+}
+
+.header {
+  margin-bottom: 16px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.lastUpdated {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.statLabel {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.connectionTypes {
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.typeList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.typeItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: #f8fafc;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.typeItem span:nth-child(2) {
+  flex: 1;
+}
+
+.typeCount {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #64748b;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.indicatorDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .panel {
+    background: #1e293b;
+    border-color: #334155;
+  }
+
+  .title {
+    color: #f1f5f9;
+  }
+
+  .lastUpdated {
+    color: #94a3b8;
+  }
+
+  .stats {
+    border-bottom-color: #334155;
+  }
+
+  .statLabel {
+    color: #94a3b8;
+  }
+
+  .statValue {
+    color: #f1f5f9;
+  }
+
+  .sectionTitle {
+    color: #cbd5e1;
+  }
+
+  .typeItem {
+    background: #0f172a;
+    color: #cbd5e1;
+  }
+
+  .typeCount {
+    color: #f1f5f9;
+  }
+
+  .indicator {
+    color: #94a3b8;
+    border-top-color: #334155;
+  }
+}
