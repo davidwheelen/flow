@@ -1,6 +1,5 @@
 import { PeplinkDevice, Connection, ConnectionType, ConnectionStatus } from '@/types/network.types';
 
-const connectionTypes: ConnectionType[] = ['wan', 'cellular', 'wifi', 'sfp'];
 const connectionStatuses: ConnectionStatus[] = ['connected', 'disconnected', 'degraded'];
 
 function createMockConnection(index: number, type: ConnectionType): Connection {

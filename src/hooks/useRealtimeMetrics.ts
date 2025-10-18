@@ -40,8 +40,10 @@ export function useRealtimeMetrics(deviceId: string, enabled = true) {
  * Future WebSocket implementation structure
  */
 export function connectToMetricsWebSocket(
-  deviceId: string,
-  onMessage: (metrics: NetworkMetrics) => void
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _deviceId: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _onMessage: (metrics: NetworkMetrics) => void
 ): () => void {
   // TODO: Implement real WebSocket connection
   // const ws = new WebSocket(`wss://api.ic.peplink.com/metrics/${deviceId}`);

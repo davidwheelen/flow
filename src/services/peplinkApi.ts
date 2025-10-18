@@ -53,7 +53,7 @@ export function subscribeToUpdates(
  * Future API configuration
  */
 export const API_CONFIG = {
-  baseUrl: process.env.VITE_API_BASE_URL || 'https://api.ic.peplink.com',
-  apiKey: process.env.VITE_API_KEY || '',
+  baseUrl: import.meta.env.VITE_API_BASE_URL || 'https://api.ic.peplink.com',
+  apiKey: import.meta.env.VITE_API_KEY || '',
   timeout: 10000,
 };

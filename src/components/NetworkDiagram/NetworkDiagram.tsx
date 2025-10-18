@@ -5,8 +5,6 @@ import ReactFlow, {
   BackgroundVariant,
   useNodesState,
   useEdgesState,
-  Node,
-  Edge,
   NodeTypes,
   EdgeTypes,
 } from 'reactflow';
@@ -43,7 +41,7 @@ function NetworkDiagram({ devices }: NetworkDiagramProps) {
     setEdges(generateEdges(devices));
   }, [devices, setNodes, setEdges]);
 
-  const onInit = useCallback((reactFlowInstance: any) => {
+  const onInit = useCallback((reactFlowInstance: { fitView: (options: { padding: number }) => void }) => {
     // Fit view on mount with some padding
     setTimeout(() => {
       reactFlowInstance.fitView({ padding: 0.2 });
