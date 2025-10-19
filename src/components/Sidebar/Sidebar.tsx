@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
-import { Network, ChevronRight, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Network, ChevronRight, Loader2, Settings } from 'lucide-react';
 import { useAppStore } from '@/store/appStore';
 import { getGroups, getDevicesByGroup } from '@/services/incontrolApi';
+import { SettingsModal } from '@/components/ui/SettingsModal';
 
 export function Sidebar() {
   const {
@@ -18,6 +19,8 @@ export function Sidebar() {
     setError,
     isSidebarOpen,
   } = useAppStore();
+
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Load groups on mount
   useEffect(() => {
@@ -37,6 +40,25 @@ export function Sidebar() {
     
     loadGroups();
   }, [setGroups, setIsLoadingGroups, setError]);
+
+  const handleCredentialsSaved = () => {
+    // Reload groups after credentials are saved
+    const loadGroups = async () => {
+      setIsLoadingGroups(true);
+      setError(null);
+      
+      try {
+        const groupsData = await getGroups();
+        setGroups(groupsData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load groups');
+      } finally {
+        setIsLoadingGroups(false);
+      }
+    };
+    
+    loadGroups();
+  };
 
   const handleGroupSelect = async (groupId: string) => {
     const group = groups.find(g => g.id === groupId);
@@ -65,9 +87,18 @@ export function Sidebar() {
     <div className="liquid-glass-sidebar w-72 flex flex-col h-full">
       {/* Header */}
       <div className="liquid-glass-panel m-4">
-        <div className="flex items-center gap-2 mb-2">
-          <Network className="w-5 h-5" style={{ color: '#3b82f6' }} />
-          <h2 className="font-semibold" style={{ color: '#e0e0e0' }}>Flow</h2>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Network className="w-5 h-5" style={{ color: '#3b82f6' }} />
+            <h2 className="font-semibold" style={{ color: '#e0e0e0' }}>Flow</h2>
+          </div>
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+            title="Settings"
+          >
+            <Settings className="w-4 h-4" style={{ color: '#a0a0a0' }} />
+          </button>
         </div>
         <p className="text-xs" style={{ color: '#a0a0a0' }}>Network Groups</p>
       </div>
@@ -178,6 +209,13 @@ export function Sidebar() {
           )}
         </div>
       )}
+
+      {/* Settings Modal */}
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)}
+        onCredentialsSaved={handleCredentialsSaved}
+      />
     </div>
   );
 }
