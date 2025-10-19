@@ -1,5 +1,6 @@
 import paper from 'paper';
 import { PeplinkDevice } from '@/types/network.types';
+import { getDeviceIconUrl } from '../icons/iconFactory';
 
 export interface FlowNodeOptions {
   device: PeplinkDevice;
@@ -39,63 +40,32 @@ export class FlowNode {
   }
 
   private createIsometricDevice(): void {
-    // Enhanced 3D device representation
-    const size = 80 * this.scale;
-    const depth = 40 * this.scale;
-    const height = 60 * this.scale;
+    const iconUrl = getDeviceIconUrl(this.device.model);
     
-    // Isometric angles - 30 degrees
-    const angle = 30;
-    const rad = (angle * Math.PI) / 180;
+    if (!iconUrl) {
+      // No icon (e.g., removed Surf SOHO)
+      this.renderDeviceLabel();
+      return;
+    }
     
-    // Shadow beneath device
-    const shadow = new paper.Path.Ellipse({
-      center: new paper.Point(size * Math.cos(rad) / 2, height + 10),
-      size: [size * 1.2, depth * 0.6]
+    // Create Paper.js raster from icon URL
+    const icon = new paper.Raster({
+      source: iconUrl,
+      position: new paper.Point(0, 0),
     });
-    shadow.fillColor = new paper.Color(0, 0, 0, 0.4);
-    this.group.addChild(shadow);
     
-    // Front face (left) - medium tone
-    const front = new paper.Path([
-      new paper.Point(0, 0),
-      new paper.Point(0, height),
-      new paper.Point(size * Math.cos(rad), height - size * Math.sin(rad)),
-      new paper.Point(size * Math.cos(rad), -size * Math.sin(rad)),
-    ]);
-    front.closed = true;
-    front.fillColor = new paper.Color('#2d3748'); // Darker front
-    front.strokeColor = new paper.Color('#1a202c');
-    front.strokeWidth = 1;
-    
-    // Side face (right) - darker tone
-    const side = new paper.Path([
-      new paper.Point(size * Math.cos(rad), -size * Math.sin(rad)),
-      new paper.Point(size * Math.cos(rad), height - size * Math.sin(rad)),
-      new paper.Point(size * Math.cos(rad) + depth * Math.cos(rad), height - (size * Math.sin(rad) + depth * Math.sin(rad))),
-      new paper.Point(size * Math.cos(rad) + depth * Math.cos(rad), -(size * Math.sin(rad) + depth * Math.sin(rad))),
-    ]);
-    side.closed = true;
-    side.fillColor = new paper.Color('#1a202c'); // Darkest side
-    side.strokeColor = new paper.Color('#0f131a');
-    side.strokeWidth = 1;
-    
-    // Top face (horizontal) - lightest tone
-    const top = new paper.Path([
-      new paper.Point(0, 0),
-      new paper.Point(size * Math.cos(rad), -size * Math.sin(rad)),
-      new paper.Point(size * Math.cos(rad) + depth * Math.cos(rad), -(size * Math.sin(rad) + depth * Math.sin(rad))),
-      new paper.Point(depth * Math.cos(rad), -depth * Math.sin(rad)),
-    ]);
-    top.closed = true;
-    top.fillColor = new paper.Color('#4a5568'); // Light top
-    top.strokeColor = new paper.Color('#2d3748');
-    top.strokeWidth = 1;
-    
-    this.group.addChildren([front, side, top]);
-    
-    // Add device label with glass pill style
-    const label = new paper.PointText(new paper.Point(0, height + 30));
+    // Scale icon appropriately
+    icon.onLoad = () => {
+      icon.scale(0.8 * this.scale);
+      this.group.addChild(icon);
+      
+      // Add device label below icon
+      this.renderDeviceLabel();
+    };
+  }
+
+  private renderDeviceLabel(): void {
+    const label = new paper.PointText(new paper.Point(0, 60));
     label.content = this.device.name;
     label.fillColor = new paper.Color('#e0e0e0');
     label.fontSize = 12;
