@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Network, ChevronRight, Loader2 } from 'lucide-react';
 import { useAppStore } from '@/store/appStore';
+import { useAuth, useDeviceData } from '@/hooks/useInControl2';
 import { getGroups, getDevicesByGroup } from '@/services/incontrolApi';
 
 export function Sidebar() {
@@ -18,6 +19,22 @@ export function Sidebar() {
     setError,
     isSidebarOpen,
   } = useAppStore();
+
+  const { isAuthenticated } = useAuth();
+  
+  // Use device data polling when authenticated
+  const { devices: polledDevices } = useDeviceData(
+    selectedGroup?.id || null,
+    isAuthenticated
+  );
+
+  // Update devices when polled data changes
+  useEffect(() => {
+    if (isAuthenticated && polledDevices.length > 0) {
+      setDevices(polledDevices);
+      setIsLoadingDevices(false);
+    }
+  }, [polledDevices, isAuthenticated, setDevices, setIsLoadingDevices]);
 
   // Load groups on mount
   useEffect(() => {
@@ -46,14 +63,18 @@ export function Sidebar() {
     setIsLoadingDevices(true);
     setError(null);
     
-    try {
-      const devices = await getDevicesByGroup(groupId);
-      setDevices(devices);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load devices');
-      setDevices([]);
-    } finally {
-      setIsLoadingDevices(false);
+    // If authenticated, polling service will handle device loading
+    // Otherwise, use the old API method
+    if (!isAuthenticated) {
+      try {
+        const devices = await getDevicesByGroup(groupId);
+        setDevices(devices);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load devices');
+        setDevices([]);
+      } finally {
+        setIsLoadingDevices(false);
+      }
     }
   };
 
