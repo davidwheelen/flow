@@ -30,7 +30,7 @@ function App() {
   }, [selectedGroup, setDevices, setError]);
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen" style={{ backgroundColor: '#1a1a1a' }}>
       {/* Sidebar */}
       <Sidebar />
       
@@ -44,11 +44,11 @@ function App() {
         ) : (
           <div className="flex items-center justify-center w-full h-full">
             <div className="text-center">
-              <Network className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <p className="text-xl font-semibold text-gray-700 mb-2">
+              <Network className="w-16 h-16 mx-auto mb-4" style={{ color: '#707070' }} />
+              <p className="text-xl font-semibold mb-2" style={{ color: '#e0e0e0' }}>
                 {selectedGroup ? 'No Devices Found' : 'Welcome to Flow'}
               </p>
-              <p className="text-sm text-gray-500 max-w-md">
+              <p className="text-sm max-w-md" style={{ color: '#a0a0a0' }}>
                 {selectedGroup
                   ? 'This group has no devices configured. Check your InControl settings.'
                   : 'Select a group from the sidebar to visualize your Peplink network devices in 3D isometric view.'}

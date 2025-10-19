@@ -7,9 +7,31 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* Dark Theme Colors */
+  --canvas-bg: #1a1a1a;
+  --sidebar-bg: rgba(45, 45, 45, 0.25);
+  --panel-bg: rgba(30, 30, 30, 0.25);
+
+  /* Text Colors */
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --text-muted: #707070;
+
+  /* Accent Colors */
+  --accent-blue: #3b82f6;
+  --accent-purple: #a855f7;
+  --accent-green: #22c55e;
+  --accent-orange: #f97316;
+
+  /* Glass Effect */
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.45);
+  --glass-shadow: rgba(31, 38, 135, 0.28);
+  --glass-blur: 6px;
+
+  color-scheme: dark;
+  color: var(--text-primary);
+  background-color: var(--canvas-bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -23,6 +45,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--canvas-bg);
 }
 
 #root {
@@ -32,47 +55,72 @@ body {
   padding: 0;
 }
 
-/* React Flow custom styling for Isoflow aesthetic */
-.react-flow {
-  background-color: #f8fafc;
-}
-
-.react-flow__node {
+/* Glassmorphism Utilities */
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 2px solid rgba(255, 255, 255, 0.45);
   border-radius: 8px;
+  box-shadow: 0 12px 48px rgba(31, 38, 135, 0.28);
+  background-image: linear-gradient(
+    135deg, 
+    rgba(255, 255, 255, 0.0333), 
+    transparent 50%
+  );
+  transition: all 100ms cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.liquid-glass:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: scale(1.02);
+}
+
+.liquid-glass-button {
+  width: 178px;
+  height: 80px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.liquid-glass-sidebar {
+  background: rgba(45, 45, 45, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.liquid-glass-panel {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 12px;
+}
+
+.liquid-glass-card {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 100ms cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.liquid-glass-card:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-2px);
+}
+
+.liquid-glass-pill {
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 16px;
   font-size: 12px;
-}
-
-.react-flow__edge-path {
-  stroke-width: 2;
-}
-
-.react-flow__controls {
-  button {
-    background-color: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 4px;
-    
-    &:hover {
-      background-color: #f1f5f9;
-    }
-  }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .react-flow {
-    background-color: #1e293b;
-  }
-  
-  .react-flow__controls button {
-    background-color: #334155;
-    border-color: #475569;
-    color: #e2e8f0;
-    
-    &:hover {
-      background-color: #475569;
-    }
-  }
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 /* Custom animations */
