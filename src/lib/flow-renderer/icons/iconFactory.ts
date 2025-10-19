@@ -1,38 +1,97 @@
-import { DeviceIcon, DeviceIconOptions } from './DeviceIcon';
-import {
-  Balance20XIcon,
-  Balance310XIcon,
-  Balance380Icon,
-  Balance2500Icon,
-  MAXTransitIcon,
-} from './peplink';
+import isoflowIsopack from '@isoflow/isopacks/dist/isoflow';
 
 /**
- * Factory function to create device icons based on model name
+ * Get icon URL from Isoflow isopack
  */
-export function createDeviceIcon(model: string, options: DeviceIconOptions = {}): DeviceIcon {
+const getIsoflowIconUrl = (iconName: string): string => {
+  const icon = isoflowIsopack.icons.find((i) => i.id === iconName);
+  return icon?.url || '';
+};
+
+/**
+ * Icon URLs from Isoflow isopacks
+ */
+const ICON_URLS = {
+  router: getIsoflowIconUrl('router'),
+  loadbalancer: getIsoflowIconUrl('loadbalancer'),
+  pyramid: getIsoflowIconUrl('pyramid'),
+  switchModule: getIsoflowIconUrl('switch-module'),
+  cloud: getIsoflowIconUrl('cloud'),
+  cube: getIsoflowIconUrl('cube'),
+};
+
+/**
+ * Get device icon URL based on model name
+ * Maps Peplink device models to appropriate Isoflow icons
+ */
+export function getDeviceIconUrl(model: string): string {
   const normalizedModel = model.toLowerCase().replace(/\s+/g, '');
   
-  if (normalizedModel.includes('balance20x') || normalizedModel.includes('20x')) {
-    return new Balance20XIcon(options);
+  // Cube icon - MAX Adapter (check before "ap" check)
+  if (normalizedModel.includes('maxadapter')) {
+    return ICON_URLS.cube;
   }
   
-  if (normalizedModel.includes('balance310x') || normalizedModel.includes('310x')) {
-    return new Balance310XIcon(options);
+  // Load balancer icon - Balance 1350/2500/3000 (check before Balance 30)
+  if (
+    normalizedModel.includes('balance1350') ||
+    normalizedModel.includes('balance2500') ||
+    normalizedModel.includes('balance3000')
+  ) {
+    return ICON_URLS.loadbalancer;
   }
   
-  if (normalizedModel.includes('balance380') || normalizedModel.includes('380')) {
-    return new Balance380Icon(options);
+  // Router icon - Balance 20/30/One, 210/305/310, 380/580/710, MAX series
+  if (
+    normalizedModel.includes('balance20') ||
+    normalizedModel.includes('balance30') ||
+    normalizedModel.includes('balanceone') ||
+    normalizedModel.includes('balance210') ||
+    normalizedModel.includes('balance305') ||
+    normalizedModel.includes('balance310') ||
+    normalizedModel.includes('balance380') ||
+    normalizedModel.includes('balance580') ||
+    normalizedModel.includes('balance710') ||
+    normalizedModel.includes('maxbr1') ||
+    normalizedModel.includes('maxhd2') ||
+    normalizedModel.includes('maxhd4') ||
+    normalizedModel.includes('maxtransit')
+  ) {
+    return ICON_URLS.router;
   }
   
-  if (normalizedModel.includes('balance2500') || normalizedModel.includes('2500')) {
-    return new Balance2500Icon(options);
+  // Pyramid icon - Access Points
+  if (
+    normalizedModel.includes('apone') ||
+    normalizedModel.includes('accesspoint') ||
+    normalizedModel.includes('ap')
+  ) {
+    return ICON_URLS.pyramid;
   }
   
-  if (normalizedModel.includes('maxtransit') || normalizedModel.includes('max') && normalizedModel.includes('transit')) {
-    return new MAXTransitIcon(options);
+  // Switch module icon - Switches
+  if (
+    normalizedModel.includes('switch') ||
+    normalizedModel.includes('8poe10g') ||
+    normalizedModel.includes('24poe2.5g') ||
+    normalizedModel.includes('48poe2.5g')
+  ) {
+    return ICON_URLS.switchModule;
   }
   
-  // Default to Balance 380 if model not recognized
-  return new Balance380Icon(options);
+  // Cloud icon - FusionHub, VirtualBalance
+  if (
+    normalizedModel.includes('fusionhub') ||
+    normalizedModel.includes('virtualbalance')
+  ) {
+    return ICON_URLS.cloud;
+  }
+  
+  // Remove Surf SOHO (discontinued) - return no icon
+  if (normalizedModel.includes('surf')) {
+    return '';
+  }
+  
+  // Default to router icon
+  return ICON_URLS.router;
 }
