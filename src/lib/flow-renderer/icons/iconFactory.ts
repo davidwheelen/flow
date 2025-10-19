@@ -4,7 +4,7 @@ import isoflowIsopack from '@isoflow/isopacks/dist/isoflow';
  * Get icon URL from Isoflow isopack
  */
 const getIsoflowIconUrl = (iconName: string): string => {
-  const icon = isoflowIsopack.icons.find(i => i.id === iconName);
+  const icon = isoflowIsopack.icons.find((i) => i.id === iconName);
   return icon?.url || '';
 };
 
@@ -26,6 +26,11 @@ const ICON_URLS = {
  */
 export function getDeviceIconUrl(model: string): string {
   const normalizedModel = model.toLowerCase().replace(/\s+/g, '');
+  
+  // Cube icon - MAX Adapter (check before "ap" check)
+  if (normalizedModel.includes('maxadapter')) {
+    return ICON_URLS.cube;
+  }
   
   // Router icon - Balance 20/30/One, 210/305/310, 380/580/710, MAX series
   if (
@@ -80,11 +85,6 @@ export function getDeviceIconUrl(model: string): string {
     normalizedModel.includes('virtualbalance')
   ) {
     return ICON_URLS.cloud;
-  }
-  
-  // Cube icon - MAX Adapter
-  if (normalizedModel.includes('maxadapter')) {
-    return ICON_URLS.cube;
   }
   
   // Remove Surf SOHO (discontinued) - return no icon
