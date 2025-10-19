@@ -3,31 +3,33 @@ import { Network } from 'lucide-react';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { FlowCanvas } from './lib/flow-renderer';
 import { useAppStore } from './store/appStore';
-import { InControlWebSocket } from './services/incontrolApi';
+import { useDevicePolling } from './hooks/useInControl2';
 
 function App() {
   const { devices, selectedGroup, setDevices, setError } = useAppStore();
 
-  // Setup WebSocket for real-time updates when group is selected
+  // Use polling hook instead of WebSocket for 30-second updates
+  const { 
+    devices: polledDevices, 
+    error: pollingError 
+  } = useDevicePolling(
+    selectedGroup?.id || null,
+    { enabled: !!selectedGroup, interval: 30000 } // 30 seconds
+  );
+
+  // Update devices when polling completes
   useEffect(() => {
-    if (!selectedGroup) return;
+    if (polledDevices.length > 0) {
+      setDevices(polledDevices);
+    }
+  }, [polledDevices, setDevices]);
 
-    const ws = new InControlWebSocket(
-      selectedGroup.id,
-      (updatedDevices) => {
-        setDevices(updatedDevices);
-      },
-      (error) => {
-        setError(error.message);
-      }
-    );
-
-    ws.connect();
-
-    return () => {
-      ws.disconnect();
-    };
-  }, [selectedGroup, setDevices, setError]);
+  // Update error state
+  useEffect(() => {
+    if (pollingError) {
+      setError(pollingError);
+    }
+  }, [pollingError, setError]);
 
   return (
     <div className="flex h-screen" style={{ backgroundColor: '#1a1a1a' }}>

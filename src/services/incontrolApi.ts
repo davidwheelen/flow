@@ -1,11 +1,14 @@
 import axios from 'axios';
 import { PeplinkDevice, NetworkMetrics } from '@/types/network.types';
 import { getMockGroups, getMockDevicesByGroup } from '@/utils/mockGroups';
+import { loadCredentials, hasStoredCredentials } from './credentialStorage';
+import { ic2RateLimiter } from '@/utils/rateLimiter';
 
 /**
  * InControl API Configuration
+ * Now uses encrypted credentials from localStorage
  */
-const API_CONFIG = {
+let API_CONFIG = {
   baseUrl: import.meta.env.VITE_INCONTROL_API_URL || 'https://api.ic.peplink.com',
   clientId: import.meta.env.VITE_INCONTROL_CLIENT_ID || '',
   clientSecret: import.meta.env.VITE_INCONTROL_CLIENT_SECRET || '',
@@ -13,9 +16,26 @@ const API_CONFIG = {
 };
 
 /**
- * Check if API is configured
+ * Load configuration from encrypted storage
  */
-const isApiConfigured = API_CONFIG.clientId && API_CONFIG.clientSecret;
+async function loadApiConfig(): Promise<void> {
+  const credentials = await loadCredentials();
+  if (credentials) {
+    API_CONFIG = {
+      baseUrl: credentials.apiUrl,
+      clientId: credentials.clientId,
+      clientSecret: credentials.clientSecret,
+      timeout: 10000,
+    };
+  }
+}
+
+/**
+ * Check if API is configured (from env vars or stored credentials)
+ */
+function isApiConfigured(): boolean {
+  return (API_CONFIG.clientId && API_CONFIG.clientSecret) || hasStoredCredentials();
+}
 
 /**
  * API Client instance
@@ -37,15 +57,23 @@ let authToken: string | null = null;
  * Authenticate with InControl API
  */
 export async function authenticate(): Promise<string> {
+  // Load credentials from storage if available
+  await loadApiConfig();
+  
   try {
-    const response = await apiClient.post('/api/oauth2/token', {
-      grant_type: 'client_credentials',
-      client_id: API_CONFIG.clientId,
-      client_secret: API_CONFIG.clientSecret,
-    });
+    const response = await ic2RateLimiter.execute(() =>
+      apiClient.post('/api/oauth2/token', {
+        grant_type: 'client_credentials',
+        client_id: API_CONFIG.clientId,
+        client_secret: API_CONFIG.clientSecret,
+      })
+    );
     
     authToken = response.data.access_token;
     apiClient.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+    
+    // Update base URL for all requests
+    apiClient.defaults.baseURL = API_CONFIG.baseUrl;
     
     return authToken || '';
   } catch (error) {
@@ -59,7 +87,7 @@ export async function authenticate(): Promise<string> {
  */
 export async function getGroups(): Promise<InControlGroup[]> {
   // Use mock data if API not configured
-  if (!isApiConfigured) {
+  if (!isApiConfigured()) {
     console.log('Using mock groups data (API not configured)');
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
     return getMockGroups();
@@ -70,7 +98,9 @@ export async function getGroups(): Promise<InControlGroup[]> {
   }
   
   try {
-    const response = await apiClient.get('/api/groups');
+    const response = await ic2RateLimiter.execute(() =>
+      apiClient.get('/api/groups')
+    );
     return response.data.data || [];
   } catch (error) {
     console.error('Failed to fetch groups:', error);
@@ -83,7 +113,7 @@ export async function getGroups(): Promise<InControlGroup[]> {
  */
 export async function getDevicesByGroup(groupId: string): Promise<PeplinkDevice[]> {
   // Use mock data if API not configured
-  if (!isApiConfigured) {
+  if (!isApiConfigured()) {
     console.log(`Using mock devices data for group ${groupId} (API not configured)`);
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
     return getMockDevicesByGroup(groupId);
@@ -94,7 +124,9 @@ export async function getDevicesByGroup(groupId: string): Promise<PeplinkDevice[
   }
   
   try {
-    const response = await apiClient.get(`/api/groups/${groupId}/devices`);
+    const response = await ic2RateLimiter.execute(() =>
+      apiClient.get(`/api/groups/${groupId}/devices`)
+    );
     const devices = response.data.data || [];
     
     // Map InControl device data to our PeplinkDevice format
@@ -216,7 +248,9 @@ export async function getDeviceMetrics(deviceId: string): Promise<NetworkMetrics
   }
   
   try {
-    const response = await apiClient.get(`/api/devices/${deviceId}/status`);
+    const response = await ic2RateLimiter.execute(() =>
+      apiClient.get(`/api/devices/${deviceId}/status`)
+    );
     const status = response.data.data;
     
     return {
@@ -247,7 +281,7 @@ export class InControlWebSocket {
   
   connect(): void {
     // Don't connect if API is not configured
-    if (!isApiConfigured) {
+    if (!isApiConfigured()) {
       console.log('WebSocket not available (API not configured)');
       return;
     }
