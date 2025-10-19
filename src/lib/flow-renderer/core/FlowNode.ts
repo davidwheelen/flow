@@ -1,6 +1,6 @@
 import paper from 'paper';
 import { PeplinkDevice } from '@/types/network.types';
-import { getDeviceIconUrl } from '../icons/iconFactory';
+import { getDeviceIconPath } from '../icons/iconFactory';
 
 export interface FlowNodeOptions {
   device: PeplinkDevice;
@@ -40,23 +40,26 @@ export class FlowNode {
   }
 
   private createIsometricDevice(): void {
-    const iconUrl = getDeviceIconUrl(this.device.model);
+    const iconPath = getDeviceIconPath(this.device.model);
     
-    if (!iconUrl) {
+    if (!iconPath) {
       // No icon (e.g., removed Surf SOHO)
       this.renderDeviceLabel();
       return;
     }
     
-    // Create Paper.js raster from icon URL
+    // Load SVG icon as Paper.js Raster
     const icon = new paper.Raster({
-      source: iconUrl,
+      source: iconPath,
       position: new paper.Point(0, 0),
     });
     
-    // Scale icon appropriately
+    // Scale and position icon
     icon.onLoad = () => {
+      // Scale to appropriate size for canvas
       icon.scale(0.8 * this.scale);
+      
+      // Add to group
       this.group.addChild(icon);
       
       // Add device label below icon
@@ -65,10 +68,11 @@ export class FlowNode {
   }
 
   private renderDeviceLabel(): void {
-    const label = new paper.PointText(new paper.Point(0, 60));
+    // Device name label below icon
+    const label = new paper.PointText(new paper.Point(0, 60 * this.scale));
     label.content = this.device.name;
     label.fillColor = new paper.Color('#e0e0e0');
-    label.fontSize = 12;
+    label.fontSize = 12 * this.scale;
     label.fontWeight = '500';
     label.justification = 'center';
     this.group.addChild(label);
