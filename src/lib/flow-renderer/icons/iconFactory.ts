@@ -32,6 +32,15 @@ export function getDeviceIconUrl(model: string): string {
     return ICON_URLS.cube;
   }
   
+  // Load balancer icon - Balance 1350/2500/3000 (check before Balance 30)
+  if (
+    normalizedModel.includes('balance1350') ||
+    normalizedModel.includes('balance2500') ||
+    normalizedModel.includes('balance3000')
+  ) {
+    return ICON_URLS.loadbalancer;
+  }
+  
   // Router icon - Balance 20/30/One, 210/305/310, 380/580/710, MAX series
   if (
     normalizedModel.includes('balance20') ||
@@ -49,15 +58,6 @@ export function getDeviceIconUrl(model: string): string {
     normalizedModel.includes('maxtransit')
   ) {
     return ICON_URLS.router;
-  }
-  
-  // Load balancer icon - Balance 1350/2500/3000
-  if (
-    normalizedModel.includes('balance1350') ||
-    normalizedModel.includes('balance2500') ||
-    normalizedModel.includes('balance3000')
-  ) {
-    return ICON_URLS.loadbalancer;
   }
   
   // Pyramid icon - Access Points
