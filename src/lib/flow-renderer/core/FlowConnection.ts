@@ -48,9 +48,18 @@ export class FlowConnection {
     
     // Create curved path between nodes
     this.path = new paper.Path();
-    this.path.strokeColor = new paper.Color(FlowConnection.CONNECTION_COLORS[this.type]);
-    this.path.strokeWidth = 2;
+    const color = FlowConnection.CONNECTION_COLORS[this.type];
+    this.path.strokeColor = new paper.Color(color);
+    this.path.strokeWidth = 3;
     this.path.strokeCap = 'round';
+    
+    // Add glow effect for cellular connections
+    if (this.type === 'cellular') {
+      this.path.shadowColor = new paper.Color(color);
+      this.path.shadowBlur = 12;
+    } else if (this.type === 'sfp') {
+      this.path.strokeWidth = 4;
+    }
     
     const styles = FlowConnection.STATUS_STYLES[this.status];
     this.path.opacity = styles.opacity;

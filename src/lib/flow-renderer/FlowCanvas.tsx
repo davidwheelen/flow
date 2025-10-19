@@ -131,7 +131,7 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
         width: width || '100%',
         height: height || '100%',
         display: 'block',
-        backgroundColor: '#f9fafb',
+        backgroundColor: '#1a1a1a',
       }}
     />
   );

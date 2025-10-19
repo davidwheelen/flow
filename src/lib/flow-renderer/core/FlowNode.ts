@@ -39,29 +39,24 @@ export class FlowNode {
   }
 
   private createIsometricDevice(): void {
-    // This will be implemented by device-specific icon renderers
-    // For now, create a simple placeholder box
+    // Enhanced 3D device representation
     const size = 80 * this.scale;
     const depth = 40 * this.scale;
     const height = 60 * this.scale;
     
-    // Isometric angles
-    const angle = 30; // degrees
+    // Isometric angles - 30 degrees
+    const angle = 30;
     const rad = (angle * Math.PI) / 180;
     
-    // Top face (horizontal)
-    const top = new paper.Path([
-      new paper.Point(0, 0),
-      new paper.Point(size * Math.cos(rad), -size * Math.sin(rad)),
-      new paper.Point(size * Math.cos(rad) + depth * Math.cos(rad), -(size * Math.sin(rad) + depth * Math.sin(rad))),
-      new paper.Point(depth * Math.cos(rad), -depth * Math.sin(rad)),
-    ]);
-    top.closed = true;
-    top.fillColor = new paper.Color('#e5e7eb');
-    top.strokeColor = new paper.Color('#9ca3af');
-    top.strokeWidth = 1;
+    // Shadow beneath device
+    const shadow = new paper.Path.Ellipse({
+      center: new paper.Point(size * Math.cos(rad) / 2, height + 10),
+      size: [size * 1.2, depth * 0.6]
+    });
+    shadow.fillColor = new paper.Color(0, 0, 0, 0.4);
+    this.group.addChild(shadow);
     
-    // Front face (left)
+    // Front face (left) - medium tone
     const front = new paper.Path([
       new paper.Point(0, 0),
       new paper.Point(0, height),
@@ -69,11 +64,11 @@ export class FlowNode {
       new paper.Point(size * Math.cos(rad), -size * Math.sin(rad)),
     ]);
     front.closed = true;
-    front.fillColor = new paper.Color('#6b7280');
-    front.strokeColor = new paper.Color('#4b5563');
+    front.fillColor = new paper.Color('#2d3748'); // Darker front
+    front.strokeColor = new paper.Color('#1a202c');
     front.strokeWidth = 1;
     
-    // Side face (right)
+    // Side face (right) - darker tone
     const side = new paper.Path([
       new paper.Point(size * Math.cos(rad), -size * Math.sin(rad)),
       new paper.Point(size * Math.cos(rad), height - size * Math.sin(rad)),
@@ -81,17 +76,30 @@ export class FlowNode {
       new paper.Point(size * Math.cos(rad) + depth * Math.cos(rad), -(size * Math.sin(rad) + depth * Math.sin(rad))),
     ]);
     side.closed = true;
-    side.fillColor = new paper.Color('#9ca3af');
-    side.strokeColor = new paper.Color('#6b7280');
+    side.fillColor = new paper.Color('#1a202c'); // Darkest side
+    side.strokeColor = new paper.Color('#0f131a');
     side.strokeWidth = 1;
+    
+    // Top face (horizontal) - lightest tone
+    const top = new paper.Path([
+      new paper.Point(0, 0),
+      new paper.Point(size * Math.cos(rad), -size * Math.sin(rad)),
+      new paper.Point(size * Math.cos(rad) + depth * Math.cos(rad), -(size * Math.sin(rad) + depth * Math.sin(rad))),
+      new paper.Point(depth * Math.cos(rad), -depth * Math.sin(rad)),
+    ]);
+    top.closed = true;
+    top.fillColor = new paper.Color('#4a5568'); // Light top
+    top.strokeColor = new paper.Color('#2d3748');
+    top.strokeWidth = 1;
     
     this.group.addChildren([front, side, top]);
     
-    // Add device label
-    const label = new paper.PointText(new paper.Point(0, height + 20));
+    // Add device label with glass pill style
+    const label = new paper.PointText(new paper.Point(0, height + 30));
     label.content = this.device.name;
-    label.fillColor = new paper.Color('#1f2937');
+    label.fillColor = new paper.Color('#e0e0e0');
     label.fontSize = 12;
+    label.fontWeight = '500';
     label.justification = 'center';
     this.group.addChild(label);
   }
