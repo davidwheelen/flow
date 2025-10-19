@@ -6,16 +6,18 @@ Real-time network visualization tool for Peplink InControl devices with isometri
 
 - 🎨 **Isometric 3D Visualization** - Custom Flow renderer using Paper.js for beautiful isometric device rendering
 - 🏢 **Group-Based Organization** - Select and view devices by InControl groups
-- 📡 **Real-time Updates** - WebSocket integration for live device status and metrics
-- 🔌 **Connection Monitoring** - Track WAN, Cellular, WiFi, and SFP connections
+- 🔐 **InControl2 API Integration** - Direct OAuth 2.0 integration with encrypted credential storage
+- 📡 **Real-time Updates** - Automatic polling every 30 seconds with rate limiting
+- 🔌 **Connection Monitoring** - Track WAN, Cellular, WiFi, and PepVPN connections
 - 📊 **Device Icons** - Custom 3D isometric icons for Peplink device models:
   - Balance 20X (small router)
   - Balance 310X (branch router)
   - Balance 380 (HQ router)
   - Balance 2500 (rack mount)
   - MAX Transit (mobile unit)
-- 🔄 **Live Metrics** - Speed, latency, upload/download monitoring
+- 🔄 **Live Metrics** - Speed, latency, upload/download, bandwidth monitoring
 - 📱 **Responsive Design** - Full-viewport layout with sidebar navigation
+- 🛡️ **Secure Storage** - Web Crypto API encryption for sensitive credentials
 
 ## Tech Stack
 
@@ -123,25 +125,27 @@ The Flow renderer is a custom visualization library inspired by Isoflow but tail
   - Connection ports visualization
   - Status LEDs and indicators
 
-## InControl API Integration
-
-### Configuration
-
-Set the following environment variables:
-
-```env
-VITE_INCONTROL_API_URL=https://api.ic.peplink.com
-VITE_INCONTROL_CLIENT_ID=your_client_id
-VITE_INCONTROL_CLIENT_SECRET=your_client_secret
-```
+## InControl2 API Integration
 
 ### Features
 
-- OAuth2 authentication
-- Group-based device fetching
-- Real-time metrics via WebSocket
-- Automatic device model mapping to icons
-- Connection type detection (WAN, Cellular, WiFi, SFP)
+- **OAuth 2.0 Authentication** - Secure authentication with InControl2 or custom ICVA servers
+- **Encrypted Credentials** - Web Crypto API (AES-GCM 256-bit) for local storage
+- **Automatic Polling** - 30-second intervals with 20 req/sec rate limiting
+- **Comprehensive Data** - Devices, WAN status, bandwidth, cellular, and PepVPN
+- **Glassmorphism UI** - Beautiful settings dialog with credential masking (••••••• display)
+- **Token Management** - Automatic refresh before expiration
+- **Custom Servers** - Support for both InControl2 and custom ICVA servers
+
+### Quick Setup
+
+1. Click the **Settings** button (gear icon) in the top right
+2. Enter your InControl2 credentials:
+   - API URL: `https://incontrol2.peplink.com` (or custom ICVA server)
+   - Client ID, Client Secret, Organization ID
+3. Click **Test & Save**
+
+See [INCONTROL2_INTEGRATION.md](./INCONTROL2_INTEGRATION.md) for detailed documentation.
 
 ### Mock Data Fallback
 
