@@ -11,6 +11,43 @@ interface FlowCanvasProps {
   className?: string;
 }
 
+/**
+ * Render isometric grid background for 3D depth reference
+ */
+function renderIsometricGrid(canvasWidth: number, canvasHeight: number): void {
+  const gridSize = 100; // Grid cell size
+  const gridColor = new paper.Color('#2d2d2d'); // Subtle grid color
+  
+  // Isometric angle (30 degrees)
+  const angle = 30 * (Math.PI / 180);
+  
+  // Create grid layer
+  const gridLayer = new paper.Layer();
+  gridLayer.sendToBack();
+  
+  // Draw horizontal grid lines (left-to-right diagonal)
+  for (let y = -canvasHeight; y < canvasHeight * 2; y += gridSize) {
+    const line = new paper.Path.Line(
+      new paper.Point(0, y),
+      new paper.Point(canvasWidth, y + canvasWidth * Math.tan(angle))
+    );
+    line.strokeColor = gridColor;
+    line.strokeWidth = 0.5;
+    line.opacity = 0.3;
+  }
+  
+  // Draw vertical grid lines (right-to-left diagonal)
+  for (let x = -canvasWidth; x < canvasWidth * 2; x += gridSize) {
+    const line = new paper.Path.Line(
+      new paper.Point(x, 0),
+      new paper.Point(x + canvasHeight * Math.tan(angle), canvasHeight)
+    );
+    line.strokeColor = gridColor;
+    line.strokeWidth = 0.5;
+    line.opacity = 0.3;
+  }
+}
+
 export function FlowCanvas({ devices, width, height, className }: FlowCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [nodes, setNodes] = useState<Map<string, FlowNode>>(new Map());
@@ -32,6 +69,9 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
     paper.view.viewSize = new paper.Size(canvasWidth, canvasHeight);
     canvasRef.current.width = canvasWidth;
     canvasRef.current.height = canvasHeight;
+
+    // Render isometric grid background
+    renderIsometricGrid(canvasWidth, canvasHeight);
 
     return () => {
       // Cleanup

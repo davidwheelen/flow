@@ -48,18 +48,28 @@ export class FlowNode {
       return;
     }
     
-    // Create Paper.js raster from icon URL
+    // Create Paper.js raster from local icon URL
     const icon = new paper.Raster({
       source: iconUrl,
       position: new paper.Point(0, 0),
     });
     
-    // Scale icon appropriately
+    // Scale icon appropriately for isometric view
     icon.onLoad = () => {
-      icon.scale(0.8 * this.scale);
+      // Scale to fit isometric grid (adjust as needed)
+      icon.scale(1.2 * this.scale);
+      
+      // Icons are already in isometric perspective from Isoflow
+      // No additional transformation needed
       this.group.addChild(icon);
       
       // Add device label below icon
+      this.renderDeviceLabel();
+    };
+    
+    // Handle load errors
+    icon.onError = () => {
+      console.error(`Failed to load icon: ${iconUrl}`);
       this.renderDeviceLabel();
     };
   }
