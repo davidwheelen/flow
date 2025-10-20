@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- 3D Isometric Box (very small) -->
+  <!-- Top face (light grey) -->
+  <path d="M 95,85 L 160,110 L 160,130 L 95,105 Z" 
+        fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+  
+  <!-- Front face (medium grey) -->
+  <path d="M 95,105 L 160,130 L 160,180 L 95,155 Z" 
+        fill="#7f8c8d" stroke="#5d6d7e" stroke-width="1"/>
+  
+  <!-- Side face (dark grey) -->
+  <path d="M 160,110 L 178,120 L 178,170 L 160,180 L 160,130 Z" 
+        fill="#5d6d7e" stroke="#34495e" stroke-width="1"/>
+  
+  <!-- Status LEDs on front -->
+  <!-- Power LED (green) -->
+  <circle cx="110" cy="120" r="2.5" fill="#2ecc71" filter="url(#glow)"/>
+  <text x="105" y="130" font-size="5" fill="#ecf0f1">PWR</text>
+  
+  <!-- WAN LED (blue) -->
+  <circle cx="125" cy="120" r="2.5" fill="#3498db" filter="url(#glow)"/>
+  <text x="121" y="130" font-size="5" fill="#ecf0f1">WAN</text>
+  
+  <!-- Cellular LED (purple) -->
+  <circle cx="140" cy="120" r="2.5" fill="#9b59b6" filter="url(#glow)"/>
+  <text x="136" y="130" font-size="5" fill="#ecf0f1">LTE</text>
+  
+  <!-- WAN Port -->
+  <rect x="115" y="140" width="10" height="7" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <text x="117" y="145" font-size="4" fill="#95a5a6">WAN</text>
+  
+  <!-- LAN Port -->
+  <rect x="130" y="140" width="10" height="7" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <text x="132" y="145" font-size="4" fill="#95a5a6">LAN</text>
+  
+  <!-- Cellular antenna indicator -->
+  <circle cx="150" cy="95" r="3" fill="#9b59b6" opacity="0.8"/>
+  <line x1="150" y1="95" x2="150" y2="87" stroke="#9b59b6" stroke-width="1.5"/>
+  <line x1="147" y1="90" x2="153" y2="90" stroke="#9b59b6" stroke-width="1"/>
+  
+  <!-- Model label -->
+  <text x="100" y="162" font-size="9" fill="#ecf0f1" font-weight="bold">MAX BR1 Mini</text>
+  
+  <!-- Peplink branding -->
+  <text x="115" y="173" font-size="6" fill="#95a5a6">Peplink</text>
+</svg>
