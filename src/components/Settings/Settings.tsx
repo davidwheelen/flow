@@ -129,11 +129,47 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
             <label className="block text-sm font-medium mb-2" style={{ color: '#e0e0e0' }}>
               API URL
             </label>
+            <div className="flex gap-2 mb-2">
+              <button
+                type="button"
+                onClick={() => handleInputChange('apiUrl', 'https://incontrol2.peplink.com')}
+                className="px-3 py-1.5 text-xs rounded-lg transition-all"
+                style={{
+                  background: formData.apiUrl === 'https://incontrol2.peplink.com' 
+                    ? 'rgba(59, 130, 246, 0.25)' 
+                    : 'rgba(255, 255, 255, 0.1)',
+                  borderColor: formData.apiUrl === 'https://incontrol2.peplink.com'
+                    ? 'rgba(59, 130, 246, 0.45)'
+                    : 'rgba(255, 255, 255, 0.2)',
+                  border: '1px solid',
+                  color: formData.apiUrl === 'https://incontrol2.peplink.com' ? '#93c5fd' : '#a0a0a0',
+                }}
+              >
+                Peplink InControl2
+              </button>
+              <button
+                type="button"
+                onClick={() => handleInputChange('apiUrl', '')}
+                className="px-3 py-1.5 text-xs rounded-lg transition-all"
+                style={{
+                  background: formData.apiUrl !== 'https://incontrol2.peplink.com' && formData.apiUrl !== '' 
+                    ? 'rgba(59, 130, 246, 0.25)' 
+                    : 'rgba(255, 255, 255, 0.1)',
+                  borderColor: formData.apiUrl !== 'https://incontrol2.peplink.com' && formData.apiUrl !== ''
+                    ? 'rgba(59, 130, 246, 0.45)'
+                    : 'rgba(255, 255, 255, 0.2)',
+                  border: '1px solid',
+                  color: formData.apiUrl !== 'https://incontrol2.peplink.com' && formData.apiUrl !== '' ? '#93c5fd' : '#a0a0a0',
+                }}
+              >
+                Custom IC-VA Server
+              </button>
+            </div>
             <input
               type="text"
               value={formData.apiUrl}
               onChange={(e) => handleInputChange('apiUrl', e.target.value)}
-              placeholder="https://incontrol2.peplink.com or custom ICVA server"
+              placeholder="https://incontrol2.peplink.com or custom ICVA server URL"
               className="w-full px-4 py-2.5 rounded-lg border transition-colors"
               style={{
                 background: 'rgba(255, 255, 255, 0.1)',
@@ -142,7 +178,7 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
               }}
             />
             <p className="mt-1.5 text-xs" style={{ color: '#a0a0a0' }}>
-              Use https://incontrol2.peplink.com or your custom ICVA server URL
+              Use https://incontrol2.peplink.com for Peplink's cloud service, or enter your custom IC-VA server URL
             </p>
           </div>
 

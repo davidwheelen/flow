@@ -54,9 +54,16 @@ export class FlowNode {
       position: new paper.Point(0, 0),
     });
     
-    // Scale icon appropriately
+    // Scale icon to consistent 60px size
     icon.onLoad = () => {
-      icon.scale(0.8 * this.scale);
+      // Calculate scale to make icon 60px wide (or tall, whichever is larger)
+      const targetSize = 60;
+      const scale = targetSize / Math.max(icon.width, icon.height);
+      icon.scale(scale * this.scale);
+      
+      // Center the icon
+      icon.position = new paper.Point(0, 0);
+      
       this.group.addChild(icon);
       
       // Add device label below icon

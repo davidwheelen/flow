@@ -165,9 +165,19 @@ export function Sidebar() {
                         {group.description}
                       </div>
                     )}
-                    <div className="liquid-glass-pill inline-block mt-1.5" style={{ fontSize: '11px' }}>
-                      <span style={{ color: '#e0e0e0' }}>
-                        {group.device_count} {group.device_count === 1 ? 'device' : 'devices'}
+                    <div 
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full mt-1.5" 
+                      style={{ 
+                        fontSize: '11px',
+                        background: 'rgba(59, 130, 246, 0.2)',
+                        border: '1px solid rgba(59, 130, 246, 0.4)'
+                      }}
+                    >
+                      <span style={{ color: '#93c5fd', fontWeight: '500' }}>
+                        {group.device_count}
+                      </span>
+                      <span style={{ color: '#a0a0a0' }}>
+                        {group.device_count === 1 ? 'device' : 'devices'}
                       </span>
                     </div>
                   </div>
