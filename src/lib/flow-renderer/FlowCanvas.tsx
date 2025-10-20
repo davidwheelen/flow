@@ -13,9 +13,73 @@ interface FlowCanvasProps {
 
 export function FlowCanvas({ devices, width, height, className }: FlowCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const backgroundCanvasRef = useRef<HTMLCanvasElement>(null);
   const [nodes, setNodes] = useState<Map<string, FlowNode>>(new Map());
   const [connections, setConnections] = useState<FlowConnection[]>([]);
   const animationFrameRef = useRef<number>();
+
+  // Render isometric diamond grid background
+  const renderIsometricGrid = (canvas: HTMLCanvasElement) => {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+    const gridSpacing = 50; // Distance between parallel diagonal lines
+    const angle = 30; // Isometric angle in degrees
+    const angleRad = (angle * Math.PI) / 180;
+
+    // Dark background
+    ctx.fillStyle = '#2d2d2d';
+    ctx.fillRect(0, 0, width, height);
+
+    // Orange grid lines with neon glow
+    ctx.strokeStyle = '#ff6b35';
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = '#ff6b35';
+    ctx.shadowBlur = 10;
+
+    // Set 1: Diagonal lines going down-right (↘)
+    for (let offset = -height; offset < width + height; offset += gridSpacing) {
+      ctx.beginPath();
+      const startX = offset;
+      const startY = 0;
+      const endX = offset + height / Math.tan(angleRad);
+      const endY = height;
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(endX, endY);
+      ctx.stroke();
+    }
+
+    // Set 2: Diagonal lines going down-left (↙)
+    for (let offset = -height; offset < width + height; offset += gridSpacing) {
+      ctx.beginPath();
+      const startX = offset;
+      const startY = 0;
+      const endX = offset - height / Math.tan(angleRad);
+      const endY = height;
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(endX, endY);
+      ctx.stroke();
+    }
+
+    // Reset shadow for other rendering
+    ctx.shadowBlur = 0;
+  };
+
+  // Initialize background canvas with grid
+  useEffect(() => {
+    if (!backgroundCanvasRef.current) return;
+
+    const rect = backgroundCanvasRef.current.getBoundingClientRect();
+    const canvasWidth = width || rect.width || 800;
+    const canvasHeight = height || rect.height || 600;
+
+    backgroundCanvasRef.current.width = canvasWidth;
+    backgroundCanvasRef.current.height = canvasHeight;
+
+    renderIsometricGrid(backgroundCanvasRef.current);
+  }, [width, height]);
 
   // Initialize Paper.js
   useEffect(() => {
@@ -117,6 +181,12 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
         const rect = canvasRef.current.getBoundingClientRect();
         paper.view.viewSize = new paper.Size(rect.width, rect.height);
       }
+      if (backgroundCanvasRef.current) {
+        const rect = backgroundCanvasRef.current.getBoundingClientRect();
+        backgroundCanvasRef.current.width = rect.width;
+        backgroundCanvasRef.current.height = rect.height;
+        renderIsometricGrid(backgroundCanvasRef.current);
+      }
     };
 
     window.addEventListener('resize', handleResize);
@@ -124,15 +194,32 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className={className}
-      style={{
-        width: width || '100%',
-        height: height || '100%',
-        display: 'block',
-        backgroundColor: '#1a1a1a',
-      }}
-    />
+    <div style={{ position: 'relative', width: width || '100%', height: height || '100%' }}>
+      <canvas
+        ref={backgroundCanvasRef}
+        className={className}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          display: 'block',
+        }}
+      />
+      <canvas
+        ref={canvasRef}
+        className={className}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          display: 'block',
+          backgroundColor: 'transparent',
+        }}
+      />
+    </div>
   );
 }
