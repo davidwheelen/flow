@@ -1,35 +1,27 @@
-import isoflowIsopack from '@isoflow/isopacks/dist/isoflow';
-
 /**
- * Get icon URL from Isoflow isopack
+ * Maps Peplink device models to local Isoflow icon SVG files
  */
-const getIsoflowIconUrl = (iconName: string): string => {
-  const icon = isoflowIsopack.icons.find((i) => i.id === iconName);
-  return icon?.url || '';
+
+const ICON_PATHS = {
+  router: '/iconpacks/isoflow-default/router.svg',
+  loadbalancer: '/iconpacks/isoflow-default/loadbalancer.svg',
+  pyramid: '/iconpacks/isoflow-default/pyramid.svg',
+  switchModule: '/iconpacks/isoflow-default/switch-module.svg',
+  cloud: '/iconpacks/isoflow-default/cloud.svg',
+  cube: '/iconpacks/isoflow-default/cube.svg',
 };
 
 /**
- * Icon URLs from Isoflow isopacks
+ * Get icon path for a Peplink device model
+ * @param model - Device model name (e.g., "Balance 380", "MAX Transit")
+ * @returns Local path to SVG icon file
  */
-const ICON_URLS = {
-  router: getIsoflowIconUrl('router'),
-  loadbalancer: getIsoflowIconUrl('loadbalancer'),
-  pyramid: getIsoflowIconUrl('pyramid'),
-  switchModule: getIsoflowIconUrl('switch-module'),
-  cloud: getIsoflowIconUrl('cloud'),
-  cube: getIsoflowIconUrl('cube'),
-};
-
-/**
- * Get device icon URL based on model name
- * Maps Peplink device models to appropriate Isoflow icons
- */
-export function getDeviceIconUrl(model: string): string {
+export function getDeviceIconPath(model: string): string {
   const normalizedModel = model.toLowerCase().replace(/\s+/g, '');
   
   // Cube icon - MAX Adapter (check before "ap" check)
   if (normalizedModel.includes('maxadapter')) {
-    return ICON_URLS.cube;
+    return ICON_PATHS.cube;
   }
   
   // Load balancer icon - Balance 1350/2500/3000 (check before Balance 30)
@@ -38,26 +30,46 @@ export function getDeviceIconUrl(model: string): string {
     normalizedModel.includes('balance2500') ||
     normalizedModel.includes('balance3000')
   ) {
-    return ICON_URLS.loadbalancer;
+    return ICON_PATHS.loadbalancer;
   }
   
-  // Router icon - Balance 20/30/One, 210/305/310, 380/580/710, MAX series
+  // Router icon - Balance 20/30/One series
   if (
     normalizedModel.includes('balance20') ||
     normalizedModel.includes('balance30') ||
     normalizedModel.includes('balanceone') ||
+    normalizedModel.includes('bonecore') ||
+    normalizedModel.includes('boneprime')
+  ) {
+    return ICON_PATHS.router;
+  }
+  
+  // Router icon - Balance 210/305/310 series
+  if (
     normalizedModel.includes('balance210') ||
     normalizedModel.includes('balance305') ||
-    normalizedModel.includes('balance310') ||
+    normalizedModel.includes('balance310')
+  ) {
+    return ICON_PATHS.router;
+  }
+  
+  // Router icon - Balance 380/580/710 series
+  if (
     normalizedModel.includes('balance380') ||
     normalizedModel.includes('balance580') ||
-    normalizedModel.includes('balance710') ||
+    normalizedModel.includes('balance710')
+  ) {
+    return ICON_PATHS.router;
+  }
+  
+  // Router icon - MAX series
+  if (
     normalizedModel.includes('maxbr1') ||
     normalizedModel.includes('maxhd2') ||
     normalizedModel.includes('maxhd4') ||
     normalizedModel.includes('maxtransit')
   ) {
-    return ICON_URLS.router;
+    return ICON_PATHS.router;
   }
   
   // Pyramid icon - Access Points
@@ -66,17 +78,17 @@ export function getDeviceIconUrl(model: string): string {
     normalizedModel.includes('accesspoint') ||
     normalizedModel.includes('ap')
   ) {
-    return ICON_URLS.pyramid;
+    return ICON_PATHS.pyramid;
   }
   
   // Switch module icon - Switches
   if (
     normalizedModel.includes('switch') ||
     normalizedModel.includes('8poe10g') ||
-    normalizedModel.includes('24poe2.5g') ||
-    normalizedModel.includes('48poe2.5g')
+    normalizedModel.includes('24poe') ||
+    normalizedModel.includes('48poe')
   ) {
-    return ICON_URLS.switchModule;
+    return ICON_PATHS.switchModule;
   }
   
   // Cloud icon - FusionHub, VirtualBalance
@@ -84,14 +96,14 @@ export function getDeviceIconUrl(model: string): string {
     normalizedModel.includes('fusionhub') ||
     normalizedModel.includes('virtualbalance')
   ) {
-    return ICON_URLS.cloud;
+    return ICON_PATHS.cloud;
   }
   
-  // Remove Surf SOHO (discontinued) - return no icon
+  // Surf SOHO removed (discontinued)
   if (normalizedModel.includes('surf')) {
-    return '';
+    return ''; // No icon for discontinued products
   }
   
-  // Default to router icon
-  return ICON_URLS.router;
+  // Default to router icon for unknown models
+  return ICON_PATHS.router;
 }
