@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Isometric Cloud Icon (FusionHub) - 30 degree perspective -->
+  <defs>
+    <linearGradient id="cloudGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0e7490;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cloudGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#67e8f9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+    </linearGradient>
+    <filter id="cloudGlow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Main cloud shape - isometric view -->
+  <ellipse cx="100" cy="100" rx="60" ry="35" fill="url(#cloudGrad1)" opacity="0.9" filter="url(#cloudGlow)"/>
+  
+  <!-- Cloud puffs - front -->
+  <ellipse cx="70" cy="90" rx="25" ry="20" fill="url(#cloudGrad2)" opacity="0.8"/>
+  <ellipse cx="100" cy="85" rx="30" ry="25" fill="url(#cloudGrad2)" opacity="0.85"/>
+  <ellipse cx="130" cy="90" rx="25" ry="20" fill="url(#cloudGrad2)" opacity="0.8"/>
+  
+  <!-- Cloud puffs - top -->
+  <ellipse cx="85" cy="75" rx="20" ry="15" fill="url(#cloudGrad2)" opacity="0.7"/>
+  <ellipse cx="115" cy="75" rx="20" ry="15" fill="url(#cloudGrad2)" opacity="0.7"/>
+  
+  <!-- Cloud puffs - bottom for 3D depth -->
+  <ellipse cx="100" cy="110" rx="50" ry="30" fill="url(#cloudGrad1)" opacity="0.6"/>
+  
+  <!-- Connection points / data streams -->
+  <circle cx="70" cy="105" r="3" fill="#fbbf24" stroke="#f59e0b" stroke-width="1" opacity="0.9"/>
+  <circle cx="100" cy="108" r="3" fill="#fbbf24" stroke="#f59e0b" stroke-width="1" opacity="0.9"/>
+  <circle cx="130" cy="105" r="3" fill="#fbbf24" stroke="#f59e0b" stroke-width="1" opacity="0.9"/>
+  
+  <!-- VPN tunnel indicators -->
+  <line x1="70" y1="105" x2="70" y2="130" stroke="#06b6d4" stroke-width="2" stroke-dasharray="3,3" opacity="0.6"/>
+  <line x1="100" y1="108" x2="100" y2="133" stroke="#06b6d4" stroke-width="2" stroke-dasharray="3,3" opacity="0.6"/>
+  <line x1="130" y1="105" x2="130" y2="130" stroke="#06b6d4" stroke-width="2" stroke-dasharray="3,3" opacity="0.6"/>
+</svg>

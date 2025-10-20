@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Isometric Switch Module Icon - 30 degree perspective -->
+  <defs>
+    <linearGradient id="switchGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#eab308;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a16207;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="switchGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ca8a04;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="switchGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ca8a04;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a16207;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main switch body - flat/wide form factor -->
+  <!-- Right face -->
+  <path d="M 100 130 L 170 95 L 170 75 L 100 110 Z" fill="url(#switchGrad1)" stroke="#78350f" stroke-width="1"/>
+  
+  <!-- Left face -->
+  <path d="M 30 95 L 100 130 L 100 110 L 30 75 Z" fill="url(#switchGrad2)" stroke="#78350f" stroke-width="1"/>
+  
+  <!-- Top face -->
+  <path d="M 100 110 L 170 75 L 100 40 L 30 75 Z" fill="url(#switchGrad3)" stroke="#78350f" stroke-width="1"/>
+  
+  <!-- Port array on front - 8 ports shown -->
+  <rect x="40" y="85" width="6" height="4" fill="#10b981" stroke="#059669" stroke-width="0.3"/>
+  <rect x="48" y="85" width="6" height="4" fill="#10b981" stroke="#059669" stroke-width="0.3"/>
+  <rect x="56" y="85" width="6" height="4" fill="#10b981" stroke="#059669" stroke-width="0.3"/>
+  <rect x="64" y="85" width="6" height="4" fill="#10b981" stroke="#059669" stroke-width="0.3"/>
+  <rect x="72" y="85" width="6" height="4" fill="#10b981" stroke="#059669" stroke-width="0.3"/>
+  <rect x="80" y="85" width="6" height="4" fill="#10b981" stroke="#059669" stroke-width="0.3"/>
+  <rect x="88" y="85" width="6" height="4" fill="#f97316" stroke="#c2410c" stroke-width="0.3"/>
+  
+  <!-- PoE indicator lights on top -->
+  <circle cx="60" cy="85" r="2" fill="#22c55e" opacity="0.8"/>
+  <circle cx="70" cy="85" r="2" fill="#22c55e" opacity="0.8"/>
+  <circle cx="80" cy="85" r="2" fill="#22c55e" opacity="0.8"/>
+  <circle cx="90" cy="85" r="2" fill="#22c55e" opacity="0.8"/>
+  
+  <!-- SFP ports on side -->
+  <rect x="140" y="85" width="10" height="6" rx="1" fill="#6366f1" stroke="#4338ca" stroke-width="0.5"/>
+  <rect x="152" y="85" width="10" height="6" rx="1" fill="#6366f1" stroke="#4338ca" stroke-width="0.5"/>
+</svg>

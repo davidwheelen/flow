@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Isometric Load Balancer Icon - 30 degree perspective -->
+  <defs>
+    <linearGradient id="lbGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6d28d9;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="lbGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="lbGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6d28d9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Multi-tier design for load balancer -->
+  <!-- Tier 1 Bottom -->
+  <path d="M 100 150 L 170 115 L 170 105 L 100 140 Z" fill="url(#lbGrad1)" stroke="#5b21b6" stroke-width="1"/>
+  <path d="M 30 115 L 100 150 L 100 140 L 30 105 Z" fill="url(#lbGrad2)" stroke="#5b21b6" stroke-width="1"/>
+  <path d="M 100 140 L 170 105 L 100 70 L 30 105 Z" fill="url(#lbGrad3)" stroke="#5b21b6" stroke-width="1"/>
+  
+  <!-- Tier 2 Middle -->
+  <path d="M 100 130 L 160 100 L 160 90 L 100 120 Z" fill="url(#lbGrad1)" stroke="#5b21b6" stroke-width="1"/>
+  <path d="M 40 100 L 100 130 L 100 120 L 40 90 Z" fill="url(#lbGrad2)" stroke="#5b21b6" stroke-width="1"/>
+  <path d="M 100 120 L 160 90 L 100 60 L 40 90 Z" fill="url(#lbGrad3)" stroke="#5b21b6" stroke-width="1"/>
+  
+  <!-- Tier 3 Top -->
+  <path d="M 100 110 L 150 85 L 150 75 L 100 100 Z" fill="url(#lbGrad1)" stroke="#5b21b6" stroke-width="1"/>
+  <path d="M 50 85 L 100 110 L 100 100 L 50 75 Z" fill="url(#lbGrad2)" stroke="#5b21b6" stroke-width="1"/>
+  <path d="M 100 100 L 150 75 L 100 50 L 50 75 Z" fill="url(#lbGrad3)" stroke="#5b21b6" stroke-width="1"/>
+  
+  <!-- Status lights -->
+  <circle cx="70" cy="80" r="3" fill="#10b981" stroke="#059669" stroke-width="0.5"/>
+  <circle cx="100" cy="80" r="3" fill="#10b981" stroke="#059669" stroke-width="0.5"/>
+  <circle cx="130" cy="80" r="3" fill="#10b981" stroke="#059669" stroke-width="0.5"/>
+</svg>

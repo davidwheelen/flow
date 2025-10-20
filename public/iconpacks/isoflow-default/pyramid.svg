@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Isometric Pyramid Icon (Access Point) - 30 degree perspective -->
+  <defs>
+    <linearGradient id="pyramidGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#15803d;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="pyramidGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4ade80;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16a34a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="pyramidGrad3" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#16a34a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#15803d;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="wifiGrad">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#fbbf24;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Base platform -->
+  <path d="M 100 140 L 160 110 L 100 80 L 40 110 Z" fill="#166534" stroke="#14532d" stroke-width="1"/>
+  
+  <!-- Left face of pyramid -->
+  <path d="M 40 110 L 100 140 L 100 60 Z" fill="url(#pyramidGrad1)" stroke="#14532d" stroke-width="1"/>
+  
+  <!-- Right face of pyramid -->
+  <path d="M 100 140 L 160 110 L 100 60 Z" fill="url(#pyramidGrad2)" stroke="#14532d" stroke-width="1"/>
+  
+  <!-- Back face of pyramid -->
+  <path d="M 40 110 L 100 80 L 100 60 Z" fill="url(#pyramidGrad3)" stroke="#14532d" stroke-width="1"/>
+  <path d="M 160 110 L 100 80 L 100 60 Z" fill="url(#pyramidGrad3)" stroke="#14532d" stroke-width="1"/>
+  
+  <!-- WiFi signal waves -->
+  <circle cx="100" cy="60" r="20" fill="url(#wifiGrad)" opacity="0.4"/>
+  <circle cx="100" cy="60" r="30" fill="url(#wifiGrad)" opacity="0.3"/>
+  <circle cx="100" cy="60" r="40" fill="url(#wifiGrad)" opacity="0.2"/>
+  
+  <!-- Status light at apex -->
+  <circle cx="100" cy="60" r="4" fill="#fbbf24" stroke="#f59e0b" stroke-width="1"/>
+</svg>
