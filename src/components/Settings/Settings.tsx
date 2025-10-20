@@ -127,7 +127,7 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
           {/* API URL */}
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: '#e0e0e0' }}>
-              API URL
+              InControl/ICVA URL
             </label>
             <div className="flex gap-2 mb-2">
               <button

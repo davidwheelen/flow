@@ -11,6 +11,62 @@ interface FlowCanvasProps {
   className?: string;
 }
 
+/**
+ * Renders an isometric grid background with orange neon glow effect
+ */
+function renderIsometricGrid() {
+  const gridSpacing = 50;
+  const angle = 30 * (Math.PI / 180);
+  
+  // Create background layer
+  const bgLayer = new paper.Layer();
+  bgLayer.sendToBack();
+  
+  // Dark background rectangle
+  const background = new paper.Path.Rectangle({
+    point: [0, 0],
+    size: [paper.view.size.width, paper.view.size.height],
+    fillColor: new paper.Color('#2d2d2d'),
+  });
+  bgLayer.addChild(background);
+  
+  // Orange grid lines with glow
+  const gridColor = new paper.Color('#ff6b35');
+  
+  // Diagonal lines going down-right
+  for (let i = -paper.view.size.height; i < paper.view.size.width + paper.view.size.height; i += gridSpacing) {
+    const line = new paper.Path.Line({
+      from: [i, 0],
+      to: [i + paper.view.size.height * Math.tan(angle), paper.view.size.height],
+      strokeColor: gridColor,
+      strokeWidth: 1,
+    });
+    
+    // Glow effect
+    line.shadowColor = gridColor;
+    line.shadowBlur = 8;
+    
+    bgLayer.addChild(line);
+  }
+  
+  // Diagonal lines going down-left
+  for (let i = -paper.view.size.height; i < paper.view.size.width + paper.view.size.height; i += gridSpacing) {
+    const line = new paper.Path.Line({
+      from: [i, 0],
+      to: [i - paper.view.size.height * Math.tan(angle), paper.view.size.height],
+      strokeColor: gridColor,
+      strokeWidth: 1,
+    });
+    
+    // Glow effect
+    line.shadowColor = gridColor;
+    line.shadowBlur = 8;
+    
+    bgLayer.addChild(line);
+  }
+}
+
+
 export function FlowCanvas({ devices, width, height, className }: FlowCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [nodes, setNodes] = useState<Map<string, FlowNode>>(new Map());
@@ -32,6 +88,9 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
     paper.view.viewSize = new paper.Size(canvasWidth, canvasHeight);
     canvasRef.current.width = canvasWidth;
     canvasRef.current.height = canvasHeight;
+
+    // Render isometric grid background
+    renderIsometricGrid();
 
     return () => {
       // Cleanup
@@ -131,7 +190,7 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
         width: width || '100%',
         height: height || '100%',
         display: 'block',
-        backgroundColor: '#1a1a1a',
+        backgroundColor: '#2d2d2d',
       }}
     />
   );
