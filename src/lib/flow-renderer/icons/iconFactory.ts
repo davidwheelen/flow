@@ -1,24 +1,15 @@
-import isoflowIsopack from '@isoflow/isopacks/dist/isoflow';
-
 /**
- * Get icon URL from Isoflow isopack
+ * Icon paths from local Isoflow icon pack
+ * These are actual SVG files from the Isoflow collection
  */
-const getIsoflowIconUrl = (iconName: string): string => {
-  const icon = isoflowIsopack.icons.find((i) => i.id === iconName);
-  return icon?.url || '';
-};
-
-/**
- * Icon URLs from Isoflow isopacks
- */
-const ICON_URLS = {
-  router: getIsoflowIconUrl('router'),
-  loadbalancer: getIsoflowIconUrl('loadbalancer'),
-  pyramid: getIsoflowIconUrl('pyramid'),
-  switchModule: getIsoflowIconUrl('switch-module'),
-  cloud: getIsoflowIconUrl('cloud'),
-  cube: getIsoflowIconUrl('cube'),
-};
+const ICON_PATHS = {
+  router: '/iconpacks/isoflow-default/router.svg',
+  loadbalancer: '/iconpacks/isoflow-default/loadbalancer.svg',
+  pyramid: '/iconpacks/isoflow-default/pyramid.svg',
+  switchModule: '/iconpacks/isoflow-default/switch-module.svg',
+  cloud: '/iconpacks/isoflow-default/cloud.svg',
+  cube: '/iconpacks/isoflow-default/cube.svg',
+} as const;
 
 /**
  * Get device icon URL based on model name
@@ -29,7 +20,7 @@ export function getDeviceIconUrl(model: string): string {
   
   // Cube icon - MAX Adapter (check before "ap" check)
   if (normalizedModel.includes('maxadapter')) {
-    return ICON_URLS.cube;
+    return ICON_PATHS.cube;
   }
   
   // Load balancer icon - Balance 1350/2500/3000 (check before Balance 30)
@@ -38,7 +29,7 @@ export function getDeviceIconUrl(model: string): string {
     normalizedModel.includes('balance2500') ||
     normalizedModel.includes('balance3000')
   ) {
-    return ICON_URLS.loadbalancer;
+    return ICON_PATHS.loadbalancer;
   }
   
   // Router icon - Balance 20/30/One, 210/305/310, 380/580/710, MAX series
@@ -57,7 +48,7 @@ export function getDeviceIconUrl(model: string): string {
     normalizedModel.includes('maxhd4') ||
     normalizedModel.includes('maxtransit')
   ) {
-    return ICON_URLS.router;
+    return ICON_PATHS.router;
   }
   
   // Pyramid icon - Access Points
@@ -66,7 +57,7 @@ export function getDeviceIconUrl(model: string): string {
     normalizedModel.includes('accesspoint') ||
     normalizedModel.includes('ap')
   ) {
-    return ICON_URLS.pyramid;
+    return ICON_PATHS.pyramid;
   }
   
   // Switch module icon - Switches
@@ -76,7 +67,7 @@ export function getDeviceIconUrl(model: string): string {
     normalizedModel.includes('24poe2.5g') ||
     normalizedModel.includes('48poe2.5g')
   ) {
-    return ICON_URLS.switchModule;
+    return ICON_PATHS.switchModule;
   }
   
   // Cloud icon - FusionHub, VirtualBalance
@@ -84,7 +75,7 @@ export function getDeviceIconUrl(model: string): string {
     normalizedModel.includes('fusionhub') ||
     normalizedModel.includes('virtualbalance')
   ) {
-    return ICON_URLS.cloud;
+    return ICON_PATHS.cloud;
   }
   
   // Remove Surf SOHO (discontinued) - return no icon
@@ -93,5 +84,5 @@ export function getDeviceIconUrl(model: string): string {
   }
   
   // Default to router icon
-  return ICON_URLS.router;
+  return ICON_PATHS.router;
 }
