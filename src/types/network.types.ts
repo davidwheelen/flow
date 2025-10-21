@@ -1,3 +1,5 @@
+import { DeviceConnectionSpec } from './connectionTypes';
+
 export type ConnectionType = 'wan' | 'cellular' | 'wifi' | 'sfp';
 export type ConnectionStatus = 'connected' | 'disconnected' | 'degraded';
 
@@ -22,6 +24,7 @@ export interface PeplinkDevice {
   ipAddress: string;
   connections: Connection[];
   position: { x: number; y: number };
+  connectionSpec?: DeviceConnectionSpec; // Optional device connection specifications
 }
 
 export interface NetworkData {
