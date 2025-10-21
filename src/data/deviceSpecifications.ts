@@ -11,7 +11,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 20',
     family: 'Balance',
-    icon: 'router.svg',
+    icon: 'router',
     connectionSpec: {
       wan: 2,
       lan: 4,
@@ -29,7 +29,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 20X',
     family: 'Balance',
-    icon: 'router.svg',
+    icon: 'router',
     connectionSpec: {
       wan: 2,
       lan: 4,
@@ -48,7 +48,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 30 LTE',
     family: 'Balance',
-    icon: 'router.svg',
+    icon: 'router',
     connectionSpec: {
       wan: 3,
       lan: 4,
@@ -67,7 +67,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance B One',
     family: 'Balance',
-    icon: 'router.svg',
+    icon: 'router',
     connectionSpec: {
       wan: 1,
       lan: 4,
@@ -83,7 +83,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance One',
     family: 'Balance',
-    icon: 'router.svg',
+    icon: 'router',
     connectionSpec: {
       wan: 4,
       lan: 4,
@@ -103,7 +103,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 210',
     family: 'Balance',
-    icon: 'router.svg',
+    icon: 'router',
     connectionSpec: {
       wan: 2,
       lan: 4,
@@ -121,7 +121,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 310 5G',
     family: 'Balance',
-    icon: 'router.svg',
+    icon: 'router',
     connectionSpec: {
       wan: 3,
       lan: 4,
@@ -140,7 +140,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 310 Fiber 5G',
     family: 'Balance',
-    icon: 'router.svg',
+    icon: 'router',
     connectionSpec: {
       wan: 3,
       lan: 4,
@@ -160,7 +160,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 310X',
     family: 'Balance',
-    icon: 'router.svg',
+    icon: 'router',
     connectionSpec: {
       wan: 3,
       lan: 4,
@@ -183,7 +183,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 380',
     family: 'Balance',
-    icon: 'router.svg',
+    icon: 'router',
     connectionSpec: {
       wan: 5,
       lan: 4,
@@ -202,7 +202,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 380X',
     family: 'Balance',
-    icon: 'router.svg',
+    icon: 'router',
     connectionSpec: {
       wan: 5,
       lan: 4,
@@ -221,7 +221,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 580',
     family: 'Balance',
-    icon: 'router.svg',
+    icon: 'router',
     connectionSpec: {
       wan: 7,
       lan: 4,
@@ -240,7 +240,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 580X',
     family: 'Balance',
-    icon: 'router.svg',
+    icon: 'router',
     connectionSpec: {
       wan: 7,
       lan: 4,
@@ -259,7 +259,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 710',
     family: 'Balance',
-    icon: 'router.svg',
+    icon: 'router',
     connectionSpec: {
       wan: 10,
       lan: 4,
@@ -282,7 +282,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 1350',
     family: 'Balance',
-    icon: 'loadbalancer.svg',
+    icon: 'loadbalancer',
     connectionSpec: {
       wan: 13,
       lan: 4,
@@ -299,7 +299,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 1350 EC',
     family: 'Balance',
-    icon: 'loadbalancer.svg',
+    icon: 'loadbalancer',
     connectionSpec: {
       wan: 13,
       lan: 4,
@@ -316,7 +316,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 2500',
     family: 'Balance',
-    icon: 'loadbalancer.svg',
+    icon: 'loadbalancer',
     connectionSpec: {
       wan: 8,
       lan: 4,
@@ -333,7 +333,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 2500 EC',
     family: 'Balance',
-    icon: 'loadbalancer.svg',
+    icon: 'loadbalancer',
     connectionSpec: {
       wan: 8,
       lan: 4,
@@ -350,7 +350,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 3000',
     family: 'Balance',
-    icon: 'loadbalancer.svg',
+    icon: 'loadbalancer',
     connectionSpec: {
       wan: 12,
       lan: 4,
@@ -367,7 +367,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance 5000 EC',
     family: 'Balance',
-    icon: 'loadbalancer.svg',
+    icon: 'loadbalancer',
     connectionSpec: {
       wan: 12,
       lan: 4,
@@ -388,7 +388,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance SDX',
     family: 'Balance',
-    icon: 'loadbalancer.svg',
+    icon: 'loadbalancer',
     connectionSpec: {
       wan: 10,
       lan: 4,
@@ -405,7 +405,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance SDX Pro',
     family: 'Balance',
-    icon: 'loadbalancer.svg',
+    icon: 'loadbalancer',
     connectionSpec: {
       wan: 10,
       lan: 4,
@@ -422,7 +422,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Balance EPX',
     family: 'Balance',
-    icon: 'loadbalancer.svg',
+    icon: 'loadbalancer',
     connectionSpec: {
       wan: 16,
       lan: 4,
@@ -443,7 +443,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX BR1 Mini',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 1,
@@ -462,7 +462,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX BR1 5G',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 4,
@@ -481,7 +481,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX BR1 Core',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 4,
@@ -500,7 +500,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX BR1 M2M',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 1,
@@ -519,7 +519,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX BR1 Pro CAT-20',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 4,
@@ -538,7 +538,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX BR1 Pro 5G',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 4,
@@ -557,7 +557,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX BR1 IP67',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 1,
@@ -580,7 +580,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX BR2',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 4,
@@ -599,7 +599,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX BR2 Pro',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 4,
@@ -618,7 +618,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX BR2 Micro',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 1,
@@ -641,7 +641,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX HD2',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 2,
       lan: 4,
@@ -660,7 +660,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX HD2 MBX',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 2,
       lan: 4,
@@ -679,7 +679,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX HD4',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 2,
       lan: 4,
@@ -698,7 +698,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX HD4 MBX',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 2,
       lan: 4,
@@ -717,7 +717,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX MBX Mini',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 4,
@@ -740,7 +740,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX Dome HD1',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 4,
@@ -759,7 +759,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX Dome Duo',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 4,
@@ -778,7 +778,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX Dome LR',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 4,
@@ -802,7 +802,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX Transit Pro E',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 4,
@@ -821,7 +821,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX Transit Duo Pro',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 4,
@@ -844,7 +844,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'MAX Adapter',
     family: 'MAX',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 1,
@@ -863,7 +863,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'POTS Adapter',
     family: 'Adapter',
-    icon: 'cube.svg',
+    icon: 'cube',
     connectionSpec: {
       wan: 1,
       lan: 1,
@@ -886,7 +886,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'AP One Mini',
     family: 'AP One',
-    icon: 'pyramid.svg',
+    icon: 'pyramid',
     connectionSpec: {
       wan: 0,
       lan: 1,
@@ -904,7 +904,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'AP One AX Lite',
     family: 'AP One',
-    icon: 'pyramid.svg',
+    icon: 'pyramid',
     connectionSpec: {
       wan: 0,
       lan: 1,
@@ -922,7 +922,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'AP One AX',
     family: 'AP One',
-    icon: 'pyramid.svg',
+    icon: 'pyramid',
     connectionSpec: {
       wan: 0,
       lan: 2,
@@ -940,7 +940,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'AP One Pro AX',
     family: 'AP One',
-    icon: 'pyramid.svg',
+    icon: 'pyramid',
     connectionSpec: {
       wan: 0,
       lan: 2,
@@ -959,7 +959,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'AP One Rugged',
     family: 'AP One',
-    icon: 'pyramid.svg',
+    icon: 'pyramid',
     connectionSpec: {
       wan: 0,
       lan: 2,
@@ -981,7 +981,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Switch 8 PoE 10G',
     family: 'Switch',
-    icon: 'switch-module.svg',
+    icon: 'switch-module',
     connectionSpec: {
       wan: 0,
       lan: 8,
@@ -998,7 +998,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Switch 24 PoE 2.5G',
     family: 'Switch',
-    icon: 'switch-module.svg',
+    icon: 'switch-module',
     connectionSpec: {
       wan: 0,
       lan: 24,
@@ -1015,7 +1015,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Switch 24 PoE Rugged',
     family: 'Switch',
-    icon: 'switch-module.svg',
+    icon: 'switch-module',
     connectionSpec: {
       wan: 0,
       lan: 24,
@@ -1032,7 +1032,7 @@ export const deviceSpecifications: DeviceSpecification[] = [
   {
     model: 'Switch 48 PoE',
     family: 'Switch',
-    icon: 'switch-module.svg',
+    icon: 'switch-module',
     connectionSpec: {
       wan: 0,
       lan: 48,
@@ -1071,5 +1071,5 @@ export function getDevicesByFamily(family: string): DeviceSpecification[] {
  */
 export function getDeviceIcon(model: string): string {
   const spec = getDeviceSpecification(model);
-  return spec ? `/iconpacks/isoflow-default/${spec.icon}` : '/iconpacks/isoflow-default/router.svg';
+  return spec ? `/iconpacks/isoflow-default/${spec.icon}.svg` : '/iconpacks/isoflow-default/router.svg';
 }
