@@ -1,6 +1,6 @@
 import paper from 'paper';
 import { PeplinkDevice } from '@/types/network.types';
-import { getDeviceIconUrl } from '../icons/iconFactory';
+import { getDeviceIconUrl } from '@/utils/deviceIconMapping';
 
 export interface FlowNodeOptions {
   device: PeplinkDevice;
@@ -68,6 +68,25 @@ export class FlowNode {
       
       // Add device label below icon
       this.renderDeviceLabel();
+    };
+    
+    // Error handling for failed icon loads
+    icon.onError = () => {
+      console.error(`Failed to load icon: ${iconUrl}`);
+      // Fallback to cube icon if load fails
+      const fallbackIcon = new paper.Raster({
+        source: '/iconpacks/isoflow-default/cube.svg',
+        position: new paper.Point(0, 0),
+      });
+      
+      fallbackIcon.onLoad = () => {
+        const targetSize = 60;
+        const scale = targetSize / Math.max(fallbackIcon.width, fallbackIcon.height);
+        fallbackIcon.scale(scale * this.scale);
+        fallbackIcon.position = new paper.Point(0, 0);
+        this.group.addChild(fallbackIcon);
+        this.renderDeviceLabel();
+      };
     };
   }
 
