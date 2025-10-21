@@ -45,7 +45,7 @@ git clone https://github.com/davidwheelen/flow.git
 cd flow
 
 # Start Flow
-docker-compose up -d
+docker compose up -d
 
 # Access Flow at http://localhost:2727
 ```
@@ -56,7 +56,7 @@ That's it! Flow is now running in production mode.
 
 ```bash
 # Start development environment with hot-reload
-docker-compose -f docker-compose.flow-dev.yml up
+docker compose -f docker-compose.flow-dev.yml up
 
 # Access development server at http://localhost:8181
 ```
