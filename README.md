@@ -33,18 +33,52 @@ Real-time network visualization tool for Peplink InControl devices with isometri
 
 ## Getting Started
 
-### Prerequisites
+### 🐳 Docker Installation (Recommended)
+
+The easiest way to run Flow is with Docker:
+
+#### Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/davidwheelen/flow.git
+cd flow
+
+# Start Flow
+docker-compose up -d
+
+# Access Flow at http://localhost:2727
+```
+
+That's it! Flow is now running in production mode.
+
+#### Development Mode
+
+```bash
+# Start development environment with hot-reload
+docker-compose -f docker-compose.flow-dev.yml up
+
+# Access development server at http://localhost:8181
+```
+
+See [Docker Setup Guide](./docs/docker.md) for complete documentation.
+
+### 💻 Local Installation
+
+If you prefer to run Flow locally without Docker:
+
+#### Prerequisites
 
 - Node.js 18 or higher
 - npm or yarn
 
-### Installation
+#### Installation
 
 ```bash
 npm install
 ```
 
-### Development
+#### Development
 
 ```bash
 npm run dev
@@ -52,7 +86,7 @@ npm run dev
 
 The application will be available at `http://localhost:5173`
 
-### Build
+#### Build
 
 ```bash
 npm run build
@@ -60,13 +94,13 @@ npm run build
 
 The production build will be in the `dist` directory.
 
-### Preview Production Build
+#### Preview Production Build
 
 ```bash
 npm run preview
 ```
 
-### Lint
+#### Lint
 
 ```bash
 npm run lint
@@ -181,6 +215,7 @@ When API credentials are not configured, the application automatically uses mock
 - [x] Group-based device loading
 - [x] WebSocket real-time updates
 - [x] Sidebar navigation
+- [x] Docker Compose setup for easy deployment
 - [ ] Interactive device selection
 - [ ] Device detail panel
 - [ ] Historical metrics and analytics

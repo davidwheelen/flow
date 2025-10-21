@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  flow-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: flow-dev
+    image: flow:dev
+    ports:
+      - "8181:8181"
+    restart: unless-stopped
+    volumes:
+      - ./src:/app/src:ro
+      - ./public:/app/public:ro
+      - ./public/iconpacks:/app/public/iconpacks:ro
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_PORT=8181
+    command: npm run dev -- --host 0.0.0.0 --port 8181
