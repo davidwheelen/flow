@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import paper from 'paper';
 import { PeplinkDevice } from '@/types/network.types';
 import { FlowNode } from './core/FlowNode';
 import { FlowConnection } from './core/FlowConnection';
+import { Grid } from './components/Grid';
+import { getTilePosition } from './utils/gridUtils';
+import { MIN_ZOOM, MAX_ZOOM, ZOOM_INCREMENT } from './constants';
 
 interface FlowCanvasProps {
   devices: PeplinkDevice[];
@@ -12,10 +15,17 @@ interface FlowCanvasProps {
 }
 
 export function FlowCanvas({ devices, width, height, className }: FlowCanvasProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [nodes, setNodes] = useState<Map<string, FlowNode>>(new Map());
   const [connections, setConnections] = useState<FlowConnection[]>([]);
   const animationFrameRef = useRef<number>();
+  
+  // Zoom and pan state
+  const [zoom, setZoom] = useState(1);
+  const [scroll, setScroll] = useState({ position: { x: 0, y: 0 } });
+  const [isPanning, setIsPanning] = useState(false);
+  const lastMousePos = useRef({ x: 0, y: 0 });
 
   // Initialize Paper.js
   useEffect(() => {
@@ -53,19 +63,23 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
     const newNodes = new Map<string, FlowNode>();
     const newConnections: FlowConnection[] = [];
 
-    // Create nodes with isometric layout
+    // Create nodes with isometric layout using grid positioning
     const centerX = paper.view.bounds.width / 2;
     const centerY = paper.view.bounds.height / 2;
-    const spacing = 200;
 
     devices.forEach((device, index) => {
-      // Calculate position in isometric grid
+      // Calculate tile position in isometric grid
       const row = Math.floor(index / 3);
       const col = index % 3;
       
-      // Isometric positioning
-      const x = centerX + (col - 1) * spacing - (row * spacing / 2);
-      const y = centerY + (row * spacing * 0.5);
+      // Use Isoflow grid positioning
+      const tilePos = getTilePosition({ 
+        tile: { x: col - 1, y: -row },
+        origin: 'CENTER'
+      });
+      
+      const x = centerX + tilePos.x + scroll.position.x;
+      const y = centerY + tilePos.y + scroll.position.y;
       
       const position = new paper.Point(x, y);
       const node = new FlowNode({ device, position });
@@ -108,7 +122,7 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [devices]);
+  }, [devices, scroll]);
 
   // Handle window resize
   useEffect(() => {
@@ -123,16 +137,71 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Mouse event handlers for pan and zoom
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button === 0) { // Left click
+      setIsPanning(true);
+      lastMousePos.current = { x: e.clientX, y: e.clientY };
+    }
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (isPanning) {
+      const deltaX = e.clientX - lastMousePos.current.x;
+      const deltaY = e.clientY - lastMousePos.current.y;
+      
+      setScroll(prev => ({
+        position: {
+          x: prev.position.x + deltaX,
+          y: prev.position.y + deltaY
+        }
+      }));
+      
+      lastMousePos.current = { x: e.clientX, y: e.clientY };
+    }
+  }, [isPanning]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsPanning(false);
+  }, []);
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    
+    const delta = e.deltaY > 0 ? -ZOOM_INCREMENT : ZOOM_INCREMENT;
+    setZoom(prev => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, prev + delta)));
+  }, []);
+
   return (
-    <canvas
-      ref={canvasRef}
+    <div
+      ref={containerRef}
       className={className}
       style={{
         width: width || '100%',
         height: height || '100%',
-        display: 'block',
-        backgroundColor: '#1a1a1a',
+        position: 'relative',
+        overflow: 'hidden',
+        cursor: isPanning ? 'grabbing' : 'grab',
       }}
-    />
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      onWheel={handleWheel}
+    >
+      {/* Grid background */}
+      <Grid zoom={zoom} scroll={scroll} />
+      
+      {/* Canvas for devices and connections */}
+      <canvas
+        ref={canvasRef}
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'block',
+          backgroundColor: 'transparent',
+        }}
+      />
+    </div>
   );
 }
