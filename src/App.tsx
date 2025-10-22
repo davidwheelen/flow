@@ -2,14 +2,19 @@ import { useState } from 'react';
 import { Network, Settings as SettingsIcon } from 'lucide-react';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { Settings } from './components/Settings/Settings';
+import { ReauthModal } from './components/Modals/ReauthModal';
 import { FlowCanvas } from './lib/flow-renderer';
 import { useAppStore } from './store/appStore';
 import { useAuth } from './hooks/useInControl2';
+import { useTokenManager } from './hooks/useTokenManager';
 
 function App() {
   const { devices, selectedGroup } = useAppStore();
   const { isAuthenticated } = useAuth();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  
+  // Token management for auto-refresh and re-auth
+  const { showReauthModal, handleReauth, cancelReauth } = useTokenManager();
 
   return (
     <div className="flex h-screen" style={{ backgroundColor: '#1a1a1a' }}>
@@ -62,6 +67,13 @@ function App() {
 
       {/* Settings Modal */}
       <Settings isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      
+      {/* Re-authentication Modal */}
+      <ReauthModal
+        isOpen={showReauthModal}
+        onReauth={handleReauth}
+        onCancel={cancelReauth}
+      />
     </div>
   );
 }

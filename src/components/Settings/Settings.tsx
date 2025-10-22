@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { Settings as SettingsIcon, X, Eye, EyeOff, Lock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useInControl2';
 import { IC2Credentials, maskString } from '@/services/secureStorage';
+import { AutoSetup } from './AutoSetup';
 
 interface SettingsProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ interface SettingsProps {
 export function Settings({ isOpen, onClose }: SettingsProps) {
   const { credentials, login, logout, isLoading, error, clearError } = useAuth();
   
+  const [activeTab, setActiveTab] = useState<'auto' | 'manual'>('auto');
   const [formData, setFormData] = useState<IC2Credentials>({
     apiUrl: 'https://incontrol2.peplink.com',
     clientId: '',
@@ -87,6 +89,13 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
     onClose();
   };
 
+  const handleAutoSetupSuccess = () => {
+    // Reload credentials after auto setup
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+  };
+
   if (!isOpen) return null;
 
   const isFormValid = formData.apiUrl && formData.clientId && formData.clientSecret && formData.orgId;
@@ -124,27 +133,59 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
 
         {/* Content */}
         <div className="p-6 space-y-6">
-          {/* API URL */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#e0e0e0' }}>
-              API URL
-            </label>
-            <input
-              type="text"
-              value={formData.apiUrl}
-              onChange={(e) => handleInputChange('apiUrl', e.target.value)}
-              placeholder="https://incontrol2.peplink.com or custom ICVA server URL"
-              className="w-full px-4 py-2.5 rounded-lg border transition-colors"
+          {/* Tabs */}
+          <div className="flex gap-2 p-1 rounded-lg" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+            <button
+              onClick={() => setActiveTab('auto')}
+              className="flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all"
               style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                borderColor: 'rgba(255, 255, 255, 0.2)',
-                color: '#e0e0e0',
+                background: activeTab === 'auto' ? 'rgba(59, 130, 246, 0.25)' : 'transparent',
+                color: activeTab === 'auto' ? '#93c5fd' : '#a0a0a0',
               }}
-            />
-            <p className="mt-1.5 text-xs" style={{ color: '#a0a0a0' }}>
-              Use https://incontrol2.peplink.com for Peplink's cloud service, or enter your custom ICVA server URL
-            </p>
+            >
+              Auto Setup
+            </button>
+            <button
+              onClick={() => setActiveTab('manual')}
+              className="flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all"
+              style={{
+                background: activeTab === 'manual' ? 'rgba(59, 130, 246, 0.25)' : 'transparent',
+                color: activeTab === 'manual' ? '#93c5fd' : '#a0a0a0',
+              }}
+            >
+              Manual Setup
+            </button>
           </div>
+
+          {/* Auto Setup Tab */}
+          {activeTab === 'auto' && (
+            <AutoSetup onSuccess={handleAutoSetupSuccess} />
+          )}
+
+          {/* Manual Setup Tab */}
+          {activeTab === 'manual' && (
+            <>
+              {/* API URL */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#e0e0e0' }}>
+                  API URL
+                </label>
+                <input
+                  type="text"
+                  value={formData.apiUrl}
+                  onChange={(e) => handleInputChange('apiUrl', e.target.value)}
+                  placeholder="https://incontrol2.peplink.com or custom ICVA server URL"
+                  className="w-full px-4 py-2.5 rounded-lg border transition-colors"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                    color: '#e0e0e0',
+                  }}
+                />
+                <p className="mt-1.5 text-xs" style={{ color: '#a0a0a0' }}>
+                  Use https://incontrol2.peplink.com for Peplink's cloud service, or enter your custom ICVA server URL
+                </p>
+              </div>
 
           {/* Client ID */}
           <div>
@@ -273,51 +314,55 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
               </p>
             </div>
           )}
+            </>
+          )}
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between gap-3 p-6 border-t" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
-          <div>
-            {hasSavedCredentials && (
-              <button
-                onClick={handleClearCredentials}
-                className="px-4 py-2 text-sm rounded-lg transition-colors hover:bg-white/10"
-                style={{ color: '#ef4444' }}
-              >
-                Clear Credentials
-              </button>
-            )}
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={handleClose}
-              className="px-4 py-2 text-sm rounded-lg transition-colors hover:bg-white/10"
-              style={{ color: '#a0a0a0' }}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleTestConnection}
-              disabled={!isFormValid || isTesting || isLoading}
-              className="px-6 py-2 text-sm rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                background: isFormValid ? 'rgba(59, 130, 246, 0.25)' : 'rgba(255, 255, 255, 0.1)',
-                borderColor: 'rgba(59, 130, 246, 0.45)',
-                border: '2px solid',
-                color: isFormValid ? '#93c5fd' : '#707070',
-              }}
-            >
-              {isTesting || isLoading ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Testing...
-                </span>
-              ) : (
-                'Test & Save'
+        {/* Footer - Only show for manual tab */}
+        {activeTab === 'manual' && (
+          <div className="flex items-center justify-between gap-3 p-6 border-t" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+            <div>
+              {hasSavedCredentials && (
+                <button
+                  onClick={handleClearCredentials}
+                  className="px-4 py-2 text-sm rounded-lg transition-colors hover:bg-white/10"
+                  style={{ color: '#ef4444' }}
+                >
+                  Clear Credentials
+                </button>
               )}
-            </button>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleClose}
+                className="px-4 py-2 text-sm rounded-lg transition-colors hover:bg-white/10"
+                style={{ color: '#a0a0a0' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleTestConnection}
+                disabled={!isFormValid || isTesting || isLoading}
+                className="px-6 py-2 text-sm rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  background: isFormValid ? 'rgba(59, 130, 246, 0.25)' : 'rgba(255, 255, 255, 0.1)',
+                  borderColor: 'rgba(59, 130, 246, 0.45)',
+                  border: '2px solid',
+                  color: isFormValid ? '#93c5fd' : '#707070',
+                }}
+              >
+                {isTesting || isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Testing...
+                  </span>
+                ) : (
+                  'Test & Save'
+                )}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
