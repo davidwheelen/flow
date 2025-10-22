@@ -20,6 +20,18 @@ export interface IC2Credentials {
 }
 
 /**
+ * Extended credentials with token and refresh data
+ */
+export interface StoredCredentials extends IC2Credentials {
+  accessToken: string;
+  refreshToken?: string;
+  tokenExpiry: number; // Unix timestamp in ms
+  autoRefresh: boolean;
+  encryptedUsername?: string; // Only if autoRefresh=true
+  encryptedPassword?: string; // Only if autoRefresh=true
+}
+
+/**
  * Generate or retrieve encryption key from localStorage
  */
 async function getEncryptionKey(): Promise<CryptoKey> {
@@ -177,4 +189,45 @@ export function maskString(value: string): string {
   if (!value) return '';
   if (value.length <= 4) return '•'.repeat(value.length);
   return '•'.repeat(value.length - 4) + value.slice(-4);
+}
+
+/**
+ * Store extended credentials with token data
+ */
+export async function storeExtendedCredentials(credentials: StoredCredentials): Promise<void> {
+  const jsonData = JSON.stringify(credentials);
+  const encrypted = await encrypt(jsonData);
+  localStorage.setItem(`${STORAGE_PREFIX}extended_credentials`, encrypted);
+}
+
+/**
+ * Retrieve extended credentials with token data
+ */
+export async function getExtendedCredentials(): Promise<StoredCredentials | null> {
+  const encrypted = localStorage.getItem(`${STORAGE_PREFIX}extended_credentials`);
+  if (!encrypted) {
+    return null;
+  }
+  
+  try {
+    const decrypted = await decrypt(encrypted);
+    return JSON.parse(decrypted) as StoredCredentials;
+  } catch (error) {
+    console.error('Failed to decrypt extended credentials:', error);
+    return null;
+  }
+}
+
+/**
+ * Check if extended credentials are stored
+ */
+export function hasExtendedCredentials(): boolean {
+  return localStorage.getItem(`${STORAGE_PREFIX}extended_credentials`) !== null;
+}
+
+/**
+ * Clear extended credentials
+ */
+export function clearExtendedCredentials(): void {
+  localStorage.removeItem(`${STORAGE_PREFIX}extended_credentials`);
 }
