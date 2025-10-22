@@ -11,6 +11,11 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
+    port: process.env.VITE_PORT ? parseInt(process.env.VITE_PORT) : 5173,
+    host: true, // Listen on all addresses for Docker compatibility
+    strictPort: true, // Exit if port is already in use
+    watch: {
+      usePolling: true, // Enable polling for file changes in Docker
+    },
   },
 })

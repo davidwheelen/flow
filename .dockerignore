@@ -1,0 +1,7 @@
+dist
+.git
+.vscode
+*.md
+progress
+logs
+*.log
