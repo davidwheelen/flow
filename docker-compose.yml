@@ -4,7 +4,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: flow-backend
-    image: flow-backend:latest
     restart: unless-stopped
     networks:
       - flow-network
@@ -24,7 +23,6 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: flow
-    image: flow:latest
     ports:
       - "2727:2727"
     restart: unless-stopped
