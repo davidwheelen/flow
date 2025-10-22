@@ -9,6 +9,8 @@ import { Router, Request, Response } from 'express';
 import { validateAutoCredentials, AutoCredentialsRequest } from '../middleware/validation.js';
 import { autoCredentialsLimiter } from '../middleware/rateLimiter.js';
 import { retrieveCredentials } from '../services/playwrightAutomation.js';
+import { logInfo, logError } from '../utils/logger.js';
+import { ERROR_CODES, createErrorResponse } from '../utils/errors.js';
 
 const router = Router();
 
@@ -42,13 +44,17 @@ router.post(
     try {
       const params = req.body as AutoCredentialsRequest;
       
-      console.log(`[API] Auto-credentials request from ${req.ip} for ${params.url}`);
+      logInfo('Auto-credentials request received', { 
+        ip: req.ip, 
+        url: params.url, 
+        username: params.username 
+      });
       
       // Perform browser automation
       const result = await retrieveCredentials(params);
       
       if (result.success) {
-        console.log(`[API] Successfully retrieved credentials for ${params.username}`);
+        logInfo('Successfully retrieved credentials', { username: params.username });
         res.json({
           success: true,
           clientId: result.clientId,
@@ -56,18 +62,31 @@ router.post(
           organizationId: result.organizationId,
         });
       } else {
-        console.error(`[API] Failed to retrieve credentials: ${result.error}`);
-        res.status(400).json({
-          success: false,
-          error: result.error || 'Failed to retrieve credentials',
-        });
+        logError(
+          result.errorCode || ERROR_CODES.NETWORK_ERROR,
+          'Failed to retrieve credentials',
+          { username: params.username, error: result.error }
+        );
+        
+        const errorResponse = result.errorCode 
+          ? createErrorResponse(result.errorCode, result.error)
+          : {
+              success: false as const,
+              errorCode: ERROR_CODES.NETWORK_ERROR,
+              errorMessage: result.error || 'Failed to retrieve credentials',
+              timestamp: new Date().toISOString(),
+            };
+        
+        res.status(400).json(errorResponse);
       }
     } catch (error) {
-      console.error('[API] Unexpected error:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Internal server error',
-      });
+      const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+      logError(ERROR_CODES.BACKEND_NOT_AVAILABLE, 'Unexpected error in auto-credentials', { error: errorMessage });
+      
+      res.status(500).json(createErrorResponse(
+        ERROR_CODES.BACKEND_NOT_AVAILABLE,
+        errorMessage
+      ));
     }
   }
 );

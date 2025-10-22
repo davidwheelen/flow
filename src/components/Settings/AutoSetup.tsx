@@ -25,7 +25,7 @@ export function AutoSetup({ onSuccess: _onSuccess }: AutoSetupProps) {
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState({ step: '', percent: 0 });
-  const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [result, setResult] = useState<{ success: boolean; message: string; errorCode?: string; details?: string } | null>(null);
 
   const handleInputChange = (field: keyof AutoSetupParams, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -55,6 +55,8 @@ export function AutoSetup({ onSuccess: _onSuccess }: AutoSetupProps) {
       setResult({
         success: false,
         message: autoResult.error || 'Failed to retrieve credentials. Please try Manual Setup.',
+        errorCode: autoResult.errorCode,
+        details: autoResult.details,
       });
     }
     
@@ -265,9 +267,16 @@ export function AutoSetup({ onSuccess: _onSuccess }: AutoSetupProps) {
           ) : (
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#ef4444' }} />
           )}
-          <p className="text-sm" style={{ color: result.success ? '#86efac' : '#fca5a5' }}>
-            {result.message}
-          </p>
+          <div>
+            <p className="text-sm font-medium" style={{ color: result.success ? '#86efac' : '#fca5a5' }}>
+              {result.errorCode && `Error ${result.errorCode}: `}{result.message}
+            </p>
+            {result.details && (
+              <p className="text-xs mt-1 opacity-75" style={{ color: result.success ? '#86efac' : '#fca5a5' }}>
+                {result.details}
+              </p>
+            )}
+          </div>
         </div>
       )}
 
