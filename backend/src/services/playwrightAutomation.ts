@@ -5,6 +5,8 @@
  */
 
 import { chromium, Browser, Page } from 'playwright';
+import { logInfo, logError } from '../utils/logger.js';
+import { ERROR_CODES } from '../utils/errors.js';
 
 export interface AutoCredentialsParams {
   url: string;
@@ -19,6 +21,7 @@ export interface AutoCredentialsResult {
   clientSecret?: string;
   organizationId?: string;
   error?: string;
+  errorCode?: string;
 }
 
 /**
@@ -30,13 +33,22 @@ export async function retrieveCredentials(
   let browser: Browser | null = null;
   
   try {
-    console.log('[Playwright] Starting browser automation...');
+    logInfo('Starting browser automation', { url: params.url, username: params.username });
     
     // Launch headless browser
-    browser = await chromium.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    try {
+      browser = await chromium.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
+    } catch (error) {
+      logError(ERROR_CODES.BROWSER_LAUNCH_FAILED, 'Failed to launch browser', { error: String(error) });
+      return {
+        success: false,
+        errorCode: ERROR_CODES.BROWSER_LAUNCH_FAILED,
+        error: 'Failed to launch browser automation',
+      };
+    }
     
     const context = await browser.newContext({
       viewport: { width: 1280, height: 720 },
@@ -45,58 +57,94 @@ export async function retrieveCredentials(
     
     const page = await context.newPage();
     
-    console.log('[Playwright] Navigating to login page...');
+    logInfo('Navigating to login page', { url: params.url });
     
     // Step 1: Navigate to login page
-    await page.goto(params.url, { waitUntil: 'networkidle', timeout: 30000 });
+    try {
+      await page.goto(params.url, { waitUntil: 'networkidle', timeout: 30000 });
+    } catch (error) {
+      logError(ERROR_CODES.PAGE_LOAD_TIMEOUT, 'Page load timeout', { url: params.url, error: String(error) });
+      return {
+        success: false,
+        errorCode: ERROR_CODES.PAGE_LOAD_TIMEOUT,
+        error: 'Page load timeout - server may be unreachable',
+      };
+    }
     
-    console.log('[Playwright] Filling login credentials...');
+    logInfo('Filling login credentials');
     
     // Step 2: Fill login form
-    // Note: These selectors may need to be updated based on actual InControl2/ICVA UI
-    await page.waitForSelector('input[type="text"], input[type="email"]', { timeout: 10000 });
+    try {
+      await page.waitForSelector('input[type="text"], input[type="email"]', { timeout: 10000 });
+      
+      // Try different common selectors for username/email
+      const usernameInput = await page.locator('input[type="email"]').or(page.locator('input[name="username"]')).or(page.locator('input[type="text"]')).first();
+      await usernameInput.fill(params.username);
+      
+      const passwordInput = await page.locator('input[type="password"]').first();
+      await passwordInput.fill(params.password);
+    } catch (error) {
+      logError(ERROR_CODES.ELEMENT_NOT_FOUND, 'Login form elements not found', { error: String(error) });
+      return {
+        success: false,
+        errorCode: ERROR_CODES.ELEMENT_NOT_FOUND,
+        error: 'Login form not found on page',
+      };
+    }
     
-    // Try different common selectors for username/email
-    const usernameInput = await page.locator('input[type="email"]').or(page.locator('input[name="username"]')).or(page.locator('input[type="text"]')).first();
-    await usernameInput.fill(params.username);
-    
-    const passwordInput = await page.locator('input[type="password"]').first();
-    await passwordInput.fill(params.password);
-    
-    console.log('[Playwright] Submitting login form...');
+    logInfo('Submitting login form');
     
     // Step 3: Submit login
-    const submitButton = await page.locator('button[type="submit"]').or(page.locator('input[type="submit"]')).first();
-    await submitButton.click();
-    
-    // Wait for navigation after login
-    await page.waitForLoadState('networkidle', { timeout: 30000 });
+    try {
+      const submitButton = await page.locator('button[type="submit"]').or(page.locator('input[type="submit"]')).first();
+      await submitButton.click();
+      
+      // Wait for navigation after login
+      await page.waitForLoadState('networkidle', { timeout: 30000 });
+    } catch (error) {
+      logError(ERROR_CODES.AUTOMATION_TIMEOUT, 'Login submission timeout', { error: String(error) });
+      return {
+        success: false,
+        errorCode: ERROR_CODES.AUTOMATION_TIMEOUT,
+        error: 'Login process timeout',
+      };
+    }
     
     // Check for login errors
     const errorElements = await page.locator('.error, .alert-danger, [class*="error"]').count();
     if (errorElements > 0) {
       const errorText = await page.locator('.error, .alert-danger, [class*="error"]').first().textContent();
-      throw new Error(`Login failed: ${errorText}`);
+      logError(ERROR_CODES.LOGIN_FAILED, 'Login failed', { errorText });
+      return {
+        success: false,
+        errorCode: ERROR_CODES.LOGIN_FAILED,
+        error: `Login failed: ${errorText}`,
+      };
     }
     
-    console.log('[Playwright] Login successful, navigating to account settings...');
+    logInfo('Login successful, navigating to account settings');
     
     // Step 4: Navigate to Account Information / OAuth settings
-    // This is a placeholder - actual navigation will depend on InControl2/ICVA UI structure
     const result = await navigateToOAuthSettings(page, params);
+    
+    if (result.success) {
+      logInfo('Credentials retrieved successfully', { clientId: result.clientId });
+    }
     
     return result;
     
   } catch (error) {
-    console.error('[Playwright] Automation failed:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    logError(ERROR_CODES.NETWORK_ERROR, 'Automation failed with unexpected error', { error: errorMessage });
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
+      errorCode: ERROR_CODES.NETWORK_ERROR,
+      error: errorMessage,
     };
   } finally {
     if (browser) {
       await browser.close();
-      console.log('[Playwright] Browser closed');
+      logInfo('Browser closed');
     }
   }
 }
@@ -113,9 +161,8 @@ async function navigateToOAuthSettings(
 ): Promise<AutoCredentialsResult> {
   try {
     // Step 5: Look for Account/Settings navigation
-    // Common patterns: gear icon, "Account" link, "Settings" menu
+    logInfo('Looking for settings/account navigation');
     
-    // Try to find settings/account link
     const settingsLink = await page.locator('a:has-text("Account"), a:has-text("Settings"), [aria-label*="Settings"], [aria-label*="Account"]').first();
     
     if (await settingsLink.count() > 0) {
@@ -123,10 +170,9 @@ async function navigateToOAuthSettings(
       await page.waitForLoadState('networkidle', { timeout: 15000 });
     }
     
-    console.log('[Playwright] Looking for OAuth/API settings...');
+    logInfo('Looking for OAuth/API settings');
     
     // Step 6: Find OAuth/API credentials section
-    // Look for API, OAuth, or Credentials sections
     const oauthSection = await page.locator('a:has-text("API"), a:has-text("OAuth"), a:has-text("Credentials"), a:has-text("Applications")').first();
     
     if (await oauthSection.count() > 0) {
@@ -134,15 +180,14 @@ async function navigateToOAuthSettings(
       await page.waitForLoadState('networkidle', { timeout: 15000 });
     }
     
-    console.log('[Playwright] Creating new OAuth application...');
+    logInfo('Creating new OAuth application');
     
     // Step 7: Create new OAuth application
-    // Look for "Create", "Add", "New Application" buttons
     const createButton = await page.locator('button:has-text("Create"), button:has-text("Add"), button:has-text("New")').first();
     
     if (await createButton.count() > 0) {
       await createButton.click();
-      await page.waitForTimeout(2000); // Wait for modal/form to appear
+      await page.waitForTimeout(2000);
       
       // Fill application name if there's a form
       const nameInput = await page.locator('input[name="name"], input[placeholder*="name" i]').first();
@@ -158,21 +203,25 @@ async function navigateToOAuthSettings(
       }
     }
     
-    console.log('[Playwright] Extracting credentials...');
+    logInfo('Extracting credentials');
     
     // Step 8: Extract Client ID, Client Secret, and Organization ID
-    // This is highly dependent on the actual UI structure
-    // These are placeholder selectors that need to be customized
-    
     const clientId = await extractValue(page, ['Client ID', 'ClientId', 'API Key', 'client_id']);
     const clientSecret = await extractValue(page, ['Client Secret', 'ClientSecret', 'API Secret', 'client_secret']);
     const organizationId = await extractValue(page, ['Organization ID', 'OrganizationId', 'Org ID', 'organization_id']);
     
     if (!clientId || !clientSecret || !organizationId) {
-      throw new Error('Failed to extract all required credentials. Please use Manual Setup instead.');
+      logError(ERROR_CODES.OAUTH_TOKEN_NOT_FOUND, 'Failed to extract OAuth credentials', { 
+        foundClientId: !!clientId, 
+        foundClientSecret: !!clientSecret, 
+        foundOrganizationId: !!organizationId 
+      });
+      return {
+        success: false,
+        errorCode: ERROR_CODES.OAUTH_TOKEN_NOT_FOUND,
+        error: 'Failed to extract all required credentials. Please use Manual Setup instead.',
+      };
     }
-    
-    console.log('[Playwright] Credentials extracted successfully');
     
     return {
       success: true,
@@ -182,10 +231,12 @@ async function navigateToOAuthSettings(
     };
     
   } catch (error) {
-    console.error('[Playwright] Failed to extract credentials:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to extract credentials';
+    logError(ERROR_CODES.OAUTH_TOKEN_NOT_FOUND, 'Failed to navigate OAuth settings', { error: errorMessage });
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to extract credentials',
+      errorCode: ERROR_CODES.OAUTH_TOKEN_NOT_FOUND,
+      error: errorMessage,
     };
   }
 }

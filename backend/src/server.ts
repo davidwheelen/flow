@@ -10,6 +10,8 @@ import helmet from 'helmet';
 import { corsMiddleware } from './middleware/cors.js';
 import { generalLimiter } from './middleware/rateLimiter.js';
 import autoCredentialsRouter from './routes/autoCredentials.js';
+import { logInfo, logError } from './utils/logger.js';
+import { ERROR_CODES } from './utils/errors.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -47,7 +49,7 @@ app.use((_req: Request, res: Response) => {
 
 // Error handler
 app.use((err: Error, _req: Request, res: Response) => {
-  console.error('Server error:', err);
+  logError(ERROR_CODES.SERVER_STARTUP_FAILED, 'Server error', { error: err.message, stack: err.stack });
   res.status(500).json({
     error: 'Internal server error',
   });
@@ -55,18 +57,20 @@ app.use((err: Error, _req: Request, res: Response) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Flow Backend API listening on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:2727'}`);
+  logInfo('Flow Backend API started', {
+    port: PORT,
+    environment: process.env.NODE_ENV || 'development',
+    frontendUrl: process.env.FRONTEND_URL || 'http://localhost:2727',
+  });
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
+  logInfo('SIGTERM signal received: closing HTTP server');
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
-  console.log('SIGINT signal received: closing HTTP server');
+  logInfo('SIGINT signal received: closing HTTP server');
   process.exit(0);
 });

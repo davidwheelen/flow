@@ -39,6 +39,8 @@ export interface AutoSetupResult {
   organizationId: string;
   success: boolean;
   error?: string;
+  errorCode?: string;
+  details?: string;
 }
 
 export type ProgressCallback = (step: string, progress: number) => void;
@@ -80,8 +82,21 @@ export async function autoRetrieveCredentials(
     progress('Processing automation...', 50);
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-      throw new Error(errorData.error || `HTTP ${response.status}`);
+      const errorData = await response.json().catch(() => ({ 
+        errorCode: 'ERR-5001',
+        errorMessage: 'Unknown error',
+        error: 'Unknown error' 
+      }));
+      
+      return {
+        success: false,
+        clientId: '',
+        clientSecret: '',
+        organizationId: '',
+        errorCode: errorData.errorCode || 'ERR-5001',
+        error: errorData.errorMessage || errorData.error || `HTTP ${response.status}`,
+        details: errorData.details,
+      };
     }
 
     const result = await response.json();
@@ -95,7 +110,15 @@ export async function autoRetrieveCredentials(
         organizationId: result.organizationId || '',
       };
     } else {
-      throw new Error(result.error || 'Failed to retrieve credentials');
+      return {
+        success: false,
+        clientId: '',
+        clientSecret: '',
+        organizationId: '',
+        errorCode: result.errorCode || 'ERR-5001',
+        error: result.errorMessage || result.error || 'Failed to retrieve credentials',
+        details: result.details,
+      };
     }
   } catch (error) {
     console.error('[AutoCredentials] Error:', error);
@@ -108,6 +131,7 @@ export async function autoRetrieveCredentials(
       clientId: '',
       clientSecret: '',
       organizationId: '',
+      errorCode: 'ERR-5001',
       error: errorMessage,
     };
   }
