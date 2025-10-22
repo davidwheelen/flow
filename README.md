@@ -65,7 +65,17 @@ docker compose -f docker-compose.flow-dev.yml up
 # Access development server at http://localhost:8181
 ```
 
-See [Deployment Guide](./docs/deployment.md) for complete documentation.
+See [Deployment Guide](./docs/deployment.md) for complete Docker documentation.
+
+#### Backend API
+
+The backend service runs automatically with Docker Compose and provides:
+- Auto-credentials API endpoint for Playwright automation
+- CORS protection restricted to frontend
+- Rate limiting (10 requests per 15 minutes)
+- Health check endpoint
+
+See [Backend README](./backend/README.md) for backend-specific documentation.
 
 ### 💻 Local Installation
 
@@ -220,6 +230,8 @@ When API credentials are not configured, the application automatically uses mock
 - [x] WebSocket real-time updates
 - [x] Sidebar navigation
 - [x] Docker Compose setup for easy deployment
+- [x] Backend API service for auto-credentials
+- [x] Playwright browser automation
 - [ ] Interactive device selection
 - [ ] Device detail panel
 - [ ] Historical metrics and analytics
