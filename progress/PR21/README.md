@@ -49,7 +49,7 @@ This directory contains screenshots demonstrating the Flow application with prop
 - Enhanced settings dialog
 - Quick select buttons for API URL:
   - Peplink InControl2
-  - Custom IC-VA Server
+  - Custom ICVA Server
 - Secure credential input fields
 - Encryption notice
 
@@ -88,7 +88,7 @@ All icons are loaded from `/iconpacks/isoflow-default/`:
 1. **Icon Factory**: Updated to use local paths instead of npm package
 2. **FlowNode**: Fixed scaling to consistent 60px with proper centering
 3. **Sidebar**: Enhanced device count badges with blue pill styling
-4. **Settings**: Added quick select for InControl2 vs IC-VA URLs
+4. **Settings**: Added quick select for InControl2 vs ICVA URLs
 
 ## Changes Made
 
