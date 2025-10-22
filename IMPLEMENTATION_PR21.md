@@ -77,14 +77,14 @@ border: '1px solid rgba(59, 130, 246, 0.4)'
 - `src/components/Settings/Settings.tsx`
   - Added two toggle buttons above URL input:
     - "Peplink InControl2" (sets official URL)
-    - "Custom IC-VA Server" (clears for custom entry)
+    - "Custom ICVA Server" (clears for custom entry)
   - Buttons highlight when selected
   - Improved help text clarity
 
 **Features:**
 - One-click selection of InControl2 cloud service
 - Clear indication of selected option
-- Maintains ability to enter custom IC-VA URLs
+- Maintains ability to enter custom ICVA URLs
 - Improved user experience for common configuration
 
 ### 4. Documentation & Protection
