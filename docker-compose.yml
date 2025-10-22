@@ -1,4 +1,24 @@
 services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: flow-backend
+    image: flow-backend:latest
+    restart: unless-stopped
+    networks:
+      - flow-network
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - FRONTEND_URL=http://flow:2727
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
   flow:
     build:
       context: .
@@ -14,12 +34,15 @@ services:
       - ./public/iconpacks:/usr/share/nginx/html/iconpacks:ro
     environment:
       - NODE_ENV=production
+      - BACKEND_URL=http://backend:3001
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:2727/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    depends_on:
+      - backend
 
 networks:
   flow-network:

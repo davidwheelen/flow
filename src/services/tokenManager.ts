@@ -118,6 +118,7 @@ class TokenManager {
   /**
    * Handle manual re-authentication
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async handleManualReauth(_username: string, _password: string): Promise<boolean> {
     try {
       const credentials = await getExtendedCredentials();

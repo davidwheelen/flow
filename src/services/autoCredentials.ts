@@ -44,14 +44,13 @@ export interface AutoSetupResult {
 export type ProgressCallback = (step: string, progress: number) => void;
 
 /**
- * Automatically retrieve OAuth credentials using headless browser
+ * Automatically retrieve OAuth credentials using backend API
  * 
- * NOTE: This feature is currently disabled in browser-only deployments.
- * It requires a Node.js backend to run Playwright automation.
- * Users should use Manual Setup instead.
+ * Calls the backend API service which uses Playwright to automate
+ * the credential retrieval process.
  */
 export async function autoRetrieveCredentials(
-  _params: AutoSetupParams,
+  params: AutoSetupParams,
   onProgress?: ProgressCallback
 ): Promise<AutoSetupResult> {
   const progress = (step: string, percent: number) => {
@@ -61,22 +60,70 @@ export async function autoRetrieveCredentials(
     }
   };
 
-  // In browser environment, this feature is not available
-  progress('Auto-credentials not available in browser', 0);
-  
-  return {
-    clientId: '',
-    clientSecret: '',
-    organizationId: '',
-    success: false,
-    error: 'Automatic credential retrieval requires a backend service. Please use Manual Setup instead.',
-  };
+  try {
+    progress('Connecting to backend service...', 10);
+
+    // Call backend API
+    const response = await fetch('/api/auto-credentials', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url: params.url,
+        username: params.username,
+        password: params.password,
+        appName: params.appName || 'Flow - Device Monitor',
+      }),
+    });
+
+    progress('Processing automation...', 50);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    if (result.success) {
+      progress('Credentials retrieved successfully!', 100);
+      return {
+        success: true,
+        clientId: result.clientId || '',
+        clientSecret: result.clientSecret || '',
+        organizationId: result.organizationId || '',
+      };
+    } else {
+      throw new Error(result.error || 'Failed to retrieve credentials');
+    }
+  } catch (error) {
+    console.error('[AutoCredentials] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
+    progress(`Error: ${errorMessage}`, 0);
+    
+    return {
+      success: false,
+      clientId: '',
+      clientSecret: '',
+      organizationId: '',
+      error: errorMessage,
+    };
+  }
 }
 
 /**
- * Test if headless browser is available
- * NOTE: Always returns false in browser environment
+ * Test if backend API service is available
  */
 export async function testBrowserAvailability(): Promise<boolean> {
-  return false;
+  try {
+    const response = await fetch('/api/health', {
+      method: 'GET',
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('[AutoCredentials] Backend service not available:', error);
+    return false;
+  }
 }
