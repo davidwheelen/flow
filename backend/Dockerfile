@@ -1,5 +1,21 @@
-# Backend Dockerfile for Flow Auto-Credentials API
+# Stage 1: Build
+FROM node:18-alpine AS builder
 
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install ALL dependencies (including TypeScript and dev deps)
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Build TypeScript
+RUN npm run build
+
+# Stage 2: Production
 FROM node:18-alpine
 
 # Install Chromium and dependencies for Playwright
@@ -12,31 +28,20 @@ RUN apk add --no-cache \
     ttf-freefont \
     font-noto-emoji
 
-# Set Playwright environment variables
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-# Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
+# Install only production dependencies
 RUN npm install --omit=dev
 
-# Copy source code
-COPY . .
+# Copy built files from builder stage
+COPY --from=builder /app/dist ./dist
 
-# Build TypeScript
-RUN npm run build
-
-# Expose port
 EXPOSE 3001
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); })"
-
-# Start server
 CMD ["npm", "start"]
