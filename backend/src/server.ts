@@ -10,6 +10,7 @@ import helmet from 'helmet';
 import { corsMiddleware } from './middleware/cors.js';
 import { generalLimiter } from './middleware/rateLimiter.js';
 import autoCredentialsRouter from './routes/autoCredentials.js';
+import securityRouter from './routes/security.js';
 import { logInfo, logError } from './utils/logger.js';
 import { ERROR_CODES } from './utils/errors.js';
 
@@ -39,6 +40,7 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // API routes
 app.use('/api', autoCredentialsRouter);
+app.use('/api/security', securityRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
