@@ -267,14 +267,28 @@ export function AutoSetup({ onSuccess: _onSuccess }: AutoSetupProps) {
           ) : (
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#ef4444' }} />
           )}
-          <div>
-            <p className="text-sm font-medium" style={{ color: result.success ? '#86efac' : '#fca5a5' }}>
-              {result.errorCode && `Error ${result.errorCode}: `}{result.message}
-            </p>
-            {result.details && (
-              <p className="text-xs mt-1 opacity-75" style={{ color: result.success ? '#86efac' : '#fca5a5' }}>
-                {result.details}
+          <div className="flex-1">
+            {result.success ? (
+              <p className="text-sm" style={{ color: '#86efac' }}>
+                {result.message}
               </p>
+            ) : (
+              <>
+                <p className="text-sm font-medium" style={{ color: '#fca5a5' }}>
+                  {result.errorCode ? `Error ${result.errorCode}` : 'Error'}
+                  {result.message && `: ${result.message}`}
+                </p>
+                {result.details && (
+                  <p className="text-xs mt-1" style={{ color: '#fca5a5', opacity: 0.8 }}>
+                    {result.details}
+                  </p>
+                )}
+                {result.errorCode && (
+                  <p className="text-xs mt-2" style={{ color: '#fca5a5', opacity: 0.6 }}>
+                    Reference this error code when reporting issues.
+                  </p>
+                )}
+              </>
             )}
           </div>
         </div>
