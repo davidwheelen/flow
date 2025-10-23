@@ -1,43 +1,50 @@
 /**
  * CORS Middleware
  * 
- * Restricts API access to the Flow frontend only.
- * In production, only allows requests from the frontend service.
+ * Two-tier CORS system:
+ * 1. Auto-allows all requests from port 2727 (default frontend port)
+ * 2. Loads custom origins from config file for edge cases
  */
 
 import cors from 'cors';
 import { logError } from '../utils/logger.js';
 import { ERROR_CODES } from '../utils/errors.js';
+import { getCustomOrigins } from '../services/securityConfig.js';
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:2727';
-
-// Allow multiple origins for different access patterns
-const allowedOrigins = [
-  'http://localhost:2727',
-  'http://127.0.0.1:2727',
-  'http://flow:2727',
-  FRONTEND_URL, // From environment variable
-];
+const FRONTEND_PORT = '2727';
 
 /**
- * CORS options - only allow requests from Flow frontend
+ * CORS options - allow port 2727 and custom origins
  */
 export const corsOptions: cors.CorsOptions = {
-  origin: (origin, callback) => {
+  origin: async (origin, callback) => {
     // Allow requests with no origin (mobile apps, curl, etc.) in development
     if (!origin && process.env.NODE_ENV === 'development') {
       return callback(null, true);
     }
 
-    // Check if origin is in allowed list
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      logError(
-        ERROR_CODES.CORS_BLOCKED,
-        'CORS blocked request from unauthorized origin',
-        { origin, allowedOrigins }
-      );
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    try {
+      const originUrl = new URL(origin);
+      
+      // Auto-allow port 2727 from any IP
+      if (originUrl.port === FRONTEND_PORT) {
+        return callback(null, true);
+      }
+
+      // Check custom origins
+      const customOrigins = await getCustomOrigins();
+      if (customOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      logError(ERROR_CODES.CORS_BLOCKED, 'CORS blocked', { origin });
+      callback(new Error('Not allowed by CORS'));
+    } catch (error) {
+      logError(ERROR_CODES.CORS_BLOCKED, 'Invalid origin URL', { origin });
       callback(new Error('Not allowed by CORS'));
     }
   },

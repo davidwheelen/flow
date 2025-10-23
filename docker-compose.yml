@@ -7,6 +7,8 @@ services:
     restart: unless-stopped
     networks:
       - flow-network
+    volumes:
+      - backend-config:/app/config
     environment:
       - NODE_ENV=production
       - PORT=3001
@@ -45,3 +47,6 @@ services:
 networks:
   flow-network:
     driver: bridge
+
+volumes:
+  backend-config:
