@@ -19,6 +19,7 @@ export const ERROR_CODES = {
   INVALID_REQUEST: 'ERR-2001',
   MISSING_PARAMETERS: 'ERR-2002',
   BACKEND_NOT_AVAILABLE: 'ERR-2003',
+  CORS_BLOCKED: 'ERR-2004',
   
   // Browser Automation Errors (3xxx)
   BROWSER_LAUNCH_FAILED: 'ERR-3001',
@@ -52,6 +53,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   'ERR-2001': 'Invalid request format',
   'ERR-2002': 'Missing required parameters',
   'ERR-2003': 'Backend service not available',
+  'ERR-2004': 'Request blocked by CORS policy',
   
   'ERR-3001': 'Failed to launch browser automation',
   'ERR-3002': 'Page load timeout - server may be unreachable',
