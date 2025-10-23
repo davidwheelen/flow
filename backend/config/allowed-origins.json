@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "id": "origin-1761255953628-dfg8xcsro",
+    "origin": "http://localhost:5173",
+    "description": "Dev server on port 5173",
+    "createdAt": "2025-10-23T21:45:53.628Z"
+  }
+]
