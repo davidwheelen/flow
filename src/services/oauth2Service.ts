@@ -83,7 +83,34 @@ export async function getValidToken(credentials: OAuth2Credentials): Promise<str
  * Store token in localStorage
  */
 function storeToken(token: OAuth2Token): void {
-  localStorage.setItem('ic2_oauth_token', JSON.stringify(token));
+  try {
+    localStorage.setItem('ic2_oauth_token', JSON.stringify(token));
+  } catch (error) {
+    // Handle quota exceeded or other storage errors
+    console.error('Failed to store OAuth2 token:', error);
+    // Clear old token and retry once
+    try {
+      localStorage.removeItem('ic2_oauth_token');
+      localStorage.setItem('ic2_oauth_token', JSON.stringify(token));
+    } catch (retryError) {
+      console.error('Failed to store OAuth2 token after retry:', retryError);
+      throw new Error('Unable to store authentication token. Please clear browser storage.');
+    }
+  }
+}
+
+/**
+ * Validate OAuth2Token structure
+ */
+function isValidOAuth2Token(data: unknown): data is OAuth2Token {
+  if (!data || typeof data !== 'object') return false;
+  const token = data as Record<string, unknown>;
+  return (
+    typeof token.access_token === 'string' &&
+    typeof token.expires_in === 'number' &&
+    typeof token.token_type === 'string' &&
+    typeof token.expiresAt === 'number'
+  );
 }
 
 /**
@@ -94,7 +121,8 @@ function getStoredToken(): OAuth2Token | null {
   if (!stored) return null;
   
   try {
-    return JSON.parse(stored) as OAuth2Token;
+    const parsed = JSON.parse(stored);
+    return isValidOAuth2Token(parsed) ? parsed : null;
   } catch {
     return null;
   }

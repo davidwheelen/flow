@@ -7,7 +7,7 @@
 
 import axios, { AxiosInstance } from 'axios';
 import { IC2Credentials } from './secureStorage';
-import { getOAuth2Token, isTokenExpired, clearToken } from './oauth2Service';
+import { getOAuth2Token, clearToken } from './oauth2Service';
 
 /**
  * Token data with expiration
@@ -132,12 +132,7 @@ export class AuthService {
    */
   isAuthenticated(): boolean {
     if (!this.tokenData) return false;
-    return !isTokenExpired({
-      access_token: this.tokenData.accessToken,
-      expires_in: 0,
-      token_type: 'Bearer',
-      expiresAt: this.tokenData.expiresAt,
-    });
+    return Date.now() < this.tokenData.expiresAt;
   }
 
   /**

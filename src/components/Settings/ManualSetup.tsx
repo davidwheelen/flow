@@ -9,7 +9,6 @@ import { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, ExternalLink, Lock, Eye, EyeOff, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useInControl2';
 import { IC2Credentials, maskString } from '@/services/secureStorage';
-import { getOAuth2Token } from '@/services/oauth2Service';
 
 interface InstructionPanelProps {
   title: string;
@@ -80,14 +79,8 @@ export function ManualSetup() {
     setTestResult(null);
 
     try {
-      // Test OAuth2 token retrieval
-      await getOAuth2Token({
-        apiUrl: formData.apiUrl,
-        clientId: formData.clientId,
-        clientSecret: formData.clientSecret,
-      });
-      
-      // If successful, save credentials
+      // Test connection by attempting to save credentials
+      // The login method will call getOAuth2Token internally
       const success = await login(formData);
       
       setTestResult({

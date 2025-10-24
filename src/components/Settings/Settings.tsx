@@ -18,6 +18,10 @@ interface SettingsProps {
 
 type TabType = 'incontrol2' | 'security';
 
+// Modal layout constants
+const MODAL_MIN_HEIGHT = '600px';
+const MODAL_MAX_HEIGHT = 'calc(100vh - 80px)';
+
 export function Settings({ isOpen, onClose }: SettingsProps) {
   const [activeMainTab, setActiveMainTab] = useState<TabType>('incontrol2');
 
@@ -38,8 +42,8 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
           borderRadius: '16px',
           border: '2px solid rgba(255, 255, 255, 0.2)',
           boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
-          minHeight: '600px',
-          maxHeight: 'calc(100vh - 80px)',
+          minHeight: MODAL_MIN_HEIGHT,
+          maxHeight: MODAL_MAX_HEIGHT,
         }}
         onClick={(e) => e.stopPropagation()}
       >
