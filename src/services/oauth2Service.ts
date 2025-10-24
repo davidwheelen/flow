@@ -81,6 +81,18 @@ export async function getValidToken(credentials: OAuth2Credentials): Promise<str
 
 /**
  * Store token in localStorage
+ * 
+ * Security Note: OAuth2 access tokens are stored in localStorage for automatic refresh.
+ * This is a standard practice for browser-based OAuth2 applications because:
+ * 1. Tokens are short-lived (expire within hours) and auto-refreshed
+ * 2. Tokens have limited scope (API access only, not user credentials)
+ * 3. They must be accessible to make API calls from the browser
+ * 4. The actual user credentials (Client ID/Secret) are encrypted via secureStorage
+ * 5. localStorage is isolated per-origin by browser security (Same-Origin Policy)
+ * 
+ * Alternative approaches (httpOnly cookies, server-side sessions) would require
+ * running a backend proxy for all API calls, which contradicts the goal of
+ * direct client-to-InControl2 communication.
  */
 function storeToken(token: OAuth2Token): void {
   try {
