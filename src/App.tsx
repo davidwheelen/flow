@@ -27,7 +27,7 @@ function App() {
 
   // Make error code handler available globally
   if (typeof window !== 'undefined') {
-    (window as any).openErrorCodeReference = handleErrorCodeClick;
+    (window as Window & { openErrorCodeReference?: (code: string) => void }).openErrorCodeReference = handleErrorCodeClick;
   }
 
   return (
