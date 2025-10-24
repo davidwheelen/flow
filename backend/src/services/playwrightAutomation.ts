@@ -75,14 +75,30 @@ export async function retrieveCredentials(
     
     // Step 2: Fill login form
     try {
-      await page.waitForSelector('input[type="text"], input[type="email"]', { timeout: 10000 });
+      // Wait for login form to be fully rendered and visible
+      await page.waitForSelector('input[type="text"], input[type="email"]', { 
+        timeout: 10000,
+        state: 'visible'  // Wait until visible, not just in DOM
+      });
+      
+      // Wait a moment for any animations/transitions to complete
+      await page.waitForTimeout(1000);
       
       // Try different common selectors for username/email
-      const usernameInput = await page.locator('input[type="email"]').or(page.locator('input[name="username"]')).or(page.locator('input[type="text"]')).first();
+      const usernameInput = await page.locator('input[type="email"]')
+        .or(page.locator('input[name="username"]'))
+        .or(page.locator('input[name="email"]'))
+        .or(page.locator('input[type="text"]'))
+        .first();
+      
+      await usernameInput.waitFor({ state: 'visible', timeout: 5000 });
       await usernameInput.fill(params.username);
       
       const passwordInput = await page.locator('input[type="password"]').first();
+      await passwordInput.waitFor({ state: 'visible', timeout: 5000 });
       await passwordInput.fill(params.password);
+      
+      logInfo('Login credentials filled successfully');
     } catch (error) {
       logError(ERROR_CODES.ELEMENT_NOT_FOUND, 'Login form elements not found', { error: String(error) });
       return {
