@@ -36,13 +36,37 @@ router.post('/token', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Validate URL format
+    // Validate URL format and security
+    let parsedUrl: URL;
     try {
-      new URL(apiUrl);
+      parsedUrl = new URL(apiUrl);
     } catch {
       res.status(400).json(createErrorResponse(
         ERROR_CODES.INVALID_URL,
         'Invalid apiUrl format'
+      ));
+      return;
+    }
+
+    // Security: Only allow HTTPS protocol
+    if (parsedUrl.protocol !== 'https:') {
+      res.status(400).json(createErrorResponse(
+        ERROR_CODES.INVALID_URL,
+        'Only HTTPS URLs are allowed for security'
+      ));
+      return;
+    }
+
+    // Security: Validate it's a legitimate InControl2/ICVA domain
+    // Allow: incontrol2.peplink.com, api.ic.peplink.com, or custom ICVA servers (not localhost/private IPs)
+    const hostname = parsedUrl.hostname.toLowerCase();
+    const isValidInControl2Domain = hostname.endsWith('.peplink.com') || hostname.endsWith('.pepwave.com');
+    const isPrivateIP = /^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.|127\.|localhost$)/.test(hostname);
+    
+    if (!isValidInControl2Domain && isPrivateIP) {
+      res.status(400).json(createErrorResponse(
+        ERROR_CODES.INVALID_URL,
+        'Cannot proxy requests to private IP addresses or localhost'
       ));
       return;
     }
@@ -56,7 +80,7 @@ router.post('/token', async (req: Request, res: Response): Promise<void> => {
     formData.append('client_secret', clientSecret);
     formData.append('grant_type', 'client_credentials');
 
-    logInfo('Proxying OAuth2 token request', { apiUrl });
+    logInfo('Proxying OAuth2 token request', { apiUrl: parsedUrl.origin });
 
     // Make request to InControl2 API
     const response = await axios.post(tokenUrl, formData.toString(), {
