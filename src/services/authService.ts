@@ -7,16 +7,7 @@
 
 import axios, { AxiosInstance } from 'axios';
 import { IC2Credentials } from './secureStorage';
-
-/**
- * Token response from OAuth2
- */
-interface TokenResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  refresh_token?: string;
-}
+import { getOAuth2Token, isTokenExpired, clearToken } from './oauth2Service';
 
 /**
  * Token data with expiration
@@ -69,19 +60,18 @@ export class AuthService {
     }
 
     try {
-      const response = await this.apiClient.post<TokenResponse>('/api/oauth2/token', {
-        grant_type: 'client_credentials',
-        client_id: this.credentials.clientId,
-        client_secret: this.credentials.clientSecret,
-        org_id: this.credentials.orgId,
+      // Use OAuth2 service to get token
+      const tokenResponse = await getOAuth2Token({
+        apiUrl: this.credentials.apiUrl,
+        clientId: this.credentials.clientId,
+        clientSecret: this.credentials.clientSecret,
       });
 
-      const { access_token, expires_in, refresh_token } = response.data;
+      const { access_token, expires_in } = tokenResponse;
       
       // Store token with expiration time (subtract 60s for safety margin)
       this.tokenData = {
         accessToken: access_token,
-        refreshToken: refresh_token,
         expiresAt: Date.now() + (expires_in - 60) * 1000,
       };
 
@@ -102,36 +92,8 @@ export class AuthService {
    * Refresh access token
    */
   async refreshToken(): Promise<string> {
-    if (!this.credentials || !this.tokenData?.refreshToken) {
-      // No refresh token, re-authenticate
-      return await this.authenticate();
-    }
-
-    try {
-      const response = await this.apiClient.post<TokenResponse>('/api/oauth2/token', {
-        grant_type: 'refresh_token',
-        refresh_token: this.tokenData.refreshToken,
-        client_id: this.credentials.clientId,
-        client_secret: this.credentials.clientSecret,
-      });
-
-      const { access_token, expires_in, refresh_token } = response.data;
-      
-      this.tokenData = {
-        accessToken: access_token,
-        refreshToken: refresh_token || this.tokenData.refreshToken,
-        expiresAt: Date.now() + (expires_in - 60) * 1000,
-      };
-
-      this.apiClient.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-      this.scheduleTokenRefresh(expires_in - 60);
-
-      return access_token;
-    } catch (error) {
-      console.error('Token refresh failed:', error);
-      // Refresh failed, try full re-authentication
-      return await this.authenticate();
-    }
+    // For client_credentials grant type, we just get a new token
+    return await this.authenticate();
   }
 
   /**
@@ -169,7 +131,13 @@ export class AuthService {
    * Check if authenticated
    */
   isAuthenticated(): boolean {
-    return this.tokenData !== null && Date.now() < this.tokenData.expiresAt;
+    if (!this.tokenData) return false;
+    return !isTokenExpired({
+      access_token: this.tokenData.accessToken,
+      expires_in: 0,
+      token_type: 'Bearer',
+      expiresAt: this.tokenData.expiresAt,
+    });
   }
 
   /**
@@ -203,6 +171,9 @@ export class AuthService {
       clearTimeout(this.refreshTimer);
       this.refreshTimer = null;
     }
+    
+    // Clear OAuth2 token from storage
+    clearToken();
   }
 
   /**
