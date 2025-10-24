@@ -18,27 +18,27 @@ export interface OAuth2Credentials {
 }
 
 /**
- * Retrieve OAuth2 token from InControl2/ICVA
+ * Retrieve OAuth2 token from InControl2/ICVA via backend proxy
  */
 export async function getOAuth2Token(credentials: OAuth2Credentials): Promise<OAuth2Token> {
-  const tokenUrl = `${credentials.apiUrl}/api/oauth2/token`;
-  
-  const formData = new URLSearchParams();
-  formData.append('client_id', credentials.clientId);
-  formData.append('client_secret', credentials.clientSecret);
-  formData.append('grant_type', 'client_credentials');
-  
-  const response = await fetch(tokenUrl, {
+  // Use backend proxy to avoid CORS issues
+  const response = await fetch('/api/auth/token', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
     },
-    body: formData.toString(),
+    body: JSON.stringify({
+      apiUrl: credentials.apiUrl,
+      clientId: credentials.clientId,
+      clientSecret: credentials.clientSecret,
+    }),
   });
   
   if (!response.ok) {
-    const errorText = await response.text().catch(() => '');
-    throw new Error(`OAuth2 token request failed: ${response.status} ${response.statusText}${errorText ? ' - ' + errorText : ''}`);
+    const errorData = await response.json().catch(() => null);
+    const errorMessage = errorData?.errorMessage || `Token request failed: ${response.status} ${response.statusText}`;
+    const errorCode = errorData?.errorCode || 'ERR-UNKNOWN';
+    throw new Error(`${errorCode}: ${errorMessage}`);
   }
   
   const data = await response.json();
