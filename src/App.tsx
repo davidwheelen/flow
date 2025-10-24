@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Network, Settings as SettingsIcon } from 'lucide-react';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { Settings } from './components/Settings/Settings';
@@ -25,10 +25,15 @@ function App() {
     setErrorCodeModalOpen(true);
   };
 
-  // Make error code handler available globally
-  if (typeof window !== 'undefined') {
-    (window as Window & { openErrorCodeReference?: (code: string) => void }).openErrorCodeReference = handleErrorCodeClick;
-  }
+  // Make error code handler available globally (only if not already set)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const globalWindow = window as Window & { openErrorCodeReference?: (code: string) => void };
+      if (!globalWindow.openErrorCodeReference) {
+        globalWindow.openErrorCodeReference = handleErrorCodeClick;
+      }
+    }
+  }, []);
 
   return (
     <div className="flex h-screen" style={{ backgroundColor: '#1a1a1a' }}>
