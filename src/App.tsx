@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Network, Settings as SettingsIcon } from 'lucide-react';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { Settings } from './components/Settings/Settings';
 import { ReauthModal } from './components/Modals/ReauthModal';
+import { ErrorCodeReferenceModal } from './components/Modals/ErrorCodeReferenceModal';
 import { FlowCanvas } from './lib/flow-renderer';
 import { useAppStore } from './store/appStore';
 import { useAuth } from './hooks/useInControl2';
@@ -12,9 +13,27 @@ function App() {
   const { devices, selectedGroup } = useAppStore();
   const { isAuthenticated } = useAuth();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [errorCodeModalOpen, setErrorCodeModalOpen] = useState(false);
+  const [selectedErrorCode, setSelectedErrorCode] = useState<string | undefined>();
   
   // Token management for auto-refresh and re-auth
   const { showReauthModal, handleReauth, cancelReauth } = useTokenManager();
+
+  // Handler for opening error code modal
+  const handleErrorCodeClick = (code: string) => {
+    setSelectedErrorCode(code);
+    setErrorCodeModalOpen(true);
+  };
+
+  // Make error code handler available globally (only if not already set)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const globalWindow = window as Window & { openErrorCodeReference?: (code: string) => void };
+      if (!globalWindow.openErrorCodeReference) {
+        globalWindow.openErrorCodeReference = handleErrorCodeClick;
+      }
+    }
+  }, []);
 
   return (
     <div className="flex h-screen" style={{ backgroundColor: '#1a1a1a' }}>
@@ -66,13 +85,27 @@ function App() {
       </div>
 
       {/* Settings Modal */}
-      <Settings isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <Settings 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)}
+        onErrorCodeClick={handleErrorCodeClick}
+      />
       
       {/* Re-authentication Modal */}
       <ReauthModal
         isOpen={showReauthModal}
         onReauth={handleReauth}
         onCancel={cancelReauth}
+      />
+
+      {/* Error Code Reference Modal */}
+      <ErrorCodeReferenceModal
+        isOpen={errorCodeModalOpen}
+        onClose={() => {
+          setErrorCodeModalOpen(false);
+          setSelectedErrorCode(undefined);
+        }}
+        initialErrorCode={selectedErrorCode}
       />
     </div>
   );

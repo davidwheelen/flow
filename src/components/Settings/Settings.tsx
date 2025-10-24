@@ -14,6 +14,7 @@ import { SecuritySettings } from './SecuritySettings';
 interface SettingsProps {
   isOpen: boolean;
   onClose: () => void;
+  onErrorCodeClick?: (code: string) => void;
 }
 
 type TabType = 'incontrol2' | 'security';
@@ -22,7 +23,7 @@ type TabType = 'incontrol2' | 'security';
 const MODAL_MIN_HEIGHT = '600px';
 const MODAL_MAX_HEIGHT = 'calc(100vh - 80px)';
 
-export function Settings({ isOpen, onClose }: SettingsProps) {
+export function Settings({ isOpen, onClose, onErrorCodeClick }: SettingsProps) {
   const [activeMainTab, setActiveMainTab] = useState<TabType>('incontrol2');
 
   if (!isOpen) return null;
@@ -97,7 +98,7 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
         {/* Content - scrollable */}
         <div className="flex-1 overflow-y-auto p-6">
           {activeMainTab === 'incontrol2' && <ManualSetup />}
-          {activeMainTab === 'security' && <SecuritySettings />}
+          {activeMainTab === 'security' && <SecuritySettings onErrorCodeClick={onErrorCodeClick} />}
         </div>
       </div>
     </div>

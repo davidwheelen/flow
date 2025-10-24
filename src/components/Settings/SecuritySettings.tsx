@@ -6,8 +6,9 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Shield, Plus, Trash2, AlertCircle, CheckCircle, Loader2, Info } from 'lucide-react';
+import { Shield, Plus, Trash2, CheckCircle, Loader2, Info } from 'lucide-react';
 import axios from 'axios';
+import { ErrorMessage } from '@/components/ErrorMessage';
 
 interface CustomOrigin {
   id: string;
@@ -16,9 +17,11 @@ interface CustomOrigin {
   createdAt: string;
 }
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+interface SecuritySettingsProps {
+  onErrorCodeClick?: (code: string) => void;
+}
 
-export function SecuritySettings() {
+export function SecuritySettings({ onErrorCodeClick }: SecuritySettingsProps) {
   const [origins, setOrigins] = useState<CustomOrigin[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -38,12 +41,16 @@ export function SecuritySettings() {
     setError(null);
     
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/security/origins`);
+      const response = await axios.get('/api/security/origins');
       if (response.data.success) {
         setOrigins(response.data.origins);
       }
     } catch (err) {
-      setError('Failed to load custom origins');
+      if (axios.isAxiosError(err) && err.response?.data?.errorCode) {
+        setError(`${err.response.data.errorCode}: ${err.response.data.errorMessage}`);
+      } else {
+        setError('Failed to load custom origins');
+      }
       console.error('Error loading origins:', err);
     } finally {
       setIsLoading(false);
@@ -57,7 +64,7 @@ export function SecuritySettings() {
     try {
       new URL(newOrigin);
     } catch {
-      setError('Invalid URL format. Please enter a valid URL like http://example.com:8080');
+      setError('ERR-5003: Invalid URL format. Please enter a valid URL like http://example.com:8080');
       return;
     }
 
@@ -66,7 +73,7 @@ export function SecuritySettings() {
     setSuccess(null);
 
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/security/origins`, {
+      const response = await axios.post('/api/security/origins', {
         origin: newOrigin.trim(),
         description: newDescription.trim() || undefined,
       });
@@ -81,8 +88,8 @@ export function SecuritySettings() {
         setTimeout(() => setSuccess(null), 3000);
       }
     } catch (err: unknown) {
-      if (axios.isAxiosError(err) && err.response?.data?.errorMessage) {
-        setError(err.response.data.errorMessage);
+      if (axios.isAxiosError(err) && err.response?.data?.errorCode) {
+        setError(`${err.response.data.errorCode}: ${err.response.data.errorMessage}`);
       } else {
         setError('Failed to add origin');
       }
@@ -101,7 +108,7 @@ export function SecuritySettings() {
     setSuccess(null);
 
     try {
-      const response = await axios.delete(`${BACKEND_URL}/api/security/origins/${id}`);
+      const response = await axios.delete(`/api/security/origins/${id}`);
       
       if (response.data.success) {
         setSuccess('Origin removed successfully!');
@@ -111,7 +118,11 @@ export function SecuritySettings() {
         setTimeout(() => setSuccess(null), 3000);
       }
     } catch (err) {
-      setError('Failed to remove origin');
+      if (axios.isAxiosError(err) && err.response?.data?.errorCode) {
+        setError(`${err.response.data.errorCode}: ${err.response.data.errorMessage}`);
+      } else {
+        setError('Failed to remove origin');
+      }
       console.error('Error removing origin:', err);
     }
   };
@@ -288,18 +299,10 @@ export function SecuritySettings() {
 
       {/* Error Message */}
       {error && (
-        <div 
-          className="flex items-start gap-3 p-4 rounded-lg"
-          style={{ 
-            background: 'rgba(239, 68, 68, 0.15)',
-            borderLeft: '3px solid #ef4444',
-          }}
-        >
-          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#ef4444' }} />
-          <p className="text-sm" style={{ color: '#fca5a5' }}>
-            {error}
-          </p>
-        </div>
+        <ErrorMessage 
+          message={error}
+          onErrorCodeClick={onErrorCodeClick}
+        />
       )}
     </div>
   );
