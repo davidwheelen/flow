@@ -83,6 +83,10 @@ router.post('/token', async (req: Request, res: Response): Promise<void> => {
     logInfo('Proxying OAuth2 token request', { apiUrl: parsedUrl.origin });
 
     // Make request to InControl2 API
+    // CodeQL: This URL is validated above to prevent SSRF:
+    // - Only HTTPS allowed
+    // - Private IPs and localhost blocked
+    // - Only legitimate InControl2/Pepwave domains or public ICVA servers allowed
     const response = await axios.post(tokenUrl, formData.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
