@@ -15,21 +15,8 @@ COPY . .
 # Build TypeScript
 RUN npm run build
 
-# Stage 2: Production
-FROM node:18-alpine
-
-# Install Chromium and dependencies for Playwright
-RUN apk add --no-cache \
-    chromium \
-    nss \
-    freetype \
-    harfbuzz \
-    ca-certificates \
-    ttf-freefont \
-    font-noto-emoji
-
-ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
+# Stage 2: Production - Use Playwright's official image
+FROM mcr.microsoft.com/playwright:v1.40.0-jammy
 
 WORKDIR /app
 
@@ -39,8 +26,14 @@ COPY package*.json ./
 # Install only production dependencies
 RUN npm install --omit=dev
 
+# Install Playwright browsers
+RUN npx playwright install chromium
+
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
+
+# Create config directory for persistent storage
+RUN mkdir -p /app/config && chmod 755 /app/config
 
 EXPOSE 3001
 

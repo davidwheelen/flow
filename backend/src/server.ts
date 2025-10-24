@@ -17,6 +17,9 @@ import { ERROR_CODES } from './utils/errors.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust proxy - we're behind nginx
+app.set('trust proxy', true);
+
 // Security middleware
 app.use(helmet());
 
