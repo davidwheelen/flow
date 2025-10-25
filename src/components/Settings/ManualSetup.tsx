@@ -6,9 +6,11 @@
  */
 
 import { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp, ExternalLink, Lock, Eye, EyeOff, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, ExternalLink, Lock, Eye, EyeOff, CheckCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useInControl2';
 import { IC2Credentials, maskString } from '@/services/secureStorage';
+import { ErrorMessage } from '@/components/ErrorMessage';
+import { ErrorCodeReferenceModal } from '@/components/Modals/ErrorCodeReferenceModal';
 
 interface InstructionPanelProps {
   title: string;
@@ -52,8 +54,10 @@ export function ManualSetup() {
   
   const [showSecrets, setShowSecrets] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string; errorCode?: string } | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [showErrorReference, setShowErrorReference] = useState(false);
+  const [highlightErrorCode, setHighlightErrorCode] = useState<string | undefined>();
 
   // Load credentials when component mounts
   useEffect(() => {
@@ -74,30 +78,41 @@ export function ManualSetup() {
     clearError();
   };
 
+  const handleErrorCodeClick = (code: string) => {
+    setHighlightErrorCode(code);
+    setShowErrorReference(true);
+  };
+
   const handleTestConnection = async () => {
     setIsTesting(true);
     setTestResult(null);
+    clearError(); // Clear any previous errors
 
     try {
       // Test connection by attempting to save credentials
       // The login method will call getOAuth2Token internally
       const success = await login(formData);
       
-      setTestResult({
-        success,
-        message: success 
-          ? 'Connection successful! Credentials saved and OAuth2 token retrieved.' 
-          : error || 'Connection failed',
-      });
-
       if (success) {
+        setTestResult({
+          success: true,
+          message: 'Connection successful! Credentials saved and OAuth2 token retrieved.',
+        });
         setHasChanges(false);
       }
+      // If login returns false, the error will be set in useAuth state
+      // and displayed through the error message component below
     } catch (err) {
+      // This catch handles unexpected errors that weren't caught by the login function
+      // For example, network errors or other exceptions
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      const errorCode = errorMessage.match(/^(ERR-\d{4})/)?.[1];
+      const cleanMessage = errorMessage.replace(/^ERR-\d{4}:\s*/, '');
+      
       setTestResult({
         success: false,
-        message: errorMessage,
+        message: cleanMessage,
+        errorCode,
       });
     } finally {
       setIsTesting(false);
@@ -291,39 +306,36 @@ export function ManualSetup() {
       </div>
 
       {/* Test Result */}
-      {testResult && (
+      {testResult && testResult.success && (
         <div 
           className="flex items-start gap-3 p-4 rounded-lg"
           style={{ 
-            background: testResult.success ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-            borderLeft: `3px solid ${testResult.success ? '#22c55e' : '#ef4444'}`,
+            background: 'rgba(34, 197, 94, 0.15)',
+            borderLeft: '3px solid #22c55e',
           }}
         >
-          {testResult.success ? (
-            <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#22c55e' }} />
-          ) : (
-            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#ef4444' }} />
-          )}
-          <p className="text-sm" style={{ color: testResult.success ? '#86efac' : '#fca5a5' }}>
+          <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#22c55e' }} />
+          <p className="text-sm" style={{ color: '#86efac' }}>
             {testResult.message}
           </p>
         </div>
       )}
 
-      {/* Error Display */}
+      {/* Error Display - from test result */}
+      {testResult && !testResult.success && (
+        <ErrorMessage
+          message={testResult.message}
+          errorCode={testResult.errorCode}
+          onErrorCodeClick={handleErrorCodeClick}
+        />
+      )}
+
+      {/* Error Display - from auth state */}
       {error && !testResult && (
-        <div 
-          className="flex items-start gap-3 p-4 rounded-lg"
-          style={{ 
-            background: 'rgba(239, 68, 68, 0.15)',
-            borderLeft: '3px solid #ef4444',
-          }}
-        >
-          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#ef4444' }} />
-          <p className="text-sm" style={{ color: '#fca5a5' }}>
-            {error}
-          </p>
-        </div>
+        <ErrorMessage
+          message={error}
+          onErrorCodeClick={handleErrorCodeClick}
+        />
       )}
 
       {/* Footer Actions */}
@@ -364,6 +376,16 @@ export function ManualSetup() {
           </button>
         </div>
       </div>
+
+      {/* Error Code Reference Modal */}
+      <ErrorCodeReferenceModal
+        isOpen={showErrorReference}
+        onClose={() => {
+          setShowErrorReference(false);
+          setHighlightErrorCode(undefined);
+        }}
+        initialErrorCode={highlightErrorCode}
+      />
     </div>
   );
 }
