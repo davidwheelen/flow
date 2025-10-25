@@ -86,6 +86,7 @@ export function ManualSetup() {
   const handleTestConnection = async () => {
     setIsTesting(true);
     setTestResult(null);
+    clearError(); // Clear any previous errors
 
     try {
       // Test connection by attempting to save credentials
@@ -98,19 +99,11 @@ export function ManualSetup() {
           message: 'Connection successful! Credentials saved and OAuth2 token retrieved.',
         });
         setHasChanges(false);
-      } else {
-        // Parse error to extract error code
-        const errorCode = error?.match(/^(ERR-\d{4})/)?.[1];
-        const errorMessage = error ? error.replace(/^ERR-\d{4}:\s*/, '') : 'Connection failed';
-        
-        setTestResult({
-          success: false,
-          message: errorMessage,
-          errorCode,
-        });
       }
+      // If login returns false, the error will be set in useAuth state
+      // We'll let the error display component show it from the error prop
     } catch (err) {
-      // Handle unexpected errors
+      // Handle unexpected errors that weren't caught by login
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       const errorCode = errorMessage.match(/^(ERR-\d{4})/)?.[1];
       const cleanMessage = errorMessage.replace(/^ERR-\d{4}:\s*/, '');

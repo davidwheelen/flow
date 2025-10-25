@@ -84,6 +84,10 @@ export class AuthService {
       return access_token;
     } catch (error) {
       console.error('Authentication failed:', error);
+      // Re-throw the original error to preserve error codes
+      if (error instanceof Error) {
+        throw error;
+      }
       throw new Error('Failed to authenticate with InControl2 API');
     }
   }
