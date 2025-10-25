@@ -88,7 +88,8 @@ export class AuthService {
       if (error instanceof Error) {
         throw error;
       }
-      throw new Error('Failed to authenticate with InControl2 API');
+      // Wrap non-Error objects in Error while preserving the message
+      throw new Error(String(error) || 'Failed to authenticate with InControl2 API');
     }
   }
 

@@ -101,9 +101,10 @@ export function ManualSetup() {
         setHasChanges(false);
       }
       // If login returns false, the error will be set in useAuth state
-      // We'll let the error display component show it from the error prop
+      // and displayed through the error message component below
     } catch (err) {
-      // Handle unexpected errors that weren't caught by login
+      // This catch handles unexpected errors that weren't caught by the login function
+      // For example, network errors or other exceptions
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       const errorCode = errorMessage.match(/^(ERR-\d{4})/)?.[1];
       const cleanMessage = errorMessage.replace(/^ERR-\d{4}:\s*/, '');
