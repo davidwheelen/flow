@@ -21,6 +21,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  errorCode?: string;
   credentials: IC2Credentials | null;
 }
 
@@ -32,6 +33,7 @@ export function useAuth() {
     isAuthenticated: false,
     isLoading: true,
     error: null,
+    errorCode: undefined,
     credentials: null,
   });
 
@@ -45,6 +47,7 @@ export function useAuth() {
           isAuthenticated: false,
           isLoading: false,
           error: null,
+          errorCode: undefined,
           credentials: null,
         });
         return;
@@ -60,6 +63,7 @@ export function useAuth() {
             isAuthenticated: isAuth,
             isLoading: false,
             error: isAuth ? null : 'Failed to authenticate with stored credentials',
+            errorCode: undefined,
             credentials: creds,
           });
         } else {
@@ -67,6 +71,7 @@ export function useAuth() {
             isAuthenticated: false,
             isLoading: false,
             error: null,
+            errorCode: undefined,
             credentials: null,
           });
         }
@@ -75,6 +80,7 @@ export function useAuth() {
           isAuthenticated: false,
           isLoading: false,
           error: error instanceof Error ? error.message : 'Failed to load credentials',
+          errorCode: undefined,
           credentials: null,
         });
       }
@@ -87,7 +93,7 @@ export function useAuth() {
    * Login with credentials
    */
   const login = useCallback(async (credentials: IC2Credentials): Promise<boolean> => {
-    setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
+    setAuthState(prev => ({ ...prev, isLoading: true, error: null, errorCode: undefined }));
 
     try {
       authService.setCredentials(credentials);
@@ -98,15 +104,27 @@ export function useAuth() {
         isAuthenticated: true,
         isLoading: false,
         error: null,
+        errorCode: undefined,
         credentials,
       });
 
       return true;
     } catch (error) {
+      let errorMessage = 'Authentication failed';
+      let errorCode: string | undefined;
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        // Extract error code from custom property or from message
+        const errorWithCode = error as Error & { code?: string };
+        errorCode = errorWithCode.code || error.message.match(/^(ERR-\d{4})/)?.[1];
+      }
+
       setAuthState({
         isAuthenticated: false,
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Authentication failed',
+        error: errorMessage,
+        errorCode: errorCode,
         credentials: null,
       });
       return false;
@@ -125,6 +143,7 @@ export function useAuth() {
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      errorCode: undefined,
       credentials: null,
     });
   }, []);
@@ -133,7 +152,7 @@ export function useAuth() {
    * Clear error
    */
   const clearError = useCallback(() => {
-    setAuthState(prev => ({ ...prev, error: null }));
+    setAuthState(prev => ({ ...prev, error: null, errorCode: undefined }));
   }, []);
 
   return {

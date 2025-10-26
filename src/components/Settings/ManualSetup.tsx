@@ -43,7 +43,7 @@ function InstructionPanel({ title, children, defaultOpen = false }: InstructionP
 }
 
 export function ManualSetup() {
-  const { credentials, login, logout, isLoading, error, clearError } = useAuth();
+  const { credentials, login, logout, isLoading, error, errorCode, clearError } = useAuth();
   
   const [formData, setFormData] = useState<IC2Credentials>({
     apiUrl: 'https://incontrol2.peplink.com',
@@ -334,6 +334,7 @@ export function ManualSetup() {
       {error && !testResult && (
         <ErrorMessage
           message={error}
+          errorCode={errorCode}
           onErrorCodeClick={handleErrorCodeClick}
         />
       )}
