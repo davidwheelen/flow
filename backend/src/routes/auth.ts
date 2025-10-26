@@ -94,8 +94,23 @@ router.post('/token', async (req: Request, res: Response): Promise<void> => {
       timeout: 10000,
     });
 
-    // Forward the token response
-    res.json(response.data);
+    // Log success
+    logInfo('OAuth2 token retrieved successfully', {
+      apiUrl: parsedUrl.origin,
+      tokenType: response.data.token_type,
+      expiresIn: response.data.expires_in,
+    });
+
+    // Return wrapped response in standard format
+    res.json({
+      success: true,
+      data: {
+        access_token: response.data.access_token,
+        token_type: response.data.token_type || 'Bearer',
+        expires_in: response.data.expires_in,
+        expiresAt: Date.now() + ((response.data.expires_in || 3600) - 60) * 1000, // 60s buffer
+      },
+    });
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status || 500;

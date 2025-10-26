@@ -43,14 +43,16 @@ export async function getOAuth2Token(credentials: OAuth2Credentials): Promise<OA
     throw error;
   }
   
-  const data = await response.json();
+  const result = await response.json();
   
-  // Calculate expiration timestamp (now + expires_in - 60s buffer)
-  const expiresAt = Date.now() + (data.expires_in - 60) * 1000;
+  // Extract data from wrapped response
+  const tokenData = result.data || result;
   
   return {
-    ...data,
-    expiresAt,
+    access_token: tokenData.access_token,
+    token_type: tokenData.token_type,
+    expires_in: tokenData.expires_in,
+    expiresAt: tokenData.expiresAt || Date.now() + (tokenData.expires_in - 60) * 1000,
   };
 }
 
