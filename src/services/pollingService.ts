@@ -227,33 +227,22 @@ export class PollingService {
     }
 
     const orgId = credentials.orgId;
-    const basePath = `/rest/o/${orgId}/g/${groupId}/d/${deviceId}`;
-
-    // Fetch multiple endpoints in parallel with rate limiting
-    // Note: Cellular is included in WAN connections response
-    const [statusRes, wanRes, bandwidthRes, pepvpnRes] = await Promise.all([
-      this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData }>(`${basePath}/info`)
-      ),
-      this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData['wans'] }>(`${basePath}/wan_connections`)
-      ),
-      this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData['bandwidth'] }>(`${basePath}/bandwidth`)
-      ),
-      this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData['pepvpn'] }>(`${basePath}/pepvpn`)
-      ),
-    ]);
-
-    // Extract cellular from WAN connections response
-    // InControl2 API returns cellular as part of WAN connections with type="cellular"
-    const wanData = wanRes.data.data || [];
-    const wans: typeof wanData = [];
-    const cellular: typeof wanData = [];
     
-    // Partition data in a single iteration for efficiency
-    wanData.forEach((conn) => {
+    // Single endpoint returns ALL device data
+    const deviceResponse = await this.rateLimiter.throttle(() =>
+      apiClient.get<{ data: IC2DeviceData }>(
+        `/rest/o/${orgId}/g/${groupId}/d/${deviceId}`
+      )
+    );
+
+    const deviceData = deviceResponse.data.data;
+
+    // Extract and partition WAN connections (cellular vs non-cellular)
+    const wanConnections = deviceData.wans || [];
+    const wans: typeof wanConnections = [];
+    const cellular: typeof wanConnections = [];
+    
+    wanConnections.forEach((conn) => {
       if (conn.type === 'cellular') {
         cellular.push(conn);
       } else {
@@ -261,13 +250,13 @@ export class PollingService {
       }
     });
 
-    // Combine all data
+    // Destructure to exclude original wans property, then add our partitioned wans and cellular
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { wans: _, ...otherDeviceData } = deviceData;
     return {
-      ...statusRes.data.data,
+      ...otherDeviceData,
       wans,
       cellular,
-      bandwidth: bandwidthRes.data.data,
-      pepvpn: pepvpnRes.data.data || [],
     };
   }
 
