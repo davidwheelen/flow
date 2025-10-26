@@ -47,16 +47,16 @@ function App() {
           onClick={() => setIsSettingsOpen(true)}
           className="absolute top-4 right-4 z-10 p-3 rounded-lg transition-all hover:scale-105"
           style={{
-            background: isAuthenticated ? 'rgba(34, 197, 94, 0.25)' : 'rgba(255, 255, 255, 0.25)',
+            background: isAuthenticated ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.25)',
             backdropFilter: 'blur(6px)',
             WebkitBackdropFilter: 'blur(6px)',
-            border: `2px solid ${isAuthenticated ? 'rgba(34, 197, 94, 0.45)' : 'rgba(255, 255, 255, 0.45)'}`,
+            border: `2px solid ${isAuthenticated ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255, 255, 255, 0.45)'}`,
           }}
           title={isAuthenticated ? 'Settings (Connected)' : 'Settings (Not Connected)'}
         >
           <SettingsIcon 
             className="w-5 h-5" 
-            style={{ color: isAuthenticated ? '#86efac' : '#e0e0e0' }} 
+            style={{ color: isAuthenticated ? '#6ee7b7' : '#e0e0e0' }} 
           />
         </button>
 

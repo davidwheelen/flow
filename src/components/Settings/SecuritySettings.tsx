@@ -286,12 +286,12 @@ export function SecuritySettings({ onErrorCodeClick }: SecuritySettingsProps) {
         <div 
           className="flex items-start gap-3 p-4 rounded-lg"
           style={{ 
-            background: 'rgba(34, 197, 94, 0.15)',
-            borderLeft: '3px solid #22c55e',
+            background: 'rgba(16, 185, 129, 0.2)',
+            borderLeft: '3px solid rgba(16, 185, 129, 0.4)',
           }}
         >
-          <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#22c55e' }} />
-          <p className="text-sm" style={{ color: '#86efac' }}>
+          <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#6ee7b7' }} />
+          <p className="text-sm" style={{ color: '#6ee7b7' }}>
             {success}
           </p>
         </div>

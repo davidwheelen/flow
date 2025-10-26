@@ -7,9 +7,10 @@
  */
 
 import { useState } from 'react';
-import { Settings as SettingsIcon, X, Shield } from 'lucide-react';
+import { Settings as SettingsIcon, X, Shield, Palette } from 'lucide-react';
 import { ManualSetup } from './ManualSetup';
 import { SecuritySettings } from './SecuritySettings';
+import { AppearanceTab } from './AppearanceTab';
 
 interface SettingsProps {
   isOpen: boolean;
@@ -17,7 +18,7 @@ interface SettingsProps {
   onErrorCodeClick?: (code: string) => void;
 }
 
-type TabType = 'incontrol2' | 'security';
+type TabType = 'incontrol2' | 'security' | 'appearance';
 
 // Modal layout constants
 const MODAL_MIN_HEIGHT = '600px';
@@ -92,6 +93,18 @@ export function Settings({ isOpen, onClose, onErrorCodeClick }: SettingsProps) {
               <Shield className="w-4 h-4" />
               Security
             </button>
+            <button
+              onClick={() => setActiveMainTab('appearance')}
+              className="flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2"
+              style={{
+                background: activeMainTab === 'appearance' ? 'rgba(59, 130, 246, 0.25)' : 'transparent',
+                color: activeMainTab === 'appearance' ? '#93c5fd' : '#a0a0a0',
+              }}
+              type="button"
+            >
+              <Palette className="w-4 h-4" />
+              Appearance
+            </button>
           </div>
         </div>
 
@@ -99,6 +112,7 @@ export function Settings({ isOpen, onClose, onErrorCodeClick }: SettingsProps) {
         <div className="flex-1 overflow-y-auto p-6">
           {activeMainTab === 'incontrol2' && <ManualSetup />}
           {activeMainTab === 'security' && <SecuritySettings onErrorCodeClick={onErrorCodeClick} />}
+          {activeMainTab === 'appearance' && <AppearanceTab />}
         </div>
       </div>
     </div>

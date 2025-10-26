@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { PeplinkDevice } from '@/types/network.types';
 import { InControlGroup } from '@/services/groupsService';
+import { AppearanceSettings } from '@/types/theme';
 
 interface AppState {
   // Selected group
@@ -31,6 +32,10 @@ interface AppState {
   // Sidebar state
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
+
+  // Appearance settings
+  appearanceSettings: AppearanceSettings;
+  setAppearanceSettings: (settings: AppearanceSettings) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -43,6 +48,10 @@ export const useAppStore = create<AppState>()(
     isLoadingDevices: false,
     error: null,
     isSidebarOpen: true,
+    appearanceSettings: {
+      theme: 'dark',
+      sidebarBackground: undefined,
+    } as AppearanceSettings,
     
     // Actions
     setSelectedGroup: (group) => set((state) => {
@@ -78,6 +87,11 @@ export const useAppStore = create<AppState>()(
     
     toggleSidebar: () => set((state) => {
       state.isSidebarOpen = !state.isSidebarOpen;
+    }),
+
+    setAppearanceSettings: (settings) => set((state) => {
+      state.appearanceSettings = settings;
+      localStorage.setItem('flow-appearance', JSON.stringify(settings));
     }),
   }))
 );
