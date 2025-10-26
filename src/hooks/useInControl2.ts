@@ -115,7 +115,8 @@ export function useAuth() {
 
       if (error instanceof Error) {
         errorMessage = error.message;
-        // Extract error code from custom property or from message
+        // Extract error code from custom property (set by oauth2Service)
+        // Fallback to regex extraction for errors from other sources (e.g., network errors)
         const errorWithCode = error as Error & { code?: string };
         errorCode = errorWithCode.code || error.message.match(/^(ERR-\d{4})/)?.[1];
       }
