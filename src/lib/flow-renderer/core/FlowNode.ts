@@ -32,11 +32,8 @@ export class FlowNode {
     // Create isometric device representation
     this.createIsometricDevice();
     
-    // Note: Group position is now set in createIsometricDevice after icon loads
+    // Note: Group position and bounds are now set in createIsometricDevice after icon loads
     // or immediately if there's no icon
-    
-    // Update bounds
-    this.bounds = this.group.bounds;
   }
 
   private createIsometricDevice(): void {
@@ -47,6 +44,7 @@ export class FlowNode {
       this.renderDeviceLabel();
       // Position the group now since we're not waiting for an icon to load
       this.group.position = this.position;
+      this.bounds = this.group.bounds;
       return;
     }
     
@@ -73,6 +71,7 @@ export class FlowNode {
       
       // NOW position the group after all children are added
       this.group.position = this.position;
+      this.bounds = this.group.bounds;
     };
   }
 
