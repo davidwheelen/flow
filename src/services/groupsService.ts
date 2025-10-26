@@ -4,6 +4,7 @@
  * Fetches organization groups from InControl2 API using authenticated client
  */
 
+import axios from 'axios';
 import { authService } from './authService';
 
 export interface InControlGroup {
@@ -25,14 +26,23 @@ export async function getGroups(): Promise<InControlGroup[]> {
   }
   
   try {
-    // Fetch groups for the organization
+    // Correct InControl2 API endpoint for fetching groups
     const response = await apiClient.get<{ data: InControlGroup[] }>(
-      `/api/organizations/${credentials.orgId}/groups`
+      `/rest/o/${credentials.orgId}/g`
     );
     
+    // Response format: { data: [...] }
     return response.data.data || [];
   } catch (error) {
     console.error('Failed to fetch groups:', error);
+    
+    // Extract error details for better debugging
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      const message = error.response?.data?.message || error.message;
+      throw new Error(`Failed to fetch groups (${status}): ${message}`);
+    }
+    
     throw new Error('Failed to fetch groups from InControl2 API');
   }
 }
