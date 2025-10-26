@@ -26,10 +26,22 @@ export async function getGroups(): Promise<InControlGroup[]> {
   }
   
   try {
-    // Correct InControl2 API endpoint for fetching groups
-    const response = await apiClient.get<{ data: InControlGroup[] }>(
-      `/rest/o/${credentials.orgId}/g`
-    );
+    // Try modern REST API format first (used by api.ic.peplink.com)
+    let response;
+    try {
+      response = await apiClient.get<{ data: InControlGroup[] }>(
+        `/rest/o/${credentials.orgId}/g`
+      );
+    } catch (error) {
+      // If that fails with 404, try legacy API format (used by incontrol2.peplink.com)
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        response = await apiClient.get<{ data: InControlGroup[] }>(
+          `/api/organization/${credentials.orgId}/groups`
+        );
+      } else {
+        throw error;
+      }
+    }
     
     // Response format: { data: [...] }
     return response.data.data || [];
