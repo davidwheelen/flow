@@ -92,11 +92,6 @@ async function getEncryptionKey(): Promise<CryptoKey | null> {
  * Encrypt data using Web Crypto API
  */
 async function encrypt(data: string): Promise<string> {
-  if (!isCryptoAvailable) {
-    // Fallback: base64 encoding (NOT ENCRYPTED)
-    return btoa(data);
-  }
-  
   const key = await getEncryptionKey();
   if (!key) {
     // Crypto not available, use fallback
@@ -131,14 +126,14 @@ async function decrypt(encryptedData: string): Promise<string> {
   }
   
   if (!isCryptoAvailable) {
-    throw new Error('Cannot decrypt encrypted data without Web Crypto API');
+    throw new Error('Cannot decrypt encrypted data without Web Crypto API. Access via HTTPS or http://localhost to enable encryption.');
   }
   
   // Remove 'ENC:' prefix
   const actualData = encryptedData.substring(4);
   const key = await getEncryptionKey();
   if (!key) {
-    throw new Error('Encryption key not available');
+    throw new Error('Encryption key not available - Web Crypto API required for decryption.');
   }
   
   const combined = base64ToBuffer(actualData);
