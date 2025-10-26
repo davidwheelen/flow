@@ -14,6 +14,7 @@ export class FlowNode {
   private position: paper.Point;
   private scale: number;
   private bounds: paper.Rectangle;
+  private clickHandler: ((device: PeplinkDevice) => void) | null = null;
 
   constructor(options: FlowNodeOptions) {
     this.device = options.device;
@@ -23,6 +24,7 @@ export class FlowNode {
     this.bounds = new paper.Rectangle(this.position, new paper.Size(0, 0));
     
     this.render();
+    this.setupInteractivity();
   }
 
   private render(): void {
@@ -79,6 +81,29 @@ export class FlowNode {
     label.fontWeight = '500';
     label.justification = 'center';
     this.group.addChild(label);
+  }
+
+  private setupInteractivity(): void {
+    // Make the group interactive
+    this.group.onMouseEnter = () => {
+      document.body.style.cursor = 'pointer';
+    };
+
+    this.group.onMouseLeave = () => {
+      document.body.style.cursor = 'default';
+    };
+
+    this.group.onClick = () => {
+      if (this.clickHandler) {
+        this.clickHandler(this.device);
+      } else {
+        console.log('Device clicked:', this.device.name, this.device);
+      }
+    };
+  }
+
+  public setClickHandler(handler: (device: PeplinkDevice) => void): void {
+    this.clickHandler = handler;
   }
 
   public getDevice(): PeplinkDevice {

@@ -78,8 +78,9 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
         origin: 'CENTER'
       });
       
-      const x = centerX + tilePos.x + scroll.position.x;
-      const y = centerY + tilePos.y + scroll.position.y;
+      // Position relative to center without scroll offset (Paper.js view handles panning)
+      const x = centerX + tilePos.x;
+      const y = centerY + tilePos.y;
       
       const position = new paper.Point(x, y);
       const node = new FlowNode({ device, position });
@@ -122,7 +123,21 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [devices, scroll]);
+  }, [devices]);
+
+  // Apply zoom and pan transformations to Paper.js view
+  useEffect(() => {
+    if (!paper.view) return;
+
+    // Set zoom level
+    paper.view.zoom = zoom;
+    
+    // Set center position (pan)
+    paper.view.center = new paper.Point(
+      paper.view.bounds.width / 2 - scroll.position.x / zoom,
+      paper.view.bounds.height / 2 - scroll.position.y / zoom
+    );
+  }, [zoom, scroll]);
 
   // Handle window resize
   useEffect(() => {
