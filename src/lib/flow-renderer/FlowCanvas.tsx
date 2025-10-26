@@ -4,7 +4,6 @@ import { PeplinkDevice } from '@/types/network.types';
 import { FlowNode } from './core/FlowNode';
 import { FlowConnection } from './core/FlowConnection';
 import { Grid } from './components/Grid';
-import { getTilePosition } from './utils/gridUtils';
 import { MIN_ZOOM, MAX_ZOOM, ZOOM_INCREMENT } from './constants';
 
 interface FlowCanvasProps {
@@ -63,31 +62,52 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
     const newNodes = new Map<string, FlowNode>();
     const newConnections: FlowConnection[] = [];
 
-    // Create nodes with isometric layout using grid positioning
+    // AUTO-LAYOUT ALGORITHM
+    // Strategy: Arrange devices in a grid with enough spacing
+    const SPACING_X = 250; // Horizontal spacing between devices
+    const SPACING_Y = 200; // Vertical spacing between devices
+    const COLS = 3; // Number of columns in grid
+    
     const centerX = paper.view.bounds.width / 2;
     const centerY = paper.view.bounds.height / 2;
+    
+    // Calculate grid dimensions to center the layout
+    const totalRows = Math.ceil(devices.length / COLS);
+    const totalWidth = (Math.min(devices.length, COLS) - 1) * SPACING_X;
+    const totalHeight = (totalRows - 1) * SPACING_Y;
+    const startX = centerX - (totalWidth / 2);
+    const startY = centerY - (totalHeight / 2);
 
     devices.forEach((device, index) => {
-      // Calculate tile position in isometric grid
-      const row = Math.floor(index / 3);
-      const col = index % 3;
+      // Calculate grid position
+      const row = Math.floor(index / COLS);
+      const col = index % COLS;
       
-      // Use Isoflow grid positioning
-      const tilePos = getTilePosition({ 
-        tile: { x: col - 1, y: -row },
-        origin: 'CENTER'
-      });
-      
-      const x = centerX + tilePos.x + scroll.position.x;
-      const y = centerY + tilePos.y + scroll.position.y;
+      // Calculate absolute position with proper spacing
+      const x = startX + (col * SPACING_X);
+      const y = startY + (row * SPACING_Y);
       
       const position = new paper.Point(x, y);
       const node = new FlowNode({ device, position });
       newNodes.set(device.id, node);
     });
 
-    // Create connections between nodes
-    // For now, connect sequential devices
+    setNodes(newNodes);
+
+    // Create connections between devices based on actual device.connections data
+    devices.forEach(device => {
+      const fromNode = newNodes.get(device.id);
+      if (!fromNode) return;
+
+      // Note: The Connection interface doesn't have target_device_id
+      // So we'll create connections between sequential devices as a fallback
+      // This maintains backward compatibility
+      device.connections.forEach(() => {
+        // Placeholder for future implementation when target_device_id is available
+      });
+    });
+
+    // Fallback: Create connections between sequential devices
     const deviceArray = Array.from(newNodes.values());
     for (let i = 0; i < deviceArray.length - 1; i++) {
       const from = deviceArray[i];
@@ -96,17 +116,16 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
       // Get first connection type from the device
       const fromDevice = from.getDevice();
       if (fromDevice.connections.length > 0) {
-        const conn = new FlowConnection({
+        const connection = new FlowConnection({
           from,
           to,
           type: fromDevice.connections[0].type,
           status: fromDevice.connections[0].status,
         });
-        newConnections.push(conn);
+        newConnections.push(connection);
       }
     }
 
-    setNodes(newNodes);
     setConnections(newConnections);
 
     // Start animation loop (Paper.js handles rendering automatically)
@@ -122,7 +141,7 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [devices, scroll]);
+  }, [devices]); // Only re-run when devices change, NOT on zoom/pan
 
   // Handle window resize
   useEffect(() => {

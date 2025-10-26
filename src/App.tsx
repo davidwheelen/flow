@@ -4,6 +4,7 @@ import { Sidebar } from './components/Sidebar/Sidebar';
 import { Settings } from './components/Settings/Settings';
 import { ReauthModal } from './components/Modals/ReauthModal';
 import { ErrorCodeReferenceModal } from './components/Modals/ErrorCodeReferenceModal';
+import { TestDevices } from './components/TestDevices';
 import { FlowCanvas } from './lib/flow-renderer';
 import { useAppStore } from './store/appStore';
 import { useAuth } from './hooks/useInControl2';
@@ -37,6 +38,9 @@ function App() {
 
   return (
     <div className="flex h-screen" style={{ backgroundColor: '#1a1a1a' }}>
+      {/* Test mode component */}
+      <TestDevices />
+      
       {/* Sidebar */}
       <Sidebar />
       
