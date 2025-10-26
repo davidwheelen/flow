@@ -68,6 +68,13 @@ export class FlowNode {
       
       // Add device label below icon
       this.renderDeviceLabel();
+      
+      // Ensure the node is clickable and visible
+      this.group.bringToFront(); // Bring to front layer
+      this.group.onClick = () => {
+        console.log('Device clicked:', this.device.name);
+        // Add click handler logic
+      };
     };
   }
 
