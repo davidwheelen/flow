@@ -13,6 +13,10 @@ import { ERROR_CODES, createErrorResponse } from '../utils/errors.js';
 
 const router = Router();
 
+// Token expiration constants
+const DEFAULT_TOKEN_EXPIRY_SECONDS = 3600; // 1 hour
+const TOKEN_REFRESH_BUFFER_SECONDS = 60; // Refresh 60s before expiry
+
 /**
  * POST /api/auth/token
  * Proxy OAuth2 token requests to InControl2 API
@@ -108,7 +112,7 @@ router.post('/token', async (req: Request, res: Response): Promise<void> => {
         access_token: response.data.access_token,
         token_type: response.data.token_type || 'Bearer',
         expires_in: response.data.expires_in,
-        expiresAt: Date.now() + ((response.data.expires_in || 3600) - 60) * 1000, // 60s buffer
+        expiresAt: Date.now() + ((response.data.expires_in || DEFAULT_TOKEN_EXPIRY_SECONDS) - TOKEN_REFRESH_BUFFER_SECONDS) * 1000,
       },
     });
   } catch (error) {

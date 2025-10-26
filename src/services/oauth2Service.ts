@@ -4,6 +4,9 @@
  * Handles token retrieval, storage, expiration checking, and automatic refresh
  */
 
+// Token refresh buffer - refresh 60s before expiry to prevent race conditions
+const TOKEN_REFRESH_BUFFER_SECONDS = 60;
+
 export interface OAuth2Token {
   access_token: string;
   expires_in: number; // seconds
@@ -52,7 +55,7 @@ export async function getOAuth2Token(credentials: OAuth2Credentials): Promise<OA
     access_token: tokenData.access_token,
     token_type: tokenData.token_type,
     expires_in: tokenData.expires_in,
-    expiresAt: tokenData.expiresAt || Date.now() + (tokenData.expires_in - 60) * 1000,
+    expiresAt: tokenData.expiresAt || Date.now() + (tokenData.expires_in - TOKEN_REFRESH_BUFFER_SECONDS) * 1000,
   };
 }
 
