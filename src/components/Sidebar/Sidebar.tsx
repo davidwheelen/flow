@@ -5,6 +5,8 @@ import { useAuth, useDeviceData } from '@/hooks/useInControl2';
 import { getGroups } from '@/services/groupsService';
 import './Sidebar.css';
 
+const APP_VERSION = '0.1.0';
+
 export function Sidebar() {
   const {
     groups,
@@ -221,6 +223,23 @@ export function Sidebar() {
           )}
         </div>
       )}
+
+      {/* Version Footer */}
+      <div className="liquid-glass-panel m-4 mt-auto">
+        <div className="flex items-center justify-between text-xs" style={{ color: '#a0a0a0' }}>
+          <div className="flex items-center gap-2">
+            <span style={{ color: '#3b82f6' }}>✦</span>
+            <span>v{APP_VERSION}</span>
+          </div>
+          <button 
+            className="text-xs hover:underline"
+            style={{ color: '#3b82f6' }}
+            onClick={() => window.open('https://github.com/davidwheelen/flow/releases', '_blank')}
+          >
+            What's new
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -6,6 +6,18 @@ declare module '*.module.css' {
   export default classes;
 }
 
+// JSON module declarations
+declare module '*/package.json' {
+  interface PackageJson {
+    name: string;
+    version: string;
+    description?: string;
+    [key: string]: unknown;
+  }
+  const packageJson: PackageJson;
+  export default packageJson;
+}
+
 // Environment variable types
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL?: string;
