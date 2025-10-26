@@ -86,9 +86,6 @@ export function Sidebar() {
         <div 
           className="absolute inset-0 animated-gradient-bg"
           style={{
-            background: 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)',
-            backgroundSize: '400% 400%',
-            animation: 'gradient 15s ease infinite',
             opacity: 0.3,
             zIndex: 0,
           }}
