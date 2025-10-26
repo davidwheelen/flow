@@ -250,8 +250,11 @@ export class PollingService {
       }
     });
 
+    // Destructure to exclude original wans property, then add our partitioned wans and cellular
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { wans: _, ...otherDeviceData } = deviceData;
     return {
-      ...deviceData,
+      ...otherDeviceData,
       wans,
       cellular,
     };
