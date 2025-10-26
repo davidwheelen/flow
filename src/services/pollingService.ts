@@ -186,10 +186,15 @@ export class PollingService {
    */
   private async fetchDevices(groupId: string): Promise<PeplinkDevice[]> {
     const apiClient = authService.getApiClient();
+    const credentials = authService.getCredentials();
+    
+    if (!credentials) {
+      throw new Error('Not authenticated');
+    }
 
     // Fetch device list for group
     const devicesResponse = await this.rateLimiter.throttle(() =>
-      apiClient.get<{ data: IC2DeviceData[] }>(`/api/device/list?org_id=${authService.getCredentials()?.orgId}&group_id=${groupId}`)
+      apiClient.get<{ data: IC2DeviceData[] }>(`/api/device/list?org_id=${credentials.orgId}&group_id=${groupId}`)
     );
 
     const devices = devicesResponse.data.data || [];
