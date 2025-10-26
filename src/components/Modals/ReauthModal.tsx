@@ -68,7 +68,7 @@ export function ReauthModal({ isOpen, onReauth, onCancel }: ReauthModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
           <div className="flex items-center gap-3">
-            <Lock className="w-6 h-6" style={{ color: '#f59e0b' }} />
+            <Lock className="w-6 h-6" style={{ color: '#fdba74' }} />
             <h2 className="text-xl font-semibold" style={{ color: '#e0e0e0' }}>
               Session Expired
             </h2>
