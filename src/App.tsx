@@ -8,9 +8,10 @@ import { FlowCanvas } from './lib/flow-renderer';
 import { useAppStore } from './store/appStore';
 import { useAuth } from './hooks/useInControl2';
 import { useTokenManager } from './hooks/useTokenManager';
+import { mockDevices } from './data/mockDevices';
 
 function App() {
-  const { devices, selectedGroup } = useAppStore();
+  const { devices, selectedGroup, setDevices } = useAppStore();
   const { isAuthenticated } = useAuth();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [errorCodeModalOpen, setErrorCodeModalOpen] = useState(false);
@@ -18,6 +19,17 @@ function App() {
   
   // Token management for auto-refresh and re-auth
   const { showReauthModal, handleReauth, cancelReauth } = useTokenManager();
+
+  // Load mock devices in development (for testing)
+  useEffect(() => {
+    if (import.meta.env.DEV && devices.length === 0 && !selectedGroup) {
+      // Wait a bit to let the UI render first
+      const timer = setTimeout(() => {
+        setDevices(mockDevices);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [devices.length, selectedGroup, setDevices]);
 
   // Handler for opening error code modal
   const handleErrorCodeClick = (code: string) => {

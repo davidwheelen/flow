@@ -34,6 +34,9 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
     // Setup Paper.js
     paper.setup(canvasRef.current);
     
+    // Enable auto-update for dynamic content
+    paper.view.autoUpdate = true;
+    
     // Set canvas size from parent or specified dimensions
     const rect = canvasRef.current.getBoundingClientRect();
     const canvasWidth = width || rect.width || 800;

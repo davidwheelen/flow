@@ -51,10 +51,11 @@ export class FlowNode {
     }
     
     // Create Paper.js raster from icon URL
-    const icon = new paper.Raster({
-      source: iconUrl,
-      position: new paper.Point(0, 0),
-    });
+    const icon = new paper.Raster(iconUrl);
+    icon.position = new paper.Point(0, 0);
+    
+    // Add to group immediately (will be invisible until loaded)
+    this.group.addChild(icon);
     
     // Scale icon to consistent 60px size
     icon.onLoad = () => {
@@ -66,10 +67,13 @@ export class FlowNode {
       // Center the icon
       icon.position = new paper.Point(0, 0);
       
-      this.group.addChild(icon);
-      
       // Add device label below icon
       this.renderDeviceLabel();
+      
+      // Force Paper.js to update the view
+      if (paper.view) {
+        paper.view.update();
+      }
     };
   }
 
