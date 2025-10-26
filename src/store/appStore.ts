@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { PeplinkDevice } from '@/types/network.types';
-import { InControlGroup } from '@/services/incontrolApi';
+import { InControlGroup } from '@/services/groupsService';
 
 interface AppState {
   // Selected group

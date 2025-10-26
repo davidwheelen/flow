@@ -186,10 +186,15 @@ export class PollingService {
    */
   private async fetchDevices(groupId: string): Promise<PeplinkDevice[]> {
     const apiClient = authService.getApiClient();
+    const credentials = authService.getCredentials();
+    
+    if (!credentials) {
+      throw new Error('Not authenticated');
+    }
 
     // Fetch device list for group
     const devicesResponse = await this.rateLimiter.throttle(() =>
-      apiClient.get<{ data: IC2DeviceData[] }>(`/api/groups/${groupId}/devices`)
+      apiClient.get<{ data: IC2DeviceData[] }>(`/api/device/list?org_id=${credentials.orgId}&group_id=${groupId}`)
     );
 
     const devices = devicesResponse.data.data || [];
@@ -214,19 +219,19 @@ export class PollingService {
     // Fetch multiple endpoints in parallel with rate limiting
     const [statusRes, wanRes, cellularRes, bandwidthRes, pepvpnRes] = await Promise.all([
       this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData }>(`/api/devices/${deviceId}/status`)
+        apiClient.get<{ data: IC2DeviceData }>(`/api/device.info?id=${deviceId}`)
       ),
       this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData['wans'] }>(`/api/devices/${deviceId}/wan`)
+        apiClient.get<{ data: IC2DeviceData['wans'] }>(`/api/device.wan.info?id=${deviceId}`)
       ),
       this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData['cellular'] }>(`/api/devices/${deviceId}/cellular`)
+        apiClient.get<{ data: IC2DeviceData['cellular'] }>(`/api/device.cellular.info?id=${deviceId}`)
       ),
       this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData['bandwidth'] }>(`/api/devices/${deviceId}/bandwidth`)
+        apiClient.get<{ data: IC2DeviceData['bandwidth'] }>(`/api/device.bandwidth?id=${deviceId}`)
       ),
       this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData['pepvpn'] }>(`/api/devices/${deviceId}/pepvpn`)
+        apiClient.get<{ data: IC2DeviceData['pepvpn'] }>(`/api/device.pepvpn.info?id=${deviceId}`)
       ),
     ]);
 
