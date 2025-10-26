@@ -89,7 +89,11 @@ export function Sidebar() {
             opacity: 0.3,
             zIndex: 0,
           }}
-        />
+        >
+          <div className="wave"></div>
+          <div className="wave"></div>
+          <div className="wave"></div>
+        </div>
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
             <Network className="w-5 h-5" style={{ color: '#3b82f6' }} />
