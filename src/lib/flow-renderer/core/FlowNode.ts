@@ -75,6 +75,14 @@ export class FlowNode {
         paper.view.update();
       }
     };
+    
+    // Handle load errors gracefully
+    icon.onError = () => {
+      console.warn(`Failed to load icon for device: ${this.device.name} (${this.device.model})`);
+      // Remove the broken icon and just show the label
+      icon.remove();
+      this.renderDeviceLabel();
+    };
   }
 
   private renderDeviceLabel(): void {

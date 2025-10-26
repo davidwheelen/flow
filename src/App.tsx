@@ -22,11 +22,12 @@ function App() {
 
   // Load mock devices in development (for testing)
   useEffect(() => {
+    const MOCK_DEVICE_LOAD_DELAY_MS = 1000; // Wait for UI to render first
+    
     if (import.meta.env.DEV && devices.length === 0 && !selectedGroup) {
-      // Wait a bit to let the UI render first
       const timer = setTimeout(() => {
         setDevices(mockDevices);
-      }, 1000);
+      }, MOCK_DEVICE_LOAD_DELAY_MS);
       return () => clearTimeout(timer);
     }
   }, [devices.length, selectedGroup, setDevices]);
