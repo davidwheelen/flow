@@ -44,6 +44,9 @@ export const ERROR_CODES = {
   VALIDATION_ERROR: 'ERR-6001',
   INVALID_EMAIL: 'ERR-6002',
   INVALID_PASSWORD: 'ERR-6003',
+  
+  // System/Browser Errors (7xxx)
+  CRYPTO_UNAVAILABLE: 'ERR-CRYPTO',
 } as const;
 
 export const ERROR_MESSAGES: Record<string, string> = {
@@ -74,6 +77,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
   'ERR-6001': 'Validation error',
   'ERR-6002': 'Invalid email format',
   'ERR-6003': 'Invalid password format',
+  
+  'ERR-CRYPTO': 'Web Crypto API unavailable - use HTTPS or localhost for encryption',
 };
 
 export function createErrorResponse(
