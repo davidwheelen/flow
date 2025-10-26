@@ -2,12 +2,33 @@
  * Secure Storage Service
  * 
  * Provides encrypted storage for sensitive credentials using Web Crypto API.
- * Credentials are encrypted before being stored in localStorage.
+ * Falls back to base64 encoding when Web Crypto API is unavailable (non-HTTPS).
  */
 
 const STORAGE_PREFIX = 'flow_secure_';
 const ENCRYPTION_ALGORITHM = 'AES-GCM';
 const KEY_LENGTH = 256;
+
+// Check if Web Crypto API is available
+const isCryptoAvailable = typeof crypto !== 'undefined' && 
+                          crypto.subtle !== undefined;
+
+/**
+ * Check if secure storage (encryption) is available
+ */
+export function isSecureStorageAvailable(): boolean {
+  return isCryptoAvailable;
+}
+
+/**
+ * Get security warning message if encryption is not available
+ */
+export function getSecurityWarning(): string | null {
+  if (!isCryptoAvailable) {
+    return 'Web Crypto API unavailable. Credentials will be stored using base64 encoding (not encrypted). For full encryption, access via HTTPS or http://localhost.';
+  }
+  return null;
+}
 
 /**
  * Credentials interface
@@ -34,7 +55,11 @@ export interface StoredCredentials extends IC2Credentials {
 /**
  * Generate or retrieve encryption key from localStorage
  */
-async function getEncryptionKey(): Promise<CryptoKey> {
+async function getEncryptionKey(): Promise<CryptoKey | null> {
+  if (!isCryptoAvailable) {
+    return null; // Signal to use fallback encoding
+  }
+  
   const keyData = localStorage.getItem(`${STORAGE_PREFIX}key`);
   
   if (keyData) {
@@ -68,6 +93,11 @@ async function getEncryptionKey(): Promise<CryptoKey> {
  */
 async function encrypt(data: string): Promise<string> {
   const key = await getEncryptionKey();
+  if (!key) {
+    // Crypto not available, use fallback
+    return btoa(data);
+  }
+  
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encodedData = new TextEncoder().encode(data);
   
@@ -77,20 +107,36 @@ async function encrypt(data: string): Promise<string> {
     encodedData
   );
   
-  // Combine IV and encrypted data
+  // Combine IV and encrypted data, prepend marker
   const combined = new Uint8Array(iv.length + encryptedBuffer.byteLength);
   combined.set(iv, 0);
   combined.set(new Uint8Array(encryptedBuffer), iv.length);
   
-  return bufferToBase64(combined.buffer);
+  return 'ENC:' + bufferToBase64(combined.buffer);
 }
 
 /**
  * Decrypt data using Web Crypto API
  */
 async function decrypt(encryptedData: string): Promise<string> {
+  // Check if data is base64-encoded (fallback mode)
+  if (!encryptedData.startsWith('ENC:')) {
+    // Legacy or fallback mode - just base64 decode
+    return atob(encryptedData);
+  }
+  
+  if (!isCryptoAvailable) {
+    throw new Error('Cannot decrypt encrypted data without Web Crypto API. Access via HTTPS or http://localhost to enable encryption.');
+  }
+  
+  // Remove 'ENC:' prefix
+  const actualData = encryptedData.substring(4);
   const key = await getEncryptionKey();
-  const combined = base64ToBuffer(encryptedData);
+  if (!key) {
+    throw new Error('Encryption key not available - Web Crypto API required for decryption.');
+  }
+  
+  const combined = base64ToBuffer(actualData);
   
   // Extract IV and encrypted data
   const iv = combined.slice(0, 12);

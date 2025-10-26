@@ -20,6 +20,7 @@ export const ERROR_CODE_CATEGORIES = {
   AUTH: 'Authentication',
   NETWORK: 'Network/Connection',
   VALIDATION: 'Validation',
+  SYSTEM: 'System',
 } as const;
 
 export const ERROR_CODES_REFERENCE: ErrorCodeInfo[] = [
@@ -430,6 +431,25 @@ export const ERROR_CODES_REFERENCE: ErrorCodeInfo[] = [
       'Include uppercase, lowercase, numbers, special characters',
       'Ensure password meets minimum length',
       'Avoid common or weak passwords',
+    ],
+  },
+
+  // System/Browser Errors (7xxx)
+  {
+    code: 'ERR-CRYPTO',
+    category: ERROR_CODE_CATEGORIES.SYSTEM,
+    title: 'Web Crypto API Unavailable',
+    description: 'The browser Web Crypto API is not available in this context.',
+    causes: [
+      'Accessing the app over HTTP with an IP address',
+      'Accessing over HTTP from a non-localhost address',
+      'Browser does not support Web Crypto API',
+    ],
+    solutions: [
+      'Access the app via http://localhost:2727 instead of IP address',
+      'Set up HTTPS with an SSL certificate',
+      'Use a modern browser that supports Web Crypto API',
+      'If using SSH tunnel or port forwarding, access via localhost',
     ],
   },
 ];

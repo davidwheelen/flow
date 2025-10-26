@@ -6,9 +6,9 @@
  */
 
 import { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp, ExternalLink, Lock, Eye, EyeOff, CheckCircle, Loader2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, ExternalLink, Lock, Eye, EyeOff, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useInControl2';
-import { IC2Credentials, maskString } from '@/services/secureStorage';
+import { IC2Credentials, maskString, getSecurityWarning } from '@/services/secureStorage';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { ErrorCodeReferenceModal } from '@/components/Modals/ErrorCodeReferenceModal';
 
@@ -58,6 +58,13 @@ export function ManualSetup() {
   const [hasChanges, setHasChanges] = useState(false);
   const [showErrorReference, setShowErrorReference] = useState(false);
   const [highlightErrorCode, setHighlightErrorCode] = useState<string | undefined>();
+  const [securityWarning, setSecurityWarning] = useState<string | null>(null);
+
+  // Check for crypto availability on mount
+  useEffect(() => {
+    const warning = getSecurityWarning();
+    setSecurityWarning(warning);
+  }, []);
 
   // Load credentials when component mounts
   useEffect(() => {
@@ -190,6 +197,35 @@ export function ManualSetup() {
           </ol>
         </InstructionPanel>
       </div>
+
+      {/* Security Warning - Crypto API Unavailable */}
+      {securityWarning && (
+        <div 
+          className="flex items-start gap-3 p-4 rounded-lg"
+          style={{ 
+            background: 'rgba(245, 158, 11, 0.15)',
+            borderLeft: '3px solid #f59e0b',
+          }}
+        >
+          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f59e0b' }} />
+          <div>
+            <p className="text-sm font-medium" style={{ color: '#fbbf24' }}>
+              Encryption Unavailable
+            </p>
+            <p className="text-xs mt-1" style={{ color: '#a0a0a0' }}>
+              {securityWarning}
+            </p>
+            <button
+              onClick={() => handleErrorCodeClick('ERR-CRYPTO')}
+              className="text-xs mt-2 underline hover:no-underline"
+              style={{ color: '#fbbf24' }}
+              type="button"
+            >
+              Learn more about this security warning
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* API URL */}
       <div>
