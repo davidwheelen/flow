@@ -85,7 +85,7 @@ export interface IC2DeviceData {
   wans?: Array<{
     id: string;
     name: string;
-    type?: string;
+    type?: string; // Connection type: 'ethernet', 'cellular', etc.
     status: 'connected' | 'disconnected';
     ip_address?: string;
     speed_mbps?: number;
@@ -249,8 +249,17 @@ export class PollingService {
     // Extract cellular from WAN connections response
     // InControl2 API returns cellular as part of WAN connections with type="cellular"
     const wanData = wanRes.data.data || [];
-    const wans = wanData.filter((conn) => conn.type !== 'cellular');
-    const cellular = wanData.filter((conn) => conn.type === 'cellular');
+    const wans: typeof wanData = [];
+    const cellular: typeof wanData = [];
+    
+    // Partition data in a single iteration for efficiency
+    wanData.forEach((conn) => {
+      if (conn.type === 'cellular') {
+        cellular.push(conn);
+      } else {
+        wans.push(conn);
+      }
+    });
 
     // Combine all data
     return {
