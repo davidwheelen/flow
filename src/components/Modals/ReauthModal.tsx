@@ -87,12 +87,12 @@ export function ReauthModal({ isOpen, onReauth, onCancel }: ReauthModalProps) {
           <div 
             className="flex items-start gap-3 p-4 rounded-lg"
             style={{ 
-              background: 'rgba(245, 158, 11, 0.15)',
-              borderLeft: '3px solid #f59e0b',
+              background: 'rgba(249, 115, 22, 0.2)',
+              borderLeft: '3px solid rgba(249, 115, 22, 0.4)',
             }}
           >
-            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f59e0b' }} />
-            <p className="text-sm" style={{ color: '#fbbf24' }}>
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#fdba74' }} />
+            <p className="text-sm" style={{ color: '#fdba74' }}>
               Your session has expired. Please enter your credentials to continue.
             </p>
           </div>

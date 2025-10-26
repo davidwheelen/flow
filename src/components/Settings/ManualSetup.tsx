@@ -203,13 +203,13 @@ export function ManualSetup() {
         <div 
           className="flex items-start gap-3 p-4 rounded-lg"
           style={{ 
-            background: 'rgba(245, 158, 11, 0.15)',
-            borderLeft: '3px solid #f59e0b',
+            background: 'rgba(249, 115, 22, 0.2)',
+            borderLeft: '3px solid rgba(249, 115, 22, 0.4)',
           }}
         >
-          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f59e0b' }} />
+          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#fdba74' }} />
           <div>
-            <p className="text-sm font-medium" style={{ color: '#fbbf24' }}>
+            <p className="text-sm font-medium" style={{ color: '#fdba74' }}>
               Encryption Unavailable
             </p>
             <p className="text-xs mt-1" style={{ color: '#a0a0a0' }}>
@@ -218,7 +218,7 @@ export function ManualSetup() {
             <button
               onClick={() => handleErrorCodeClick('ERR-CRYPTO')}
               className="text-xs mt-2 underline hover:no-underline"
-              style={{ color: '#fbbf24' }}
+              style={{ color: '#fdba74' }}
               type="button"
             >
               Learn more about this security warning
@@ -346,12 +346,12 @@ export function ManualSetup() {
         <div 
           className="flex items-start gap-3 p-4 rounded-lg"
           style={{ 
-            background: 'rgba(34, 197, 94, 0.15)',
-            borderLeft: '3px solid #22c55e',
+            background: 'rgba(16, 185, 129, 0.2)',
+            borderLeft: '3px solid rgba(16, 185, 129, 0.4)',
           }}
         >
-          <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#22c55e' }} />
-          <p className="text-sm" style={{ color: '#86efac' }}>
+          <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#6ee7b7' }} />
+          <p className="text-sm" style={{ color: '#6ee7b7' }}>
             {testResult.message}
           </p>
         </div>
