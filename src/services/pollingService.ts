@@ -85,12 +85,15 @@ export interface IC2DeviceData {
   wans?: Array<{
     id: string;
     name: string;
+    type?: string; // Connection type: 'ethernet', 'cellular', etc.
     status: 'connected' | 'disconnected';
     ip_address?: string;
     speed_mbps?: number;
     latency_ms?: number;
     upload_mbps?: number;
     download_mbps?: number;
+    signal_strength?: number;
+    carrier?: string;
   }>;
   cellular?: Array<{
     id: string;
@@ -192,16 +195,18 @@ export class PollingService {
       throw new Error('Not authenticated');
     }
 
-    // Fetch device list for group
+    // Correct InControl2 API endpoint for fetching devices in a group
     const devicesResponse = await this.rateLimiter.throttle(() =>
-      apiClient.get<{ data: IC2DeviceData[] }>(`/api/device/list?org_id=${credentials.orgId}&group_id=${groupId}`)
+      apiClient.get<{ data: IC2DeviceData[] }>(
+        `/rest/o/${credentials.orgId}/g/${groupId}/d`
+      )
     );
 
     const devices = devicesResponse.data.data || [];
 
     // Fetch detailed status for each device in parallel (with rate limiting)
     const deviceDataPromises = devices.map(device =>
-      this.fetchDeviceDetails(device.id)
+      this.fetchDeviceDetails(device.id, groupId)
     );
 
     const devicesData = await Promise.all(deviceDataPromises);
@@ -213,33 +218,54 @@ export class PollingService {
   /**
    * Fetch detailed device information
    */
-  private async fetchDeviceDetails(deviceId: string): Promise<IC2DeviceData> {
+  private async fetchDeviceDetails(deviceId: string, groupId: string): Promise<IC2DeviceData> {
     const apiClient = authService.getApiClient();
+    const credentials = authService.getCredentials();
+    
+    if (!credentials) {
+      throw new Error('Not authenticated');
+    }
+
+    const orgId = credentials.orgId;
+    const basePath = `/rest/o/${orgId}/g/${groupId}/d/${deviceId}`;
 
     // Fetch multiple endpoints in parallel with rate limiting
-    const [statusRes, wanRes, cellularRes, bandwidthRes, pepvpnRes] = await Promise.all([
+    // Note: Cellular is included in WAN connections response
+    const [statusRes, wanRes, bandwidthRes, pepvpnRes] = await Promise.all([
       this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData }>(`/api/device.info?id=${deviceId}`)
+        apiClient.get<{ data: IC2DeviceData }>(`${basePath}/info`)
       ),
       this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData['wans'] }>(`/api/device.wan.info?id=${deviceId}`)
+        apiClient.get<{ data: IC2DeviceData['wans'] }>(`${basePath}/wan_connections`)
       ),
       this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData['cellular'] }>(`/api/device.cellular.info?id=${deviceId}`)
+        apiClient.get<{ data: IC2DeviceData['bandwidth'] }>(`${basePath}/bandwidth`)
       ),
       this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData['bandwidth'] }>(`/api/device.bandwidth?id=${deviceId}`)
-      ),
-      this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData['pepvpn'] }>(`/api/device.pepvpn.info?id=${deviceId}`)
+        apiClient.get<{ data: IC2DeviceData['pepvpn'] }>(`${basePath}/pepvpn`)
       ),
     ]);
+
+    // Extract cellular from WAN connections response
+    // InControl2 API returns cellular as part of WAN connections with type="cellular"
+    const wanData = wanRes.data.data || [];
+    const wans: typeof wanData = [];
+    const cellular: typeof wanData = [];
+    
+    // Partition data in a single iteration for efficiency
+    wanData.forEach((conn) => {
+      if (conn.type === 'cellular') {
+        cellular.push(conn);
+      } else {
+        wans.push(conn);
+      }
+    });
 
     // Combine all data
     return {
       ...statusRes.data.data,
-      wans: wanRes.data.data || [],
-      cellular: cellularRes.data.data || [],
+      wans,
+      cellular,
       bandwidth: bandwidthRes.data.data,
       pepvpn: pepvpnRes.data.data || [],
     };

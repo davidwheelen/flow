@@ -41,7 +41,8 @@ export class AuthService {
    */
   setCredentials(credentials: IC2Credentials): void {
     this.credentials = credentials;
-    this.apiClient.defaults.baseURL = credentials.apiUrl;
+    // Always use api.ic.peplink.com for API calls, NOT incontrol2.peplink.com
+    this.apiClient.defaults.baseURL = 'https://api.ic.peplink.com';
   }
 
   /**
