@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Network, ChevronRight, Loader2 } from 'lucide-react';
 import { useAppStore } from '@/store/appStore';
 import { useAuth, useDeviceData } from '@/hooks/useInControl2';
-import { getGroups, getDevicesByGroup } from '@/services/incontrolApi';
+import { getGroups } from '@/services/groupsService';
 
 export function Sidebar() {
   const {
@@ -36,8 +36,15 @@ export function Sidebar() {
     }
   }, [polledDevices, isAuthenticated, setDevices, setIsLoadingDevices]);
 
-  // Load groups on mount
+  // Load groups on mount when authenticated
   useEffect(() => {
+    if (!isAuthenticated) {
+      // Clear groups when not authenticated
+      setGroups([]);
+      setError(null);
+      return;
+    }
+
     const loadGroups = async () => {
       setIsLoadingGroups(true);
       setError(null);
@@ -53,7 +60,7 @@ export function Sidebar() {
     };
     
     loadGroups();
-  }, [setGroups, setIsLoadingGroups, setError]);
+  }, [isAuthenticated, setGroups, setIsLoadingGroups, setError]);
 
   const handleGroupSelect = async (groupId: string) => {
     const group = groups.find(g => g.id === groupId);
@@ -63,19 +70,8 @@ export function Sidebar() {
     setIsLoadingDevices(true);
     setError(null);
     
-    // If authenticated, polling service will handle device loading
-    // Otherwise, use the old API method
-    if (!isAuthenticated) {
-      try {
-        const devices = await getDevicesByGroup(groupId);
-        setDevices(devices);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load devices');
-        setDevices([]);
-      } finally {
-        setIsLoadingDevices(false);
-      }
-    }
+    // Polling service will handle device loading automatically
+    // The useDeviceData hook (lines 26-37) starts polling when selectedGroup changes
   };
 
   if (!isSidebarOpen) {
@@ -132,7 +128,9 @@ export function Sidebar() {
           </div>
         ) : groups.length === 0 ? (
           <div className="p-4 text-center text-sm" style={{ color: '#a0a0a0' }}>
-            No groups found
+            {!isAuthenticated 
+              ? 'Configure your InControl2 credentials in Settings to get started.'
+              : 'No groups found'}
           </div>
         ) : (
           <div className="space-y-2">

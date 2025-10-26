@@ -74,10 +74,10 @@ function App() {
               </p>
               <p className="text-sm max-w-md" style={{ color: '#a0a0a0' }}>
                 {selectedGroup
-                  ? 'This group has no devices configured. Check your InControl settings.'
+                  ? 'This group has no devices. Check your InControl2 group configuration.'
                   : !isAuthenticated
-                  ? 'Click the settings button to configure your InControl2 API credentials and get started.'
-                  : 'Select a group from the sidebar to visualize your Peplink network devices in 3D isometric view.'}
+                  ? 'Configure your InControl2 credentials in Settings to get started.'
+                  : 'Select a group from the sidebar to visualize your network devices.'}
               </p>
             </div>
           </div>
