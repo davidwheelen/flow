@@ -95,8 +95,10 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
     setNodes(newNodes);
 
     // Create connections between devices based on sequential layout
-    // Note: The Connection interface doesn't have target_device_id yet,
-    // so we connect devices sequentially to show connection lines
+    // Note: The current Connection interface in network.types.ts doesn't have
+    // a target_device_id field to indicate device-to-device topology.
+    // Until the data model is updated, we connect devices sequentially
+    // (device i → device i+1) to demonstrate connection lines.
     const deviceArray = Array.from(newNodes.values());
     for (let i = 0; i < deviceArray.length - 1; i++) {
       const from = deviceArray[i];

@@ -70,8 +70,13 @@ export class FlowNode {
       this.renderDeviceLabel();
       
       // Ensure the node is clickable and visible
-      this.group.bringToFront(); // Bring to front layer
-      this.group.onClick = () => {
+      // Move group to front by inserting above all other items
+      if (this.group.parent) {
+        this.group.parent.addChild(this.group);
+      }
+      
+      // Add click handler using Paper.js event system
+      this.group.onMouseDown = () => {
         console.log('Device clicked:', this.device.name);
         // Add click handler logic
       };
