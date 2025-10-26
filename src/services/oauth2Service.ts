@@ -38,7 +38,9 @@ export async function getOAuth2Token(credentials: OAuth2Credentials): Promise<OA
     const errorData = await response.json().catch(() => null);
     const errorMessage = errorData?.errorMessage || `Token request failed: ${response.status} ${response.statusText}`;
     const errorCode = errorData?.errorCode || 'ERR-UNKNOWN';
-    throw new Error(`${errorCode}: ${errorMessage}`);
+    const error = new Error(`${errorCode}: ${errorMessage}`) as Error & { code: string };
+    error.code = errorCode;
+    throw error;
   }
   
   const data = await response.json();
