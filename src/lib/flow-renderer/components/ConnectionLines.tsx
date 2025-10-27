@@ -24,7 +24,7 @@ const STATUS_STYLES: Record<ConnectionStatus, { opacity: number; dashArray: stri
 export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ devices, deviceTiles }) => {
   const { zoom, scroll, rendererSize } = useCanvasStore();
   
-  // Create connections between sequential devices (fallback approach)
+  // Create connections based on actual network topology
   const connections: Array<{
     from: Coords;
     to: Coords;
@@ -32,24 +32,30 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ devices, devic
     status: ConnectionStatus;
   }> = [];
   
-  for (let i = 0; i < devices.length - 1; i++) {
-    const fromDevice = devices[i];
-    const toDevice = devices[i + 1];
-    const fromTile = deviceTiles.get(fromDevice.id);
-    const toTile = deviceTiles.get(toDevice.id);
+  // Iterate through each device and its connections
+  devices.forEach(device => {
+    const fromTile = deviceTiles.get(device.id);
+    if (!fromTile) return;
     
-    if (fromTile && toTile && fromDevice.connections.length > 0) {
+    // Iterate through actual connections from InControl
+    device.connections.forEach(conn => {
+      // Only create visual connection if this connection has a device_id (device-to-device)
+      if (!conn.device_id) return;
+      
+      const toTile = deviceTiles.get(conn.device_id);
+      if (!toTile) return;
+      
       const fromPos = getTilePosition({ tile: fromTile, origin: 'BOTTOM' });
       const toPos = getTilePosition({ tile: toTile, origin: 'BOTTOM' });
       
       connections.push({
         from: fromPos,
         to: toPos,
-        type: fromDevice.connections[0].type,
-        status: fromDevice.connections[0].status,
+        type: conn.type,
+        status: conn.status,
       });
-    }
-  }
+    });
+  });
   
   return (
     <svg
