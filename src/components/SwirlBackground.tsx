@@ -1,104 +1,172 @@
 import { useEffect, useRef } from 'react';
 import { createNoise3D } from 'simplex-noise';
 
+const particleCount = 700;
+const particlePropCount = 9;
+const rangeY = 100;
+const baseTTL = 50;
+const rangeTTL = 150;
+const baseSpeed = 0.1;
+const rangeSpeed = 2;
+const baseRadius = 1;
+const rangeRadius = 4;
+const baseHue = 165; // Emerald green from app theme
+const rangeHue = 115; // Range to purple (165-280)
+const noiseSteps = 8;
+const xOff = 0.00125;
+const yOff = 0.00125;
+const zOff = 0.0005;
+const backgroundColor = 'hsla(260,40%,5%,1)'; // Exact from source
+const TAU = Math.PI * 2;
+
 export function SwirlBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasARef = useRef<HTMLCanvasElement>(null);
+  const canvasBRef = useRef<HTMLCanvasElement>(null);
   
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvasA = canvasARef.current;
+    const canvasB = canvasBRef.current;
+    if (!canvasA || !canvasB) return;
     
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const ctxA = canvasA.getContext('2d');
+    const ctxB = canvasB.getContext('2d');
+    if (!ctxA || !ctxB) return;
     
-    // Setup canvas size
-    const updateSize = () => {
-      if (!canvas) return;
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+    // Setup
+    const resize = () => {
+      const { innerWidth, innerHeight } = window;
+      canvasA.width = innerWidth;
+      canvasA.height = innerHeight;
+      canvasB.width = innerWidth;
+      canvasB.height = innerHeight;
     };
-    updateSize();
+    resize();
     
-    // Initialize simplex noise
+    const center = [canvasA.width / 2, canvasA.height / 2];
     const noise3D = createNoise3D();
     
-    // Particle system
-    interface Particle {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-    }
+    // Particle properties stored in Float32Array for performance
+    const particleProps = new Float32Array(particleCount * particlePropCount);
     
-    const particles: Particle[] = [];
-    const particleCount = 300;
+    const rand = (n: number) => n * Math.random();
+    const randRange = (n: number) => n - rand(2 * n);
+    const fadeInOut = (t: number, m: number) => {
+      const hm = 0.5 * m;
+      return Math.abs((t + hm) % m - hm) / hm;
+    };
+    const lerp = (n1: number, n2: number, speed: number) => (1 - speed) * n1 + speed * n2;
     
-    // Initialize particles
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: 0,
-        vy: 0
-      });
-    }
-    
-    let time = 0;
-    let animationId: number;
-    
-    // Animation loop
-    function animate() {
-      if (!canvas || !ctx) return;
+    const initParticle = (i: number) => {
+      const x = rand(canvasA.width);
+      const y = center[1] + randRange(rangeY);
+      const vx = 0;
+      const vy = 0;
+      const life = 0;
+      const ttl = baseTTL + rand(rangeTTL);
+      const speed = baseSpeed + rand(rangeSpeed);
+      const radius = baseRadius + rand(rangeRadius);
+      const hue = baseHue + rand(rangeHue);
       
-      time += 0.005;
-      
-      // Fade effect
-      ctx.fillStyle = 'rgba(26, 26, 26, 0.05)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Update and draw particles
-      particles.forEach(p => {
-        if (!canvas || !ctx) return;
-        
-        // Get noise value for particle position
-        const noiseX = noise3D(p.x / 200, p.y / 200, time);
-        const noiseY = noise3D(p.x / 200 + 100, p.y / 200 + 100, time);
-        
-        // Apply noise to velocity (swirl effect)
-        p.vx = noiseX * 2;
-        p.vy = noiseY * 2;
-        
-        // Update position
-        p.x += p.vx;
-        p.y += p.vy;
-        
-        // Wrap around edges
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
-        
-        // Draw particle
-        ctx.fillStyle = 'rgba(59, 130, 246, 0.6)';
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      
-      animationId = requestAnimationFrame(animate);
-    }
-    
-    animate();
-    
-    // Handle resize
-    const handleResize = () => {
-      updateSize();
+      particleProps.set([x, y, vx, vy, life, ttl, speed, radius, hue], i);
     };
     
-    window.addEventListener('resize', handleResize);
+    // Initialize all particles
+    for (let i = 0; i < particleCount * particlePropCount; i += particlePropCount) {
+      initParticle(i);
+    }
     
+    let tick = 0;
+    let animationId: number;
+    
+    const drawParticle = (x: number, y: number, x2: number, y2: number, life: number, ttl: number, radius: number, hue: number) => {
+      ctxA.save();
+      ctxA.lineCap = 'round';
+      ctxA.lineWidth = radius;
+      ctxA.strokeStyle = `hsla(${hue},100%,60%,${fadeInOut(life, ttl)})`;
+      ctxA.beginPath();
+      ctxA.moveTo(x, y);
+      ctxA.lineTo(x2, y2);
+      ctxA.stroke();
+      ctxA.closePath();
+      ctxA.restore();
+    };
+    
+    const checkBounds = (x: number, y: number) => {
+      return x > canvasA.width || x < 0 || y > canvasA.height || y < 0;
+    };
+    
+    const updateParticle = (i: number) => {
+      const i2 = 1 + i, i3 = 2 + i, i4 = 3 + i, i5 = 4 + i;
+      const i6 = 5 + i, i7 = 6 + i, i8 = 7 + i, i9 = 8 + i;
+      
+      const x = particleProps[i];
+      const y = particleProps[i2];
+      const n = noise3D(x * xOff, y * yOff, tick * zOff) * noiseSteps * TAU;
+      const vx = lerp(particleProps[i3], Math.cos(n), 0.5);
+      const vy = lerp(particleProps[i4], Math.sin(n), 0.5);
+      const life = particleProps[i5];
+      const ttl = particleProps[i6];
+      const speed = particleProps[i7];
+      const x2 = x + vx * speed;
+      const y2 = y + vy * speed;
+      const radius = particleProps[i8];
+      const hue = particleProps[i9];
+      
+      drawParticle(x, y, x2, y2, life, ttl, radius, hue);
+      
+      particleProps[i] = x2;
+      particleProps[i2] = y2;
+      particleProps[i3] = vx;
+      particleProps[i4] = vy;
+      particleProps[i5] = life + 1;
+      
+      if (checkBounds(x, y) || life > ttl) {
+        initParticle(i);
+      }
+    };
+    
+    const renderGlow = () => {
+      ctxB.save();
+      ctxB.filter = 'blur(8px) brightness(200%)';
+      ctxB.globalCompositeOperation = 'lighter';
+      ctxB.drawImage(canvasA, 0, 0);
+      ctxB.restore();
+      
+      ctxB.save();
+      ctxB.filter = 'blur(4px) brightness(200%)';
+      ctxB.globalCompositeOperation = 'lighter';
+      ctxB.drawImage(canvasA, 0, 0);
+      ctxB.restore();
+    };
+    
+    const renderToScreen = () => {
+      ctxB.save();
+      ctxB.globalCompositeOperation = 'lighter';
+      ctxB.drawImage(canvasA, 0, 0);
+      ctxB.restore();
+    };
+    
+    const draw = () => {
+      tick++;
+      ctxA.clearRect(0, 0, canvasA.width, canvasA.height);
+      ctxB.fillStyle = backgroundColor;
+      ctxB.fillRect(0, 0, canvasA.width, canvasA.height);
+      
+      for (let i = 0; i < particleCount * particlePropCount; i += particlePropCount) {
+        updateParticle(i);
+      }
+      
+      renderGlow();
+      renderToScreen();
+      
+      animationId = requestAnimationFrame(draw);
+    };
+    
+    draw();
+    
+    window.addEventListener('resize', resize);
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', resize);
       if (animationId) {
         cancelAnimationFrame(animationId);
       }
@@ -106,16 +174,19 @@ export function SwirlBackground() {
   }, []);
   
   return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none'
-      }}
-    />
+    <>
+      <canvas ref={canvasARef} style={{ display: 'none' }} />
+      <canvas
+        ref={canvasBRef}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          pointerEvents: 'none'
+        }}
+      />
+    </>
   );
 }

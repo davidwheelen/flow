@@ -10,12 +10,31 @@ export interface NetworkMetrics {
   downloadMbps: number;
 }
 
+export interface WANConnection {
+  id: string;
+  name: string; // e.g., "WAN1 - Xfinity"
+  type: string; // "ethernet", "cellular", "usb", etc.
+  status: 'connected' | 'disconnected' | 'standby';
+  ipAddress: string;
+  subnetMask?: string;
+  macAddress?: string;
+  gateway?: string;
+  dnsServers?: string[];
+  connectionMethod?: string; // "DHCP", "Static", "PPPoE"
+  routingMode?: string; // "NAT", "IP Forwarding"
+  mtu?: number;
+  healthCheckMethod?: string;
+  serviceProvider?: string;
+  findMyPeplinkAddress?: string;
+}
+
 export interface Connection {
   id: string;
   type: ConnectionType;
   status: ConnectionStatus;
   metrics: NetworkMetrics;
   device_id?: string; // Optional device ID for device-to-device connections
+  wanDetails?: WANConnection; // Add WAN-specific details
 }
 
 export interface PeplinkDevice {

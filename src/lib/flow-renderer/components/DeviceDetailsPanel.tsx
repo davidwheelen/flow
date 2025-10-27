@@ -169,6 +169,54 @@ export const DeviceDetailsPanel: React.FC<DeviceDetailsPanelProps> = ({ devices 
                 <div style={{ color: '#e0e0e0', fontSize: 13 }}>{conn.metrics.downloadMbps} Mbps</div>
               </div>
             </div>
+            
+            {conn.wanDetails && (
+              <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 4 }}>
+                  {conn.wanDetails.name}
+                </div>
+                {conn.wanDetails.ipAddress && (
+                  <div style={{ fontSize: 11, color: '#e0e0e0', marginBottom: 3, fontFamily: 'monospace' }}>
+                    IP: {conn.wanDetails.ipAddress}
+                  </div>
+                )}
+                {conn.wanDetails.macAddress && (
+                  <div style={{ fontSize: 11, color: '#a0a0a0', marginBottom: 3, fontFamily: 'monospace' }}>
+                    MAC: {conn.wanDetails.macAddress}
+                  </div>
+                )}
+                {conn.wanDetails.gateway && (
+                  <div style={{ fontSize: 11, color: '#a0a0a0', marginBottom: 3, fontFamily: 'monospace' }}>
+                    Gateway: {conn.wanDetails.gateway}
+                  </div>
+                )}
+                {conn.wanDetails.dnsServers && conn.wanDetails.dnsServers.length > 0 && (
+                  <div style={{ fontSize: 11, color: '#a0a0a0', marginBottom: 3, fontFamily: 'monospace' }}>
+                    DNS: {conn.wanDetails.dnsServers.join(', ')}
+                  </div>
+                )}
+                {conn.wanDetails.connectionMethod && (
+                  <div style={{ fontSize: 11, color: '#a0a0a0', marginBottom: 3 }}>
+                    Method: {conn.wanDetails.connectionMethod}
+                  </div>
+                )}
+                {conn.wanDetails.routingMode && (
+                  <div style={{ fontSize: 11, color: '#a0a0a0', marginBottom: 3 }}>
+                    Mode: {conn.wanDetails.routingMode}
+                  </div>
+                )}
+                {conn.wanDetails.mtu && (
+                  <div style={{ fontSize: 11, color: '#a0a0a0', marginBottom: 3 }}>
+                    MTU: {conn.wanDetails.mtu}
+                  </div>
+                )}
+                {conn.wanDetails.healthCheckMethod && (
+                  <div style={{ fontSize: 11, color: '#a0a0a0' }}>
+                    Health Check: {conn.wanDetails.healthCheckMethod}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>
