@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- 3D Isometric Box (smaller) -->
+  <!-- Top face (light grey) -->
+  <path d="M 90,80 L 160,110 L 160,130 L 90,100 Z" 
+        fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+  
+  <!-- Front face (medium grey) -->
+  <path d="M 90,100 L 160,130 L 160,180 L 90,150 Z" 
+        fill="#7f8c8d" stroke="#5d6d7e" stroke-width="1"/>
+  
+  <!-- Side face (dark grey) -->
+  <path d="M 160,110 L 180,120 L 180,170 L 160,180 L 160,130 Z" 
+        fill="#5d6d7e" stroke="#34495e" stroke-width="1"/>
+  
+  <!-- Status LEDs on front -->
+  <!-- Power LED (green) -->
+  <circle cx="105" cy="115" r="2.5" fill="#2ecc71" filter="url(#glow)"/>
+  <text x="100" y="125" font-size="5" fill="#ecf0f1">PWR</text>
+  
+  <!-- WAN LED (blue) -->
+  <circle cx="120" cy="115" r="2.5" fill="#3498db" filter="url(#glow)"/>
+  <text x="117" y="125" font-size="5" fill="#ecf0f1">WAN</text>
+  
+  <!-- Cellular LED (purple) -->
+  <circle cx="135" cy="115" r="2.5" fill="#9b59b6" filter="url(#glow)"/>
+  <text x="131" y="125" font-size="5" fill="#ecf0f1">LTE</text>
+  
+  <!-- WAN Port -->
+  <rect x="110" y="138" width="12" height="8" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="1"/>
+  <text x="113" y="144" font-size="5" fill="#95a5a6">1</text>
+  
+  <!-- LAN Ports -->
+  <rect x="105" y="152" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <rect x="115" y="152" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <rect x="125" y="152" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  
+  <!-- Cellular antenna indicator -->
+  <circle cx="150" cy="90" r="3" fill="#9b59b6" opacity="0.8"/>
+  <line x1="150" y1="90" x2="150" y2="82" stroke="#9b59b6" stroke-width="1.5"/>
+  <line x1="147" y1="85" x2="153" y2="85" stroke="#9b59b6" stroke-width="1"/>
+  
+  <!-- Model label -->
+  <text x="100" y="168" font-size="8" fill="#ecf0f1" font-weight="bold">Balance 30 LTE</text>
+  
+  <!-- Peplink branding -->
+  <text x="115" y="178" font-size="6" fill="#95a5a6">Peplink</text>
+</svg>

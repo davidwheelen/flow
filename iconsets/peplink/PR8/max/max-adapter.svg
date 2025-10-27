@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- 3D Isometric USB stick shape -->
+  <!-- USB connector part -->
+  <path d="M 100,110 L 120,120 L 120,135 L 100,125 Z" 
+        fill="#bdc3c7" stroke="#95a5a6" stroke-width="1"/>
+  
+  <path d="M 100,125 L 120,135 L 120,145 L 100,135 Z" 
+        fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+  
+  <path d="M 120,120 L 130,125 L 130,140 L 120,145 L 120,135 Z" 
+        fill="#7f8c8d" stroke="#5d6d7e" stroke-width="1"/>
+  
+  <!-- USB contacts -->
+  <rect x="105" y="130" width="3" height="2" fill="#f39c12"/>
+  <rect x="109" y="130" width="3" height="2" fill="#f39c12"/>
+  <rect x="105" y="133" width="3" height="2" fill="#f39c12"/>
+  <rect x="109" y="133" width="3" height="2" fill="#f39c12"/>
+  
+  <!-- Main body (USB stick) -->
+  <path d="M 120,120 L 155,138 L 155,155 L 120,137 Z" 
+        fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+  
+  <path d="M 120,137 L 155,155 L 155,165 L 120,147 Z" 
+        fill="#7f8c8d" stroke="#5d6d7e" stroke-width="1"/>
+  
+  <path d="M 155,138 L 165,143 L 165,160 L 155,165 L 155,155 Z" 
+        fill="#5d6d7e" stroke="#34495e" stroke-width="1"/>
+  
+  <!-- Status LEDs on body -->
+  <!-- Power LED (green) -->
+  <circle cx="133" cy="143" r="2" fill="#2ecc71" filter="url(#glow)"/>
+  <text x="128" y="151" font-size="4" fill="#ecf0f1">PWR</text>
+  
+  <!-- Cellular LED (purple) -->
+  <circle cx="143" cy="148" r="2" fill="#9b59b6" filter="url(#glow)"/>
+  <text x="138" y="156" font-size="4" fill="#ecf0f1">LTE</text>
+  
+  <!-- Cellular antenna indicator (small) -->
+  <circle cx="158" cy="132" r="2.5" fill="#9b59b6" opacity="0.8"/>
+  <line x1="158" y1="132" x2="158" y2="125" stroke="#9b59b6" stroke-width="1.5"/>
+  <line x1="156" y1="127" x2="160" y2="127" stroke="#9b59b6" stroke-width="1"/>
+  
+  <!-- Model label -->
+  <text x="110" y="178" font-size="9" fill="#ecf0f1" font-weight="bold">MAX Adapter</text>
+  
+  <!-- Peplink branding -->
+  <text x="118" y="189" font-size="6" fill="#95a5a6">Peplink</text>
+</svg>

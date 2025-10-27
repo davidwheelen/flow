@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="#0f172a"/>
+  
+  <!-- Header -->
+  <rect x="20" y="20" width="760" height="60" fill="#1e293b" rx="8"/>
+  <text x="50" y="58" font-size="24" fill="#f1f5f9" font-weight="bold">Balance 380 - Device Details</text>
+  
+  <!-- Device Visualization (Large) -->
+  <g transform="translate(250, 150) scale(2.5)">
+    <!-- 3D Isometric Box (Balance 380) -->
+    <path d="M 70,55 L 180,100 L 180,140 L 70,95 Z" 
+          fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+    
+    <path d="M 70,95 L 180,140 L 180,215 L 70,170 Z" 
+          fill="#7f8c8d" stroke="#5d6d7e" stroke-width="1"/>
+    
+    <path d="M 180,100 L 205,113 L 205,188 L 180,215 L 180,140 Z" 
+          fill="#5d6d7e" stroke="#34495e" stroke-width="1"/>
+    
+    <!-- LEDs -->
+    <circle cx="85" cy="115" r="3" fill="#2ecc71" filter="url(#glow)"/>
+    <circle cx="100" cy="115" r="3" fill="#3498db" filter="url(#glow)"/>
+    <circle cx="113" cy="115" r="3" fill="#3498db" filter="url(#glow)"/>
+    <circle cx="126" cy="115" r="3" fill="#3498db" filter="url(#glow)"/>
+    <circle cx="139" cy="115" r="3" fill="#3498db" filter="url(#glow)"/>
+    <circle cx="152" cy="115" r="3" fill="#3498db" filter="url(#glow)"/>
+    <circle cx="165" cy="115" r="3" fill="#9b59b6" filter="url(#glow)"/>
+    
+    <!-- Ports -->
+    <rect x="85" y="138" width="10" height="7" fill="#34495e" rx="1"/>
+    <rect x="100" y="138" width="10" height="7" fill="#34495e" rx="1"/>
+    <rect x="115" y="138" width="10" height="7" fill="#34495e" rx="1"/>
+    <rect x="130" y="138" width="10" height="7" fill="#34495e" rx="1"/>
+    <rect x="145" y="138" width="10" height="7" fill="#34495e" rx="1"/>
+    
+    <!-- Antennas -->
+    <circle cx="165" cy="70" r="4" fill="#9b59b6" opacity="0.8"/>
+    <line x1="165" y1="70" x2="165" y2="60" stroke="#9b59b6" stroke-width="2"/>
+    <line x1="161" y1="63" x2="169" y2="63" stroke="#9b59b6" stroke-width="1.5"/>
+    
+    <circle cx="177" cy="73" r="4" fill="#9b59b6" opacity="0.8"/>
+    <line x1="177" y1="73" x2="177" y2="63" stroke="#9b59b6" stroke-width="2"/>
+    <line x1="173" y1="66" x2="181" y2="66" stroke="#9b59b6" stroke-width="1.5"/>
+  </g>
+  
+  <!-- Status Panel -->
+  <rect x="40" y="420" width="340" height="150" fill="#1e293b" stroke="#334155" stroke-width="2" rx="8"/>
+  <text x="60" y="450" font-size="18" fill="#f1f5f9" font-weight="bold">Status</text>
+  
+  <circle cx="70" cy="480" r="6" fill="#22c55e"/>
+  <text x="90" y="486" font-size="14" fill="#cbd5e1">Power: ON</text>
+  
+  <circle cx="70" cy="510" r="6" fill="#3b82f6"/>
+  <text x="90" y="516" font-size="14" fill="#cbd5e1">WAN1: Active (100Mbps)</text>
+  
+  <circle cx="70" cy="540" r="6" fill="#a855f7"/>
+  <text x="90" y="546" font-size="14" fill="#cbd5e1">Cellular: LTE Band 4</text>
+  
+  <!-- Connection Info -->
+  <rect x="420" y="420" width="340" height="150" fill="#1e293b" stroke="#334155" stroke-width="2" rx="8"/>
+  <text x="440" y="450" font-size="18" fill="#f1f5f9" font-weight="bold">Connections</text>
+  
+  <text x="440" y="480" font-size="14" fill="#94a3b8">WAN Ports:</text>
+  <text x="640" y="480" font-size="14" fill="#3b82f6">5 Active</text>
+  
+  <text x="440" y="510" font-size="14" fill="#94a3b8">LAN Devices:</text>
+  <text x="640" y="510" font-size="14" fill="#22c55e">24</text>
+  
+  <text x="440" y="540" font-size="14" fill="#94a3b8">WiFi Clients:</text>
+  <text x="640" y="540" font-size="14" fill="#06b6d4">12</text>
+  
+  <!-- Footer -->
+  <text x="40" y="585" font-size="11" fill="#64748b">Model: Balance 380 | Firmware: 8.4.2 | Serial: BL380-XXXX-XXXX</text>
+</svg>
