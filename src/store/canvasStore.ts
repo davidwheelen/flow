@@ -1,10 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-
-export interface Coords {
-  x: number;
-  y: number;
-}
+import { Coords } from '@/lib/flow-renderer/utils/gridUtils';
 
 interface CanvasState {
   // Zoom level (0.2 to 1.0)

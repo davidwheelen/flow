@@ -16,7 +16,7 @@ const CONNECTION_COLORS: Record<ConnectionType, string> = {
 };
 
 const STATUS_STYLES: Record<ConnectionStatus, { opacity: number; dashArray: string }> = {
-  connected: { opacity: 1, dashArray: '10,10' },
+  connected: { opacity: 1, dashArray: '' }, // Solid line for connected, animated with dashArray in render
   disconnected: { opacity: 0.3, dashArray: '5,5' },
   degraded: { opacity: 0.7, dashArray: '10,5' },
 };
@@ -96,7 +96,7 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ devices, devic
               fill="none"
               strokeLinecap="round"
               opacity={styles.opacity}
-              strokeDasharray={styles.dashArray}
+              strokeDasharray={conn.status === 'connected' ? '10,10' : styles.dashArray}
               style={{
                 filter: conn.type === 'cellular' ? `drop-shadow(0 0 ${12 * zoom}px ${color})` : 'none',
               }}
@@ -122,7 +122,7 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ devices, devic
                 fill="none"
                 strokeLinecap="round"
                 opacity={styles.opacity * 0.3}
-                strokeDasharray={styles.dashArray}
+                strokeDasharray={conn.status === 'connected' ? '10,10' : styles.dashArray}
               />
             )}
           </g>

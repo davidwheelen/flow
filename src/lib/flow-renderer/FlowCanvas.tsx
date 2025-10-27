@@ -77,19 +77,19 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
   }, [setIsPanning]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (isPanning) {
-      const deltaX = e.clientX - lastMousePos.current.x;
-      const deltaY = e.clientY - lastMousePos.current.y;
-      
-      setScroll({
-        position: {
-          x: scroll.position.x + deltaX,
-          y: scroll.position.y + deltaY
-        }
-      });
-      
-      lastMousePos.current = { x: e.clientX, y: e.clientY };
-    }
+    if (!isPanning) return;
+    
+    const deltaX = e.clientX - lastMousePos.current.x;
+    const deltaY = e.clientY - lastMousePos.current.y;
+    
+    setScroll({
+      position: {
+        x: scroll.position.x + deltaX,
+        y: scroll.position.y + deltaY
+      }
+    });
+    
+    lastMousePos.current = { x: e.clientX, y: e.clientY };
   }, [isPanning, scroll, setScroll]);
 
   const handleMouseUp = useCallback(() => {

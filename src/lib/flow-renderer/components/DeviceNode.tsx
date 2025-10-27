@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { PeplinkDevice } from '@/types/network.types';
 import { getTilePosition, Coords } from '../utils/gridUtils';
 import { getDeviceIconUrl } from '../icons/iconFactory';
@@ -13,7 +13,7 @@ export const DeviceNode: React.FC<DeviceNodeProps> = ({ device, tile }) => {
   const { zoom, scroll, rendererSize, selectedDeviceId, setSelectedDeviceId } = useCanvasStore();
   
   // Calculate position using isoflow's getTilePosition
-  const position = getTilePosition({ tile, origin: 'BOTTOM' });
+  const position = useMemo(() => getTilePosition({ tile, origin: 'BOTTOM' }), [tile]);
   
   // Apply zoom and scroll transformations
   const screenX = position.x * zoom + scroll.position.x + rendererSize.width / 2;
@@ -27,13 +27,19 @@ export const DeviceNode: React.FC<DeviceNodeProps> = ({ device, tile }) => {
     setSelectedDeviceId(isSelected ? null : device.id);
   };
   
+  // Memoize transform style to avoid recalculation
+  const transformStyle = useMemo(
+    () => `translate(-50%, -50%) scale(${zoom})`,
+    [zoom]
+  );
+  
   return (
     <div
       style={{
         position: 'absolute',
         left: screenX,
         top: screenY,
-        transform: `translate(-50%, -50%) scale(${zoom})`,
+        transform: transformStyle,
         transformOrigin: 'center center',
         cursor: 'pointer',
         transition: 'transform 0.1s ease-out',
