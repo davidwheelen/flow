@@ -60,13 +60,53 @@ export const DeviceDetailsPanel: React.FC<DeviceDetailsPanelProps> = ({ devices 
         </button>
       </div>
       
-      {/* IP Address */}
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-          IP Address
-        </div>
-        <div style={{ color: '#e0e0e0', fontSize: 14, fontFamily: 'monospace' }}>
-          {selectedDevice.ipAddress}
+      {/* Device Details */}
+      <div style={{ marginBottom: 16, display: 'grid', gap: 12 }}>
+        {selectedDevice.serial && (
+          <div>
+            <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Serial
+            </div>
+            <div style={{ color: '#e0e0e0', fontSize: 14, fontFamily: 'monospace' }}>
+              {selectedDevice.serial}
+            </div>
+          </div>
+        )}
+        
+        {selectedDevice.firmware_version && (
+          <div>
+            <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Firmware
+            </div>
+            <div style={{ color: '#e0e0e0', fontSize: 14 }}>
+              {selectedDevice.firmware_version}
+            </div>
+          </div>
+        )}
+        
+        {selectedDevice.status && (
+          <div>
+            <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Status
+            </div>
+            <div style={{ 
+              color: selectedDevice.status === 'online' ? '#22c55e' : '#ef4444', 
+              fontSize: 14,
+              fontWeight: 500,
+              textTransform: 'capitalize'
+            }}>
+              {selectedDevice.status}
+            </div>
+          </div>
+        )}
+        
+        <div>
+          <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            IP Address
+          </div>
+          <div style={{ color: '#e0e0e0', fontSize: 14, fontFamily: 'monospace' }}>
+            {selectedDevice.ipAddress}
+          </div>
         </div>
       </div>
       

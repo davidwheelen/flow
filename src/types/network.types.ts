@@ -15,12 +15,16 @@ export interface Connection {
   type: ConnectionType;
   status: ConnectionStatus;
   metrics: NetworkMetrics;
+  device_id?: string; // Optional device ID for device-to-device connections
 }
 
 export interface PeplinkDevice {
   id: string;
   name: string;
   model: string;
+  serial?: string;
+  firmware_version?: string;
+  status?: string;
   ipAddress: string;
   connections: Connection[];
   position: { x: number; y: number };

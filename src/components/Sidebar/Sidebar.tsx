@@ -3,6 +3,7 @@ import { Network, ChevronRight, Loader2 } from 'lucide-react';
 import { useAppStore } from '@/store/appStore';
 import { useAuth, useDeviceData } from '@/hooks/useInControl2';
 import { getGroups } from '@/services/groupsService';
+import { SwirlBackground } from '@/components/SwirlBackground';
 import './Sidebar.css';
 
 const APP_VERSION = '0.1.0';
@@ -85,17 +86,7 @@ export function Sidebar() {
     <div className="liquid-glass-sidebar w-72 flex flex-col h-full">
       {/* Header */}
       <div className="liquid-glass-panel m-4 overflow-hidden relative">
-        <div 
-          className="absolute inset-0 animated-gradient-bg"
-          style={{
-            opacity: 0.3,
-            zIndex: 0,
-          }}
-        >
-          <div className="wave"></div>
-          <div className="wave"></div>
-          <div className="wave"></div>
-        </div>
+        <SwirlBackground />
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
             <Network className="w-5 h-5" style={{ color: '#3b82f6' }} />

@@ -77,6 +77,8 @@ export interface IC2DeviceData {
   id: string;
   name: string;
   model: string;
+  serial?: string;
+  firmware_version?: string;
   ip_address: string;
   status: {
     online: boolean;
@@ -113,6 +115,7 @@ export interface IC2DeviceData {
   pepvpn?: Array<{
     id: string;
     remote_name: string;
+    remote_device_id?: string; // Device ID of the remote end
     status: 'connected' | 'disconnected';
     throughput_mbps?: number;
   }>;
@@ -296,12 +299,13 @@ export class PollingService {
       });
     });
 
-    // Map PepVPN connections as SFP type
+    // Map PepVPN connections as SFP type with device_id for topology
     device.pepvpn?.forEach((vpn, i) => {
       connections.push({
         id: `${device.id}-pepvpn-${i}`,
         type: 'sfp',
         status: vpn.status === 'connected' ? 'connected' : 'disconnected',
+        device_id: vpn.remote_device_id, // Include remote device ID for topology
         metrics: {
           speedMbps: vpn.throughput_mbps || 0,
           latencyMs: 0,
@@ -321,6 +325,9 @@ export class PollingService {
       id: device.id,
       name: device.name || `Device ${device.id}`,
       model: device.model || 'Unknown',
+      serial: device.serial,
+      firmware_version: device.firmware_version,
+      status: device.status?.online ? 'online' : 'offline',
       ipAddress: device.ip_address || '0.0.0.0',
       connections,
       position,
