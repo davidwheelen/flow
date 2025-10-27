@@ -25,7 +25,6 @@ export interface WANConnection {
   mtu?: number;
   healthCheckMethod?: string;
   serviceProvider?: string;
-  findMyPeplinkAddress?: string;
 }
 
 export interface Connection {
