@@ -25,7 +25,23 @@ export function TestDevices() {
               id: 'conn-1', 
               type: 'wan', 
               status: 'connected', 
-              metrics: { speedMbps: 100, latencyMs: 20, uploadMbps: 10, downloadMbps: 90 } 
+              metrics: { speedMbps: 100, latencyMs: 20, uploadMbps: 10, downloadMbps: 90 },
+              wanDetails: {
+                id: 'wan-1',
+                name: 'WAN1 - Xfinity',
+                type: 'ethernet',
+                status: 'connected',
+                ipAddress: '73.24.74.112',
+                subnetMask: '255.255.252.0',
+                macAddress: '10:56:CA:68:BA:C1',
+                gateway: '73.24.72.1',
+                dnsServers: ['75.75.75.75', '75.75.76.76', '1.1.1.1', '8.8.4.4'],
+                connectionMethod: 'DHCP',
+                routingMode: 'NAT',
+                mtu: 1500,
+                healthCheckMethod: 'PING',
+                serviceProvider: 'Xfinity'
+              }
             },
             { 
               id: 'conn-vpn-1', 
@@ -50,7 +66,21 @@ export function TestDevices() {
               id: 'conn-2', 
               type: 'cellular', 
               status: 'connected', 
-              metrics: { speedMbps: 50, latencyMs: 40, uploadMbps: 5, downloadMbps: 45 } 
+              metrics: { speedMbps: 50, latencyMs: 40, uploadMbps: 5, downloadMbps: 45 },
+              wanDetails: {
+                id: 'cell-1',
+                name: 'Cellular 1 - Verizon',
+                type: 'cellular',
+                status: 'connected',
+                ipAddress: '10.45.23.67',
+                gateway: '10.45.23.1',
+                dnsServers: ['8.8.8.8', '8.8.4.4'],
+                connectionMethod: 'LTE',
+                routingMode: 'NAT',
+                mtu: 1428,
+                healthCheckMethod: 'PING',
+                serviceProvider: 'Verizon'
+              }
             },
             { 
               id: 'conn-vpn-2', 

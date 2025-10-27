@@ -90,6 +90,15 @@ export interface IC2DeviceData {
     type?: string; // Connection type: 'ethernet', 'cellular', etc.
     status: 'connected' | 'disconnected';
     ip_address?: string;
+    subnet_mask?: string;
+    mac_address?: string;
+    gateway?: string;
+    dns_servers?: string[];
+    connection_method?: string;
+    routing_mode?: string;
+    mtu?: number;
+    health_check_method?: string;
+    service_provider?: string;
     speed_mbps?: number;
     latency_ms?: number;
     upload_mbps?: number;
@@ -101,6 +110,17 @@ export interface IC2DeviceData {
     id: string;
     name: string;
     status: 'connected' | 'disconnected';
+    type?: string;
+    ip_address?: string;
+    subnet_mask?: string;
+    mac_address?: string;
+    gateway?: string;
+    dns_servers?: string[];
+    connection_method?: string;
+    routing_mode?: string;
+    mtu?: number;
+    health_check_method?: string;
+    service_provider?: string;
     signal_strength?: number;
     speed_mbps?: number;
     latency_ms?: number;
@@ -281,6 +301,22 @@ export class PollingService {
           uploadMbps: wan.upload_mbps || 0,
           downloadMbps: wan.download_mbps || 0,
         },
+        wanDetails: {
+          id: wan.id,
+          name: wan.name,
+          type: wan.type || 'ethernet',
+          status: wan.status,
+          ipAddress: wan.ip_address || '',
+          subnetMask: wan.subnet_mask,
+          macAddress: wan.mac_address,
+          gateway: wan.gateway,
+          dnsServers: wan.dns_servers,
+          connectionMethod: wan.connection_method,
+          routingMode: wan.routing_mode,
+          mtu: wan.mtu,
+          healthCheckMethod: wan.health_check_method,
+          serviceProvider: wan.service_provider,
+        },
       });
     });
 
@@ -295,6 +331,22 @@ export class PollingService {
           latencyMs: cell.latency_ms || 0,
           uploadMbps: cell.upload_mbps || 0,
           downloadMbps: cell.download_mbps || 0,
+        },
+        wanDetails: {
+          id: cell.id,
+          name: cell.name,
+          type: cell.type || 'cellular',
+          status: cell.status,
+          ipAddress: cell.ip_address || '',
+          subnetMask: cell.subnet_mask,
+          macAddress: cell.mac_address,
+          gateway: cell.gateway,
+          dnsServers: cell.dns_servers,
+          connectionMethod: cell.connection_method,
+          routingMode: cell.routing_mode,
+          mtu: cell.mtu,
+          healthCheckMethod: cell.health_check_method,
+          serviceProvider: cell.service_provider || cell.carrier,
         },
       });
     });
