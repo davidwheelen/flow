@@ -29,14 +29,15 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
   const [wanExpandedState, setWanExpandedState] = useState<Map<string, boolean>>(new Map());
   const panelRef = useRef<HTMLDivElement>(null);
   
-  // Initialize WAN states as expanded by default
+  // Initialize WAN states as collapsed by default (only reset when device changes)
   useEffect(() => {
     const initialState = new Map<string, boolean>();
     device.connections.forEach(conn => {
-      initialState.set(conn.id, true); // Start expanded
+      initialState.set(conn.id, false); // Start collapsed
     });
     setWanExpandedState(initialState);
-  }, [device.connections]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [device.id]); // Only reset when device ID changes, not when connections update
   
   const toggleWanExpanded = (wanId: string) => {
     setWanExpandedState(prev => {
@@ -51,16 +52,19 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
       return; // Don't start dragging if clicking close button
     }
     
+    e.stopPropagation(); // Prevent canvas from receiving event
+    e.preventDefault();
+    
     onBringToFront();
     setIsDragging(true);
     
-    if (panelRef.current) {
-      const rect = panelRef.current.getBoundingClientRect();
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-    }
+    // Calculate offset from mouse to panel's current position
+    setDragOffset({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y,
+    });
+    
+    document.body.style.cursor = 'grabbing';
   };
   
   useEffect(() => {
@@ -88,6 +92,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
     
     const handleMouseUp = () => {
       setIsDragging(false);
+      document.body.style.cursor = '';
     };
     
     window.addEventListener('mousemove', handleMouseMove);
@@ -102,8 +107,11 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
   return (
     <div
       ref={panelRef}
+      onMouseDown={(e) => e.stopPropagation()}
+      onMouseMove={(e) => e.stopPropagation()}
+      onMouseUp={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
       onWheel={(e) => e.stopPropagation()}
-      onClick={onBringToFront}
       style={{
         position: 'absolute',
         left: position.x,
@@ -125,6 +133,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
       {/* Draggable Title Bar */}
       <div
         onMouseDown={handleMouseDown}
+        onClick={onBringToFront}
         style={{
           padding: '12px 16px',
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
