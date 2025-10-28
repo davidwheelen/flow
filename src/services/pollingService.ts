@@ -264,7 +264,7 @@ export class PollingService {
     const devicesWithClients = await Promise.all(deviceWithClientsPromises);
 
     // Map to PeplinkDevice format
-    let mappedDevices = devicesWithClients.map((deviceData, index) => 
+    const mappedDevices = devicesWithClients.map((deviceData, index) => 
       this.mapDevice(deviceData, index)
     );
 
