@@ -138,13 +138,16 @@ export class PollingService {
   }
 
   /**
-   * Fetch LAN clients for a device
+   * Fetch LAN clients for a device from InControl API
    */
   private async fetchLanClients(deviceId: string, groupId: string): Promise<LanClient[]> {
     const apiClient = authService.getApiClient();
     const credentials = authService.getCredentials();
     
-    if (!credentials) return [];
+    if (!credentials) {
+      console.warn('No credentials available for fetching LAN clients');
+      return [];
+    }
 
     const orgId = credentials.orgId;
     
@@ -157,7 +160,7 @@ export class PollingService {
 
       return response.data.data.map((client) => ({
         mac: client.mac,
-        sn: client.sn,
+        sn: client.sn, // Serial number if this client is a Peplink device
         ip: client.ip,
         name: client.name
       }));
@@ -165,6 +168,64 @@ export class PollingService {
       console.error(`Failed to fetch LAN clients for device ${deviceId}:`, error);
       return [];
     }
+  }
+
+  /**
+   * Build connection graph by matching LAN clients with devices
+   */
+  private buildConnectionGraph(devices: PeplinkDevice[]): void {
+    // For each device, check if any of its LAN clients are other Peplink devices
+    devices.forEach(sourceDevice => {
+      if (!sourceDevice.lanClients || sourceDevice.lanClients.length === 0) {
+        return;
+      }
+
+      sourceDevice.lanClients.forEach(client => {
+        // Find if this LAN client is another device in our list
+        const targetDevice = devices.find(d => {
+          // Match by serial number (most reliable)
+          if (client.sn && d.serial === client.sn) {
+            return true;
+          }
+          
+          // Match by MAC address on any interface
+          if (client.mac && d.interfaces) {
+            return d.interfaces.some(iface => 
+              iface.mac_address?.toLowerCase() === client.mac.toLowerCase()
+            );
+          }
+          
+          return false;
+        });
+
+        if (targetDevice && targetDevice.id !== sourceDevice.id) {
+          // Create connection from source device to target device
+          const connectionId = `lan-${sourceDevice.id}-to-${targetDevice.id}`;
+          
+          // Check if connection already exists
+          const existingConnection = sourceDevice.connections.find(
+            conn => conn.id === connectionId
+          );
+          
+          if (!existingConnection) {
+            sourceDevice.connections.push({
+              id: connectionId,
+              type: 'wan',
+              status: 'connected',
+              device_id: targetDevice.id, // THIS IS CRITICAL - enables ConnectionLines to draw
+              metrics: {
+                speedMbps: 0,
+                latencyMs: 0,
+                uploadMbps: 0,
+                downloadMbps: 0
+              }
+            });
+            
+            console.log(`Created connection: ${sourceDevice.name} -> ${targetDevice.name}`);
+          }
+        }
+      });
+    });
   }
 
   /**
@@ -194,7 +255,7 @@ export class PollingService {
 
     const devicesData = await Promise.all(deviceDataPromises);
 
-    // Fetch LAN clients for each device
+    // FETCH LAN CLIENTS FOR EACH DEVICE
     const deviceWithClientsPromises = devicesData.map(async (device) => {
       const lanClients = await this.fetchLanClients(String(device.id), groupId);
       return { ...device, lanClients };
@@ -202,48 +263,15 @@ export class PollingService {
 
     const devicesWithClients = await Promise.all(deviceWithClientsPromises);
 
-    // Map to PeplinkDevice format first
+    // Map to PeplinkDevice format
     const mappedDevices = devicesWithClients.map((deviceData, index) => 
       this.mapDevice(deviceData, index)
     );
 
-    // Build connection graph by matching MACs and serial numbers
-    // Use a Set to track created connections and avoid duplicates
-    const createdConnections = new Set<string>();
-    
-    mappedDevices.forEach(device => {
-      device.lanClients?.forEach(client => {
-        // Find if this client is another Peplink device
-        const connectedDevice = mappedDevices.find(d => 
-          (client.sn && d.serial === client.sn) || // Match by serial number
-          d.connections.some(conn => conn.wanDetails?.macAddress === client.mac) // Match by MAC
-        );
+    // BUILD CONNECTION GRAPH
+    this.buildConnectionGraph(mappedDevices);
 
-        if (connectedDevice && connectedDevice.id !== device.id) {
-          // Create a deterministic connection ID to avoid duplicates
-          const connectionKey = [device.id, connectedDevice.id].sort().join('-');
-          
-          // Only add if we haven't created this connection yet
-          if (!createdConnections.has(connectionKey)) {
-            createdConnections.add(connectionKey);
-            
-            // Add connection between devices
-            device.connections.push({
-              id: `${device.id}-to-${connectedDevice.id}`,
-              type: 'wan',
-              status: 'connected',
-              device_id: connectedDevice.id, // This makes the connection visible!
-              metrics: {
-                speedMbps: 0,
-                latencyMs: 0,
-                uploadMbps: 0,
-                downloadMbps: 0
-              }
-            });
-          }
-        }
-      });
-    });
+    console.log(`Built connection graph for ${mappedDevices.length} devices`);
 
     return mappedDevices;
   }
@@ -363,6 +391,7 @@ export class PollingService {
       connections,
       position,
       lanClients: (device as IC2DeviceData & { lanClients?: LanClient[] }).lanClients || [], // Include LAN clients
+      interfaces: device.interfaces, // Include interfaces for connection matching
     };
   }
 
