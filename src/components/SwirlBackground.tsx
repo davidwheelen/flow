@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { createNoise3D } from 'simplex-noise';
 
+// EXACT parameters from Codrops demo
 const particleCount = 700;
 const particlePropCount = 9;
+const particlePropsLength = particleCount * particlePropCount;
 const rangeY = 100;
 const baseTTL = 50;
 const rangeTTL = 150;
@@ -10,14 +12,13 @@ const baseSpeed = 0.1;
 const rangeSpeed = 2;
 const baseRadius = 1;
 const rangeRadius = 4;
-const baseHue = 165; // Emerald green from app theme
-const rangeHue = 115; // Range to purple (165-280)
+const baseHue = 220;
+const rangeHue = 60;
 const noiseSteps = 8;
-const xOff = 0.0001; // Make patterns 10x larger - VERY noticeable
-const yOff = 0.0001; // Make patterns 10x larger - VERY noticeable
+const xOff = 0.00125;
+const yOff = 0.00125;
 const zOff = 0.0005;
-const backgroundColor = 'hsla(260,40%,5%,1)'; // Exact from source
-const TAU = Math.PI * 2;
+const backgroundColor = 'hsla(260,40%,5%,1)'; // EXACT from demo
 
 export function SwirlBackground() {
   const canvasARef = useRef<HTMLCanvasElement>(null);
@@ -32,21 +33,12 @@ export function SwirlBackground() {
     const ctxB = canvasB.getContext('2d');
     if (!ctxA || !ctxB) return;
     
-    // Setup
-    const resize = () => {
-      const { innerWidth, innerHeight } = window;
-      canvasA.width = innerWidth;
-      canvasA.height = innerHeight;
-      canvasB.width = innerWidth;
-      canvasB.height = innerHeight;
-    };
-    resize();
-    
-    const center = [canvasA.width / 2, canvasA.height / 2];
+    let center: [number, number] = [0, 0];
+    let tick = 0;
     const noise3D = createNoise3D();
+    const particleProps = new Float32Array(particlePropsLength);
     
-    // Particle properties stored in Float32Array for performance
-    const particleProps = new Float32Array(particleCount * particlePropCount);
+    const TAU = Math.PI * 2;
     
     const rand = (n: number) => n * Math.random();
     const randRange = (n: number) => n - rand(2 * n);
@@ -54,7 +46,24 @@ export function SwirlBackground() {
       const hm = 0.5 * m;
       return Math.abs((t + hm) % m - hm) / hm;
     };
-    const lerp = (n1: number, n2: number, speed: number) => (1 - speed) * n1 + speed * n2;
+    const lerp = (n1: number, n2: number, speed: number) => 
+      (1 - speed) * n1 + speed * n2;
+    
+    const setup = () => {
+      const { innerWidth, innerHeight } = window;
+      canvasA.width = innerWidth;
+      canvasA.height = innerHeight;
+      canvasB.width = innerWidth;
+      canvasB.height = innerHeight;
+      
+      center = [innerWidth / 2, innerHeight / 2];
+      
+      ctxA.drawImage(canvasB, 0, 0);
+      ctxB.fillStyle = backgroundColor;
+      ctxB.fillRect(0, 0, canvasB.width, canvasB.height);
+      
+      drawParticles();
+    };
     
     const initParticle = (i: number) => {
       const x = rand(canvasA.width);
@@ -70,15 +79,8 @@ export function SwirlBackground() {
       particleProps.set([x, y, vx, vy, life, ttl, speed, radius, hue], i);
     };
     
-    // Initialize all particles
-    for (let i = 0; i < particleCount * particlePropCount; i += particlePropCount) {
-      initParticle(i);
-    }
-    
-    let tick = 0;
-    let animationId: number;
-    
-    const drawParticle = (x: number, y: number, x2: number, y2: number, life: number, ttl: number, radius: number, hue: number) => {
+    const drawParticle = (x: number, y: number, x2: number, y2: number, 
+                          life: number, ttl: number, radius: number, hue: number) => {
       ctxA.save();
       ctxA.lineCap = 'round';
       ctxA.lineWidth = radius;
@@ -91,20 +93,22 @@ export function SwirlBackground() {
       ctxA.restore();
     };
     
-    const checkBounds = (x: number, y: number) => {
-      return x > canvasA.width || x < 0 || y > canvasA.height || y < 0;
-    };
-    
     const updateParticle = (i: number) => {
-      const i2 = 1 + i, i3 = 2 + i, i4 = 3 + i, i5 = 4 + i;
-      const i6 = 5 + i, i7 = 6 + i, i8 = 7 + i, i9 = 8 + i;
+      const i2 = 1 + i;
+      const i3 = 2 + i;
+      const i4 = 3 + i;
+      const i5 = 4 + i;
+      const i6 = 5 + i;
+      const i7 = 6 + i;
+      const i8 = 7 + i;
+      const i9 = 8 + i;
       
       const x = particleProps[i];
       const y = particleProps[i2];
       const n = noise3D(x * xOff, y * yOff, tick * zOff) * noiseSteps * TAU;
       const vx = lerp(particleProps[i3], Math.cos(n), 0.5);
       const vy = lerp(particleProps[i4], Math.sin(n), 0.5);
-      const life = particleProps[i5];
+      let life = particleProps[i5];
       const ttl = particleProps[i6];
       const speed = particleProps[i7];
       const x2 = x + vx * speed;
@@ -114,15 +118,25 @@ export function SwirlBackground() {
       
       drawParticle(x, y, x2, y2, life, ttl, radius, hue);
       
+      life++;
+      
       particleProps[i] = x2;
       particleProps[i2] = y2;
       particleProps[i3] = vx;
       particleProps[i4] = vy;
-      particleProps[i5] = life + 1;
+      particleProps[i5] = life;
       
-      if (checkBounds(x, y) || life > ttl) {
-        initParticle(i);
+      (checkBounds(x, y) || life > ttl) && initParticle(i);
+    };
+    
+    const drawParticles = () => {
+      for (let i = 0; i < particlePropsLength; i += particlePropCount) {
+        updateParticle(i);
       }
+    };
+    
+    const checkBounds = (x: number, y: number) => {
+      return x > canvasA.width || x < 0 || y > canvasA.height || y < 0;
     };
     
     const renderGlow = () => {
@@ -146,47 +160,59 @@ export function SwirlBackground() {
       ctxB.restore();
     };
     
-    const draw = () => {
+    const render = () => {
       tick++;
+      
       ctxA.clearRect(0, 0, canvasA.width, canvasA.height);
+      
       ctxB.fillStyle = backgroundColor;
-      ctxB.fillRect(0, 0, canvasA.width, canvasA.height);
+      ctxB.fillRect(0, 0, canvasB.width, canvasB.height);
       
-      for (let i = 0; i < particleCount * particlePropCount; i += particlePropCount) {
-        updateParticle(i);
-      }
-      
+      drawParticles();
       renderGlow();
       renderToScreen();
       
-      animationId = requestAnimationFrame(draw);
+      window.requestAnimationFrame(render);
     };
     
-    draw();
+    setup();
+    window.addEventListener('resize', setup);
+    render();
     
-    window.addEventListener('resize', resize);
+    // Initialize particles
+    for (let i = 0; i < particlePropsLength; i += particlePropCount) {
+      initParticle(i);
+    }
+    
     return () => {
-      window.removeEventListener('resize', resize);
-      if (animationId) {
-        cancelAnimationFrame(animationId);
-      }
+      window.removeEventListener('resize', setup);
     };
   }, []);
   
   return (
     <>
-      <canvas ref={canvasARef} style={{ display: 'none' }} />
+      <canvas
+        ref={canvasARef}
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%) scale(1.2)', // Centered + 20% zoom
+          width: '100%',
+          height: '100%',
+          pointerEvents: 'none',
+        }}
+      />
       <canvas
         ref={canvasBRef}
         style={{
           position: 'absolute',
           top: '50%',
           left: '50%',
-          transform: 'translate(-50%, -50%) scale(1.2)',
+          transform: 'translate(-50%, -50%) scale(1.2)', // Centered + 20% zoom
           width: '100%',
           height: '100%',
           pointerEvents: 'none',
-          opacity: 0.4
         }}
       />
     </>
