@@ -55,6 +55,7 @@ export interface PeplinkDevice {
   position: { x: number; y: number };
   connectionSpec?: DeviceConnectionSpec; // Optional device connection specifications
   lanClients?: LanClient[]; // LAN clients connected to this device
+  interfaces?: Array<{ mac_address?: string }>; // Device interfaces for connection matching
 }
 
 export interface NetworkData {
