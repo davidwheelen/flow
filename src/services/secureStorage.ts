@@ -140,7 +140,7 @@ export function maskString(value: string): string {
  * Store extended credentials with token data
  * Note: Not currently used with backend storage
  */
-export async function storeExtendedCredentials(): Promise<void> {
+export async function storeExtendedCredentials(_credentials?: StoredCredentials): Promise<void> {
   // No-op: backend doesn't store extended credentials
   // Token management is handled separately
 }

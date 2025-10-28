@@ -6,7 +6,7 @@
  */
 
 import { authService } from './authService';
-import { PeplinkDevice, ConnectionType, ConnectionStatus } from '@/types/network.types';
+import { PeplinkDevice, ConnectionType, ConnectionStatus, LanClient } from '@/types/network.types';
 import { IC2DeviceData } from '@/types/incontrol.types';
 
 /**
@@ -138,6 +138,36 @@ export class PollingService {
   }
 
   /**
+   * Fetch LAN clients for a device
+   */
+  private async fetchLanClients(deviceId: string, groupId: string): Promise<LanClient[]> {
+    const apiClient = authService.getApiClient();
+    const credentials = authService.getCredentials();
+    
+    if (!credentials) return [];
+
+    const orgId = credentials.orgId;
+    
+    try {
+      const response = await this.rateLimiter.throttle(() =>
+        apiClient.get<{ data: Array<{ mac: string; sn?: string; ip: string; name: string }> }>(
+          `/rest/o/${orgId}/g/${groupId}/d/${deviceId}/clients`
+        )
+      );
+
+      return response.data.data.map((client) => ({
+        mac: client.mac,
+        sn: client.sn,
+        ip: client.ip,
+        name: client.name
+      }));
+    } catch (error) {
+      console.error(`Failed to fetch LAN clients for device ${deviceId}:`, error);
+      return [];
+    }
+  }
+
+  /**
    * Fetch devices with all data
    */
   private async fetchDevices(groupId: string): Promise<PeplinkDevice[]> {
@@ -164,8 +194,47 @@ export class PollingService {
 
     const devicesData = await Promise.all(deviceDataPromises);
 
-    // Map to PeplinkDevice format
-    return devicesData.map((deviceData, index) => this.mapDevice(deviceData, index));
+    // Fetch LAN clients for each device
+    const deviceWithClientsPromises = devicesData.map(async (device) => {
+      const lanClients = await this.fetchLanClients(String(device.id), groupId);
+      return { ...device, lanClients };
+    });
+
+    const devicesWithClients = await Promise.all(deviceWithClientsPromises);
+
+    // Map to PeplinkDevice format first
+    const mappedDevices = devicesWithClients.map((deviceData, index) => 
+      this.mapDevice(deviceData, index)
+    );
+
+    // Build connection graph by matching MACs and serial numbers
+    mappedDevices.forEach(device => {
+      device.lanClients?.forEach(client => {
+        // Find if this client is another Peplink device
+        const connectedDevice = mappedDevices.find(d => 
+          (client.sn && d.serial === client.sn) || // Match by serial number
+          d.connections.some(conn => conn.wanDetails?.macAddress === client.mac) // Match by MAC
+        );
+
+        if (connectedDevice && connectedDevice.id !== device.id) {
+          // Add connection between devices
+          device.connections.push({
+            id: `${device.id}-to-${connectedDevice.id}`,
+            type: 'wan',
+            status: 'connected',
+            device_id: connectedDevice.id, // This makes the connection visible!
+            metrics: {
+              speedMbps: 0,
+              latencyMs: 0,
+              uploadMbps: 0,
+              downloadMbps: 0
+            }
+          });
+        }
+      });
+    });
+
+    return mappedDevices;
   }
 
   /**
@@ -238,7 +307,7 @@ export class PollingService {
           status: wanStatus,
           ipAddress: iface.ip || '',
           subnetMask: iface.netmask,
-          macAddress: undefined, // Not provided in interfaces array
+          macAddress: iface.mac_address, // Include MAC address from interface
           gateway: iface.gateway,
           dnsServers: iface.dns_servers || [],
           connectionMethod: iface.conn_config_method || 'Unknown',
@@ -282,6 +351,7 @@ export class PollingService {
       ipAddress: device.interfaces?.[0]?.ip || '',
       connections,
       position,
+      lanClients: (device as IC2DeviceData & { lanClients?: LanClient[] }).lanClients || [], // Include LAN clients
     };
   }
 

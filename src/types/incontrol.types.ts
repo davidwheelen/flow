@@ -16,6 +16,7 @@ export interface IC2Interface {
   name: string;
   ip?: string;
   netmask?: string;
+  mac_address?: string; // MAC address of the interface
   conn_mode?: string; // "NAT", "IP Forwarding"
   gateway?: string;
   mtu?: number;
