@@ -20,7 +20,12 @@ export const DeviceNode: React.FC<DeviceNodeProps> = ({ device, tile }) => {
   const screenY = position.y * zoom + scroll.position.y + rendererSize.height / 2;
   
   const iconUrl = getDeviceIconUrl(device.model);
-  const isSelected = openPanels.some(p => p.deviceId === device.id);
+  
+  // Memoize the selected state check for performance
+  const isSelected = useMemo(
+    () => openPanels.some(p => p.deviceId === device.id),
+    [openPanels, device.id]
+  );
   
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
