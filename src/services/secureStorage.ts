@@ -140,6 +140,7 @@ export function maskString(value: string): string {
  * Store extended credentials with token data
  * Note: Not currently used with backend storage
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function storeExtendedCredentials(_credentials?: StoredCredentials): Promise<void> {
   // No-op: backend doesn't store extended credentials
   // Token management is handled separately

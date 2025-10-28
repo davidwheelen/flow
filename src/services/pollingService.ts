@@ -208,6 +208,9 @@ export class PollingService {
     );
 
     // Build connection graph by matching MACs and serial numbers
+    // Use a Set to track created connections and avoid duplicates
+    const createdConnections = new Set<string>();
+    
     mappedDevices.forEach(device => {
       device.lanClients?.forEach(client => {
         // Find if this client is another Peplink device
@@ -217,19 +220,27 @@ export class PollingService {
         );
 
         if (connectedDevice && connectedDevice.id !== device.id) {
-          // Add connection between devices
-          device.connections.push({
-            id: `${device.id}-to-${connectedDevice.id}`,
-            type: 'wan',
-            status: 'connected',
-            device_id: connectedDevice.id, // This makes the connection visible!
-            metrics: {
-              speedMbps: 0,
-              latencyMs: 0,
-              uploadMbps: 0,
-              downloadMbps: 0
-            }
-          });
+          // Create a deterministic connection ID to avoid duplicates
+          const connectionKey = [device.id, connectedDevice.id].sort().join('-');
+          
+          // Only add if we haven't created this connection yet
+          if (!createdConnections.has(connectionKey)) {
+            createdConnections.add(connectionKey);
+            
+            // Add connection between devices
+            device.connections.push({
+              id: `${device.id}-to-${connectedDevice.id}`,
+              type: 'wan',
+              status: 'connected',
+              device_id: connectedDevice.id, // This makes the connection visible!
+              metrics: {
+                speedMbps: 0,
+                latencyMs: 0,
+                uploadMbps: 0,
+                downloadMbps: 0
+              }
+            });
+          }
         }
       });
     });
