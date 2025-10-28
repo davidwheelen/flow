@@ -305,6 +305,9 @@ export class PollingService {
   private mapDevice(device: IC2DeviceData, index: number): PeplinkDevice {
     const connections: PeplinkDevice['connections'] = [];
 
+    // Create a Map for O(1) MAC address lookups
+    const macInfoMap = new Map(device.mac_info?.map(m => [m.connId, m.mac]) || []);
+
     // InControl uses 'interfaces' array, not 'wans'
     device.interfaces?.forEach((iface) => {
       // Determine connection type from interface type
@@ -329,6 +332,9 @@ export class PollingService {
         wanStatus = 'standby';
       }
 
+      // LOOKUP MAC ADDRESS FROM mac_info MAP (O(1))
+      const macAddress = macInfoMap.get(iface.id);
+
       connections.push({
         id: `${device.id}-interface-${iface.id}`,
         type: connType,
@@ -346,7 +352,7 @@ export class PollingService {
           status: wanStatus,
           ipAddress: iface.ip || '',
           subnetMask: iface.netmask,
-          macAddress: iface.mac_address, // Include MAC address from interface
+          macAddress: macAddress, // USE MAC FROM mac_info ARRAY
           gateway: iface.gateway,
           dnsServers: iface.dns_servers || [],
           connectionMethod: iface.conn_config_method || 'Unknown',
@@ -391,7 +397,12 @@ export class PollingService {
       connections,
       position,
       lanClients: (device as IC2DeviceData & { lanClients?: LanClient[] }).lanClients || [], // Include LAN clients
-      interfaces: device.interfaces, // Include interfaces for connection matching
+      interfaces: device.interfaces?.map(iface => {
+        return {
+          ...iface,
+          mac_address: macInfoMap.get(iface.id) // ADD MAC ADDRESS TO INTERFACE (O(1) lookup)
+        };
+      }),
     };
   }
 
