@@ -6,7 +6,8 @@
  */
 
 import { authService } from './authService';
-import { PeplinkDevice } from '@/types/network.types';
+import { PeplinkDevice, ConnectionType, ConnectionStatus } from '@/types/network.types';
+import { IC2DeviceData } from '@/types/incontrol.types';
 
 /**
  * Rate limiter to ensure we don't exceed 20 req/sec
@@ -68,77 +69,6 @@ class RateLimiter {
 
     this.processing = false;
   }
-}
-
-/**
- * Device data from InControl2 API
- */
-export interface IC2DeviceData {
-  id: string;
-  name: string;
-  model: string;
-  serial?: string;
-  firmware_version?: string;
-  ip_address: string;
-  status: {
-    online: boolean;
-    last_seen: string;
-  };
-  wans?: Array<{
-    id: string;
-    name: string;
-    type?: string; // Connection type: 'ethernet', 'cellular', etc.
-    status: 'connected' | 'disconnected';
-    ip_address?: string;
-    subnet_mask?: string;
-    mac_address?: string;
-    gateway?: string;
-    dns_servers?: string[];
-    connection_method?: string;
-    routing_mode?: string;
-    mtu?: number;
-    health_check_method?: string;
-    service_provider?: string;
-    speed_mbps?: number;
-    latency_ms?: number;
-    upload_mbps?: number;
-    download_mbps?: number;
-    signal_strength?: number;
-    carrier?: string;
-  }>;
-  cellular?: Array<{
-    id: string;
-    name: string;
-    status: 'connected' | 'disconnected';
-    type?: string;
-    ip_address?: string;
-    subnet_mask?: string;
-    mac_address?: string;
-    gateway?: string;
-    dns_servers?: string[];
-    connection_method?: string;
-    routing_mode?: string;
-    mtu?: number;
-    health_check_method?: string;
-    service_provider?: string;
-    signal_strength?: number;
-    speed_mbps?: number;
-    latency_ms?: number;
-    upload_mbps?: number;
-    download_mbps?: number;
-    carrier?: string;
-  }>;
-  bandwidth?: {
-    total_upload_mbps: number;
-    total_download_mbps: number;
-  };
-  pepvpn?: Array<{
-    id: string;
-    remote_name: string;
-    remote_device_id?: string; // Device ID of the remote end
-    status: 'connected' | 'disconnected';
-    throughput_mbps?: number;
-  }>;
 }
 
 /**
@@ -229,7 +159,7 @@ export class PollingService {
 
     // Fetch detailed status for each device in parallel (with rate limiting)
     const deviceDataPromises = devices.map(device =>
-      this.fetchDeviceDetails(device.id, groupId)
+      this.fetchDeviceDetails(String(device.id), groupId)
     );
 
     const devicesData = await Promise.all(deviceDataPromises);
@@ -258,29 +188,7 @@ export class PollingService {
       )
     );
 
-    const deviceData = deviceResponse.data.data;
-
-    // Extract and partition WAN connections (cellular vs non-cellular)
-    const wanConnections = deviceData.wans || [];
-    const wans: typeof wanConnections = [];
-    const cellular: typeof wanConnections = [];
-    
-    wanConnections.forEach((conn) => {
-      if (conn.type === 'cellular') {
-        cellular.push(conn);
-      } else {
-        wans.push(conn);
-      }
-    });
-
-    // Destructure to exclude original wans property, then add our partitioned wans and cellular
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { wans: _, ...otherDeviceData } = deviceData;
-    return {
-      ...otherDeviceData,
-      wans,
-      cellular,
-    };
+    return deviceResponse.data.data;
   }
 
   /**
@@ -289,64 +197,55 @@ export class PollingService {
   private mapDevice(device: IC2DeviceData, index: number): PeplinkDevice {
     const connections: PeplinkDevice['connections'] = [];
 
-    // Map WAN connections
-    device.wans?.forEach((wan, i) => {
-      connections.push({
-        id: `${device.id}-wan-${i}`,
-        type: 'wan',
-        status: wan.status === 'connected' ? 'connected' : 'disconnected',
-        metrics: {
-          speedMbps: wan.speed_mbps || 0,
-          latencyMs: wan.latency_ms || 0,
-          uploadMbps: wan.upload_mbps || 0,
-          downloadMbps: wan.download_mbps || 0,
-        },
-        wanDetails: {
-          id: wan.id,
-          name: wan.name,
-          type: wan.type || 'ethernet',
-          status: wan.status,
-          ipAddress: wan.ip_address || '',
-          subnetMask: wan.subnet_mask,
-          macAddress: wan.mac_address,
-          gateway: wan.gateway,
-          dnsServers: wan.dns_servers,
-          connectionMethod: wan.connection_method,
-          routingMode: wan.routing_mode,
-          mtu: wan.mtu,
-          healthCheckMethod: wan.health_check_method,
-          serviceProvider: wan.service_provider,
-        },
-      });
-    });
+    // InControl uses 'interfaces' array, not 'wans'
+    device.interfaces?.forEach((iface) => {
+      // Determine connection type from interface type
+      let connType: ConnectionType = 'wan';
+      if (iface.virtualType === 'cellular' || iface.type === 'gobi') {
+        connType = 'cellular';
+      } else if (iface.type === 'wifi' || iface.type === 'wlan') {
+        connType = 'wifi';
+      } else if (iface.type === 'sfp') {
+        connType = 'sfp';
+      }
 
-    // Map Cellular connections
-    device.cellular?.forEach((cell, i) => {
+      // Map interface status to connection status (case-insensitive)
+      let connStatus: ConnectionStatus = 'disconnected';
+      let wanStatus: 'connected' | 'disconnected' | 'standby' = 'disconnected';
+      const ifaceStatus = iface.status?.toLowerCase();
+      if (ifaceStatus === 'connected') {
+        connStatus = 'connected';
+        wanStatus = 'connected';
+      } else if (ifaceStatus === 'standby') {
+        connStatus = 'degraded';
+        wanStatus = 'standby';
+      }
+
       connections.push({
-        id: `${device.id}-cellular-${i}`,
-        type: 'cellular',
-        status: cell.status === 'connected' ? 'connected' : 'disconnected',
+        id: `${device.id}-interface-${iface.id}`,
+        type: connType,
+        status: connStatus,
         metrics: {
-          speedMbps: cell.speed_mbps || 0,
-          latencyMs: cell.latency_ms || 0,
-          uploadMbps: cell.upload_mbps || 0,
-          downloadMbps: cell.download_mbps || 0,
+          speedMbps: iface.speed_mbps || 0,
+          latencyMs: iface.latency_ms || 0,
+          uploadMbps: iface.upload_mbps || 0,
+          downloadMbps: iface.download_mbps || 0,
         },
         wanDetails: {
-          id: cell.id,
-          name: cell.name,
-          type: cell.type || 'cellular',
-          status: cell.status,
-          ipAddress: cell.ip_address || '',
-          subnetMask: cell.subnet_mask,
-          macAddress: cell.mac_address,
-          gateway: cell.gateway,
-          dnsServers: cell.dns_servers,
-          connectionMethod: cell.connection_method,
-          routingMode: cell.routing_mode,
-          mtu: cell.mtu,
-          healthCheckMethod: cell.health_check_method,
-          serviceProvider: cell.service_provider || cell.carrier,
+          id: String(iface.id),
+          name: iface.name || `Interface ${iface.id}`,
+          type: iface.type || 'ethernet',
+          status: wanStatus,
+          ipAddress: iface.ip || '',
+          subnetMask: iface.netmask,
+          macAddress: undefined, // Not provided in interfaces array
+          gateway: iface.gateway,
+          dnsServers: iface.dns_servers || [],
+          connectionMethod: iface.conn_config_method || 'Unknown',
+          routingMode: iface.conn_mode || 'NAT',
+          mtu: iface.mtu,
+          healthCheckMethod: iface.healthcheck,
+          serviceProvider: iface.carrier_name,
         },
       });
     });
@@ -374,13 +273,13 @@ export class PollingService {
     };
 
     return {
-      id: device.id,
-      name: device.name || `Device ${device.id}`,
-      model: device.model || 'Unknown',
-      serial: device.serial,
-      firmware_version: device.firmware_version,
-      status: device.status?.online ? 'online' : 'offline',
-      ipAddress: device.ip_address || '0.0.0.0',
+      id: String(device.id),
+      name: device.name || device.sn,
+      model: device.product_name || device.model || 'Unknown',
+      serial: device.sn,
+      firmware_version: device.fw_ver,
+      status: device.status, // Use device-level status from API
+      ipAddress: device.interfaces?.[0]?.ip || '',
       connections,
       position,
     };
