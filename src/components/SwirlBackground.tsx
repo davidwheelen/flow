@@ -175,14 +175,14 @@ export function SwirlBackground() {
       window.requestAnimationFrame(render);
     };
     
-    setup();
-    window.addEventListener('resize', setup);
-    render();
-    
     // Initialize particles
     for (let i = 0; i < particlePropsLength; i += particlePropCount) {
       initParticle(i);
     }
+    
+    setup();
+    window.addEventListener('resize', setup);
+    render();
     
     return () => {
       window.removeEventListener('resize', setup);
