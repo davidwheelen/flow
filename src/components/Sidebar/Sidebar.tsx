@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Network, ChevronRight, Loader2 } from 'lucide-react';
+import { ChevronRight, Loader2 } from 'lucide-react';
 import { useAppStore } from '@/store/appStore';
 import { useAuth, useDeviceData } from '@/hooks/useInControl2';
 import { getGroups } from '@/services/groupsService';
@@ -85,12 +85,11 @@ export function Sidebar() {
   return (
     <div className="liquid-glass-sidebar w-72 flex flex-col h-full">
       {/* Header */}
-      <div className="liquid-glass-panel m-4 overflow-hidden relative">
+      <div className="liquid-glass-panel m-4 overflow-hidden relative" style={{ padding: '8px 16px' }}>
         <SwirlBackground />
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
-            <Network className="w-5 h-5" style={{ color: '#3b82f6' }} />
-            <h2 className="font-semibold" style={{ color: '#e0e0e0' }}>Flow</h2>
+            <h2 className="font-semibold" style={{ color: '#e0e0e0', fontFamily: 'Abricos, sans-serif' }}>Flow</h2>
           </div>
           <p className="text-xs" style={{ color: '#a0a0a0' }}>Network Groups</p>
         </div>
