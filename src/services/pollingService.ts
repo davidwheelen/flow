@@ -209,13 +209,14 @@ export class PollingService {
         connType = 'sfp';
       }
 
-      // Map interface status to connection status
+      // Map interface status to connection status (case-insensitive)
       let connStatus: ConnectionStatus = 'disconnected';
       let wanStatus: 'connected' | 'disconnected' | 'standby' = 'disconnected';
-      if (iface.status === 'Connected' || iface.status === 'connected') {
+      const ifaceStatus = iface.status?.toLowerCase();
+      if (ifaceStatus === 'connected') {
         connStatus = 'connected';
         wanStatus = 'connected';
-      } else if (iface.status === 'Standby') {
+      } else if (ifaceStatus === 'standby') {
         connStatus = 'degraded';
         wanStatus = 'standby';
       }
