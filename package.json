@@ -1,6 +1,6 @@
 {
   "name": "flow",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Real-time Peplink InControl network visualization with Isoflow-style layout",
   "type": "module",
   "scripts": {

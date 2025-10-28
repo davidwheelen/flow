@@ -48,6 +48,13 @@ export interface IC2DeviceData {
   model: string;
   fw_ver: string;
   interfaces?: IC2Interface[]; // Use this instead of wans
+  mac_info?: Array<{
+    interfaceType: string;
+    name: string;
+    mac: string;
+    connId?: number; // Links to interface.id
+  }>;
+  lan_mac?: string;
   // Bandwidth data (if available at device level)
   bandwidth?: {
     total_upload_mbps: number;

@@ -1,6 +1,6 @@
 {
   "name": "flow-backend",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Backend API service for Flow auto-credentials",
   "type": "module",
   "main": "dist/server.js",
