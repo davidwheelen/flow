@@ -67,6 +67,13 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
     document.body.style.cursor = 'grabbing';
   };
   
+  const handleTitleClick = () => {
+    // Only bring to front on click if not dragging
+    if (!isDragging) {
+      onBringToFront();
+    }
+  };
+  
   useEffect(() => {
     if (!isDragging) return;
     
@@ -108,8 +115,6 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
     <div
       ref={panelRef}
       onMouseDown={(e) => e.stopPropagation()}
-      onMouseMove={(e) => e.stopPropagation()}
-      onMouseUp={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
       onWheel={(e) => e.stopPropagation()}
       style={{
@@ -133,7 +138,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
       {/* Draggable Title Bar */}
       <div
         onMouseDown={handleMouseDown}
-        onClick={onBringToFront}
+        onClick={handleTitleClick}
         style={{
           padding: '12px 16px',
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
