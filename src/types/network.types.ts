@@ -10,6 +10,13 @@ export interface NetworkMetrics {
   downloadMbps: number;
 }
 
+export interface LanClient {
+  mac: string;
+  sn?: string; // Serial number if it's a Peplink device
+  ip: string;
+  name: string;
+}
+
 export interface WANConnection {
   id: string;
   name: string; // e.g., "WAN1 - Xfinity"
@@ -47,6 +54,7 @@ export interface PeplinkDevice {
   connections: Connection[];
   position: { x: number; y: number };
   connectionSpec?: DeviceConnectionSpec; // Optional device connection specifications
+  lanClients?: LanClient[]; // LAN clients connected to this device
 }
 
 export interface NetworkData {

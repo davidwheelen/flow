@@ -1,32 +1,26 @@
 /**
  * Secure Storage Service
  * 
- * Provides encrypted storage for sensitive credentials using Web Crypto API.
- * Falls back to base64 encoding when Web Crypto API is unavailable (non-HTTPS).
+ * Provides secure credential storage via backend API.
+ * Credentials are stored on the backend server, not in browser localStorage.
+ * This allows credentials to persist across different browsers and devices.
  */
 
-const STORAGE_PREFIX = 'flow_secure_';
-const ENCRYPTION_ALGORITHM = 'AES-GCM';
-const KEY_LENGTH = 256;
-
-// Check if Web Crypto API is available
-const isCryptoAvailable = typeof crypto !== 'undefined' && 
-                          crypto.subtle !== undefined;
+const BACKEND_API_BASE = '/api/auth';
 
 /**
  * Check if secure storage (encryption) is available
+ * Always returns true since backend handles encryption
  */
 export function isSecureStorageAvailable(): boolean {
-  return isCryptoAvailable;
+  return true;
 }
 
 /**
  * Get security warning message if encryption is not available
+ * Returns null since backend always uses encryption
  */
 export function getSecurityWarning(): string | null {
-  if (!isCryptoAvailable) {
-    return 'Web Crypto API unavailable. Credentials will be stored using base64 encoding (not encrypted). For full encryption, access via HTTPS or http://localhost.';
-  }
   return null;
 }
 
@@ -53,151 +47,42 @@ export interface StoredCredentials extends IC2Credentials {
 }
 
 /**
- * Generate or retrieve encryption key from localStorage
- */
-async function getEncryptionKey(): Promise<CryptoKey | null> {
-  if (!isCryptoAvailable) {
-    return null; // Signal to use fallback encoding
-  }
-  
-  const keyData = localStorage.getItem(`${STORAGE_PREFIX}key`);
-  
-  if (keyData) {
-    // Import existing key
-    const keyBuffer = base64ToBuffer(keyData);
-    return await crypto.subtle.importKey(
-      'raw',
-      keyBuffer.buffer as ArrayBuffer,
-      { name: ENCRYPTION_ALGORITHM, length: KEY_LENGTH },
-      false,
-      ['encrypt', 'decrypt']
-    );
-  }
-  
-  // Generate new key
-  const key = await crypto.subtle.generateKey(
-    { name: ENCRYPTION_ALGORITHM, length: KEY_LENGTH },
-    true,
-    ['encrypt', 'decrypt']
-  );
-  
-  // Export and store the key
-  const exportedKey = await crypto.subtle.exportKey('raw', key);
-  localStorage.setItem(`${STORAGE_PREFIX}key`, bufferToBase64(exportedKey));
-  
-  return key;
-}
-
-/**
- * Encrypt data using Web Crypto API
- */
-async function encrypt(data: string): Promise<string> {
-  const key = await getEncryptionKey();
-  if (!key) {
-    // Crypto not available, use fallback
-    return btoa(data);
-  }
-  
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const encodedData = new TextEncoder().encode(data);
-  
-  const encryptedBuffer = await crypto.subtle.encrypt(
-    { name: ENCRYPTION_ALGORITHM, iv: iv.buffer as ArrayBuffer },
-    key,
-    encodedData
-  );
-  
-  // Combine IV and encrypted data, prepend marker
-  const combined = new Uint8Array(iv.length + encryptedBuffer.byteLength);
-  combined.set(iv, 0);
-  combined.set(new Uint8Array(encryptedBuffer), iv.length);
-  
-  return 'ENC:' + bufferToBase64(combined.buffer);
-}
-
-/**
- * Decrypt data using Web Crypto API
- */
-async function decrypt(encryptedData: string): Promise<string> {
-  // Check if data is base64-encoded (fallback mode)
-  if (!encryptedData.startsWith('ENC:')) {
-    // Legacy or fallback mode - just base64 decode
-    return atob(encryptedData);
-  }
-  
-  if (!isCryptoAvailable) {
-    throw new Error('Cannot decrypt encrypted data without Web Crypto API. Access via HTTPS or http://localhost to enable encryption.');
-  }
-  
-  // Remove 'ENC:' prefix
-  const actualData = encryptedData.substring(4);
-  const key = await getEncryptionKey();
-  if (!key) {
-    throw new Error('Encryption key not available - Web Crypto API required for decryption.');
-  }
-  
-  const combined = base64ToBuffer(actualData);
-  
-  // Extract IV and encrypted data
-  const iv = combined.slice(0, 12);
-  const encrypted = combined.slice(12);
-  
-  const decryptedBuffer = await crypto.subtle.decrypt(
-    { name: ENCRYPTION_ALGORITHM, iv: iv.buffer as ArrayBuffer },
-    key,
-    encrypted.buffer as ArrayBuffer
-  );
-  
-  return new TextDecoder().decode(decryptedBuffer);
-}
-
-/**
- * Convert buffer to base64 string
- */
-function bufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  let binary = '';
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-}
-
-/**
- * Convert base64 string to buffer
- */
-function base64ToBuffer(base64: string): Uint8Array {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes;
-}
-
-/**
- * Store credentials securely
+ * Store credentials securely via backend API
  */
 export async function storeCredentials(credentials: IC2Credentials): Promise<void> {
-  const jsonData = JSON.stringify(credentials);
-  const encrypted = await encrypt(jsonData);
-  localStorage.setItem(`${STORAGE_PREFIX}credentials`, encrypted);
+  try {
+    const response = await fetch(`${BACKEND_API_BASE}/credentials`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to store credentials');
+    }
+  } catch (error) {
+    console.error('Failed to store credentials:', error);
+    throw error;
+  }
 }
 
 /**
- * Retrieve credentials
+ * Retrieve credentials from backend API
  */
 export async function getCredentials(): Promise<IC2Credentials | null> {
-  const encrypted = localStorage.getItem(`${STORAGE_PREFIX}credentials`);
-  if (!encrypted) {
-    return null;
-  }
-  
   try {
-    const decrypted = await decrypt(encrypted);
-    return JSON.parse(decrypted) as IC2Credentials;
+    const response = await fetch(`${BACKEND_API_BASE}/credentials`);
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to retrieve credentials');
+    }
+
+    const data = await response.json();
+    return data.credentials || null;
   } catch (error) {
-    console.error('Failed to decrypt credentials:', error);
+    console.error('Failed to retrieve credentials:', error);
     return null;
   }
 }
@@ -205,27 +90,41 @@ export async function getCredentials(): Promise<IC2Credentials | null> {
 /**
  * Check if credentials are stored
  */
-export function hasCredentials(): boolean {
-  return localStorage.getItem(`${STORAGE_PREFIX}credentials`) !== null;
+export async function hasCredentials(): Promise<boolean> {
+  try {
+    const credentials = await getCredentials();
+    return credentials !== null;
+  } catch {
+    return false;
+  }
 }
 
 /**
- * Clear stored credentials
+ * Clear stored credentials via backend API
  */
-export function clearCredentials(): void {
-  localStorage.removeItem(`${STORAGE_PREFIX}credentials`);
+export async function clearCredentials(): Promise<void> {
+  try {
+    const response = await fetch(`${BACKEND_API_BASE}/credentials`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to clear credentials');
+    }
+  } catch (error) {
+    console.error('Failed to clear credentials:', error);
+    throw error;
+  }
 }
 
 /**
  * Clear all secure storage data including encryption key
+ * Note: This is a no-op since storage is on the backend
  */
 export function clearAllSecureData(): void {
-  const keys = Object.keys(localStorage);
-  keys.forEach(key => {
-    if (key.startsWith(STORAGE_PREFIX)) {
-      localStorage.removeItem(key);
-    }
-  });
+  // No-op: backend handles all storage
+  clearCredentials();
 }
 
 /**
@@ -239,41 +138,36 @@ export function maskString(value: string): string {
 
 /**
  * Store extended credentials with token data
+ * Note: Not currently used with backend storage
  */
-export async function storeExtendedCredentials(credentials: StoredCredentials): Promise<void> {
-  const jsonData = JSON.stringify(credentials);
-  const encrypted = await encrypt(jsonData);
-  localStorage.setItem(`${STORAGE_PREFIX}extended_credentials`, encrypted);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function storeExtendedCredentials(_credentials?: StoredCredentials): Promise<void> {
+  // No-op: backend doesn't store extended credentials
+  // Token management is handled separately
 }
 
 /**
  * Retrieve extended credentials with token data
+ * Note: Not currently used with backend storage
  */
 export async function getExtendedCredentials(): Promise<StoredCredentials | null> {
-  const encrypted = localStorage.getItem(`${STORAGE_PREFIX}extended_credentials`);
-  if (!encrypted) {
-    return null;
-  }
-  
-  try {
-    const decrypted = await decrypt(encrypted);
-    return JSON.parse(decrypted) as StoredCredentials;
-  } catch (error) {
-    console.error('Failed to decrypt extended credentials:', error);
-    return null;
-  }
+  // No-op: backend doesn't store extended credentials
+  return null;
 }
 
 /**
  * Check if extended credentials are stored
+ * Note: Not currently used with backend storage
  */
 export function hasExtendedCredentials(): boolean {
-  return localStorage.getItem(`${STORAGE_PREFIX}extended_credentials`) !== null;
+  // No-op: backend doesn't store extended credentials
+  return false;
 }
 
 /**
  * Clear extended credentials
+ * Note: Not currently used with backend storage
  */
 export function clearExtendedCredentials(): void {
-  localStorage.removeItem(`${STORAGE_PREFIX}extended_credentials`);
+  // No-op: backend doesn't store extended credentials
 }

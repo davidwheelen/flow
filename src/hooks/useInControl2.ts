@@ -42,7 +42,8 @@ export function useAuth() {
     const loadCredentials = async () => {
       setAuthState(prev => ({ ...prev, isLoading: true }));
       
-      if (!hasCredentials()) {
+      const hasStoredCredentials = await hasCredentials();
+      if (!hasStoredCredentials) {
         setAuthState({
           isAuthenticated: false,
           isLoading: false,
