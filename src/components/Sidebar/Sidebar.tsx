@@ -84,15 +84,22 @@ export function Sidebar() {
 
   return (
     <div className="liquid-glass-sidebar w-72 flex flex-col h-full">
-      {/* Header */}
+      {/* Flow Title Section */}
       <div className="liquid-glass-panel m-4 overflow-hidden relative" style={{ padding: '8px 16px' }}>
         <SwirlBackground />
         <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-2">
-            <h2 className="font-semibold" style={{ color: '#e0e0e0', fontFamily: 'Abricos, sans-serif' }}>Flow</h2>
-          </div>
-          <p className="text-xs" style={{ color: '#a0a0a0' }}>Network Groups</p>
+          <h2 className="font-bold text-2xl" style={{ color: '#e0e0e0', fontFamily: 'Abricos, sans-serif' }}>
+            Flow
+          </h2>
         </div>
+      </div>
+
+      {/* Horizontal Divider */}
+      <div className="border-t border-gray-700 mx-4"></div>
+
+      {/* Network Groups Section */}
+      <div className="px-4 py-3">
+        <p className="text-sm font-medium" style={{ color: '#a0a0a0' }}>Network Groups</p>
       </div>
 
       {/* Groups List */}

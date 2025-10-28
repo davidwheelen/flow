@@ -180,11 +180,13 @@ export function SwirlBackground() {
         ref={canvasBRef}
         style={{
           position: 'absolute',
-          top: 0,
-          left: 0,
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%) scale(1.2)',
           width: '100%',
           height: '100%',
-          pointerEvents: 'none'
+          pointerEvents: 'none',
+          opacity: 0.4
         }}
       />
     </>
