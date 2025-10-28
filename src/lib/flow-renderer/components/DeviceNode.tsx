@@ -10,7 +10,7 @@ interface DeviceNodeProps {
 }
 
 export const DeviceNode: React.FC<DeviceNodeProps> = ({ device, tile }) => {
-  const { zoom, scroll, rendererSize, selectedDeviceId, setSelectedDeviceId } = useCanvasStore();
+  const { zoom, scroll, rendererSize, openPanels, openDevicePanel } = useCanvasStore();
   
   // Calculate position using isoflow's getTilePosition
   const position = useMemo(() => getTilePosition({ tile, origin: 'BOTTOM' }), [tile]);
@@ -20,11 +20,11 @@ export const DeviceNode: React.FC<DeviceNodeProps> = ({ device, tile }) => {
   const screenY = position.y * zoom + scroll.position.y + rendererSize.height / 2;
   
   const iconUrl = getDeviceIconUrl(device.model);
-  const isSelected = selectedDeviceId === device.id;
+  const isSelected = openPanels.some(p => p.deviceId === device.id);
   
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setSelectedDeviceId(isSelected ? null : device.id);
+    openDevicePanel(device.id);
   };
   
   // Memoize transform style to avoid recalculation

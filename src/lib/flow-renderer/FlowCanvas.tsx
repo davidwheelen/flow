@@ -28,7 +28,6 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
     isPanning, 
     setIsPanning,
     setRendererSize,
-    setSelectedDeviceId,
   } = useCanvasStore();
 
   // Calculate device tile positions (3-column grid layout)
@@ -102,11 +101,6 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
     const delta = e.deltaY > 0 ? -ZOOM_INCREMENT : ZOOM_INCREMENT;
     setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom + delta)));
   }, [zoom, setZoom]);
-  
-  // Click background to deselect device
-  const handleBackgroundClick = useCallback(() => {
-    setSelectedDeviceId(null);
-  }, [setSelectedDeviceId]);
 
   return (
     <div
@@ -124,7 +118,6 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
       onWheel={handleWheel}
-      onClick={handleBackgroundClick}
     >
       {/* Grid background */}
       <Grid zoom={zoom} scroll={scroll} />
