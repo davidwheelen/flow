@@ -86,7 +86,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
       let newY = e.clientY - dragOffset.y;
       
       // Constrain to canvas bounds
-      const minX = sidebarWidth + 10;
+      const minX = sidebarWidth; // Allow touching sidebar edge
       const maxX = window.innerWidth - panelWidth - 10;
       const minY = 10;
       const maxY = window.innerHeight - Math.min(panelHeight, 100) - 10;
@@ -269,9 +269,16 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
                     ) : (
                       <ChevronRight size={16} style={{ color: '#a0a0a0' }} />
                     )}
-                    <span style={{ color: '#e0e0e0', fontSize: 14, fontWeight: 500 }}>
-                      {wanName}
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span style={{ color: '#e0e0e0', fontSize: 14, fontWeight: 500 }}>
+                        {wanName}
+                      </span>
+                      {conn.wanDetails?.connectionType && (
+                        <span style={{ color: '#a0a0a0', fontSize: 11 }}>
+                          ({conn.wanDetails.connectionType})
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div
                     style={{
