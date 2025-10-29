@@ -263,7 +263,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
                     userSelect: 'none',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {isExpanded ? (
                       <ChevronDown size={16} style={{ color: '#a0a0a0' }} />
                     ) : (

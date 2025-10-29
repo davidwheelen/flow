@@ -341,7 +341,7 @@ export class PollingService {
         connStatus = 'connected';
         wanStatus = 'connected';
         connectionType = 'Wi-Fi Mesh';
-      } else if (ifaceStatus === 'connected' || ifaceStatus?.includes('connected')) {
+      } else if (ifaceStatus === 'connected' || (ifaceStatus && ifaceStatus.startsWith('connected'))) {
         connStatus = 'connected';
         wanStatus = 'connected';
         connectionType = 'Ethernet';
