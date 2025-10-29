@@ -328,10 +328,23 @@ export class PollingService {
       // Map interface status to connection status (case-insensitive)
       let connStatus: ConnectionStatus = 'disconnected';
       let wanStatus: 'connected' | 'disconnected' | 'standby' = 'disconnected';
+      let connectionType = 'Ethernet';
       const ifaceStatus = iface.status?.toLowerCase();
-      if (ifaceStatus === 'connected') {
+      
+      // Check for Wi-Fi Mesh connection
+      if (ifaceStatus && (
+        ifaceStatus.includes('connected via wi-fi mesh') ||
+        ifaceStatus.includes('connected via wifi mesh') ||
+        ifaceStatus.includes('wi-fi mesh') ||
+        ifaceStatus.includes('wifi mesh')
+      )) {
         connStatus = 'connected';
         wanStatus = 'connected';
+        connectionType = 'Wi-Fi Mesh';
+      } else if (ifaceStatus === 'connected' || ifaceStatus?.includes('connected')) {
+        connStatus = 'connected';
+        wanStatus = 'connected';
+        connectionType = 'Ethernet';
       } else if (ifaceStatus === 'standby') {
         connStatus = 'degraded';
         wanStatus = 'standby';
@@ -361,6 +374,7 @@ export class PollingService {
           gateway: iface.gateway,
           dnsServers: iface.dns_servers || [],
           connectionMethod: iface.conn_config_method || 'Unknown',
+          connectionType: connectionType, // Add connection type (Ethernet vs Wi-Fi Mesh)
           routingMode: iface.conn_mode || 'NAT',
           mtu: iface.mtu,
           healthCheckMethod: iface.healthcheck,
