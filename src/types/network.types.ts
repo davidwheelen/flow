@@ -28,6 +28,7 @@ export interface WANConnection {
   gateway?: string;
   dnsServers?: string[];
   connectionMethod?: string; // "DHCP", "Static", "PPPoE"
+  connectionType?: string; // "Ethernet", "Wi-Fi Mesh", etc.
   routingMode?: string; // "NAT", "IP Forwarding"
   mtu?: number;
   healthCheckMethod?: string;
