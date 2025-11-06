@@ -268,10 +268,15 @@ export class PollingService {
    * Check if devices are connected via PepVPN
    */
   private isPepVPNConnection(source: PeplinkDevice, target: PeplinkDevice): boolean {
-    // Check if source has a PepVPN connection to target
-    return source.connections.some(conn => 
+    // Check if either device has a PepVPN connection to the other
+    const sourceToTarget = source.connections.some(conn => 
       conn.type === 'sfp' && conn.device_id === target.id
     );
+    const targetToSource = target.connections.some(conn => 
+      conn.type === 'sfp' && conn.device_id === source.id
+    );
+    
+    return sourceToTarget || targetToSource;
   }
 
   /**
