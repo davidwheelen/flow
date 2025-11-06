@@ -118,3 +118,68 @@ export const SizeUtils = {
     height: size.height * multiplier
   })
 };
+
+/**
+ * Group position interface for visual grouping of devices
+ */
+export interface GroupPosition {
+  id: string;
+  position: Coords;
+}
+
+/**
+ * Get the absolute position of a group in tile coordinates
+ */
+export const getGroupPosition = (
+  groupId: string,
+  groups?: Map<string, Coords>
+): Coords => {
+  if (!groups) {
+    return { x: 0, y: 0 };
+  }
+  
+  return groups.get(groupId) || { x: 0, y: 0 };
+};
+
+/**
+ * Get the absolute position of a device including group offsets
+ * 
+ * @param deviceTile - The device's tile position (relative to its group if grouped)
+ * @param groupId - Optional group ID the device belongs to
+ * @param groups - Map of group IDs to their tile positions
+ * @returns Absolute tile coordinates for the device
+ */
+export const getDeviceAbsolutePosition = (
+  deviceTile: Coords,
+  groupId?: string,
+  groups?: Map<string, Coords>
+): Coords => {
+  if (!groupId || !groups) {
+    // No group, return device position as-is
+    return deviceTile;
+  }
+  
+  const groupPos = getGroupPosition(groupId, groups);
+  
+  // Add group offset to device position
+  return {
+    x: groupPos.x + deviceTile.x,
+    y: groupPos.y + deviceTile.y
+  };
+};
+
+/**
+ * Transform screen coordinates relative to a group's position
+ */
+export const transformToGroupSpace = (
+  screenPos: Coords,
+  groupId: string,
+  groups?: Map<string, Coords>
+): Coords => {
+  const groupPos = getGroupPosition(groupId, groups);
+  
+  return {
+    x: screenPos.x - groupPos.x,
+    y: screenPos.y - groupPos.y
+  };
+};

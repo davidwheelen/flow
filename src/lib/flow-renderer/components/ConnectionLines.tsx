@@ -1,11 +1,12 @@
 import React from 'react';
-import { PeplinkDevice, ConnectionType, ConnectionStatus } from '@/types/network.types';
-import { getTilePosition, Coords } from '../utils/gridUtils';
+import { PeplinkDevice, ConnectionType, ConnectionStatus, DeviceGroup } from '@/types/network.types';
+import { getTilePosition, Coords, getDeviceAbsolutePosition } from '../utils/gridUtils';
 import { useCanvasStore } from '@/store/canvasStore';
 
 interface ConnectionLinesProps {
   devices: PeplinkDevice[];
   deviceTiles: Map<string, Coords>;
+  groups?: DeviceGroup[];
 }
 
 const CONNECTION_COLORS: Record<ConnectionType, string> = {
@@ -21,8 +22,14 @@ const STATUS_STYLES: Record<ConnectionStatus, { opacity: number; dashArray: stri
   degraded: { opacity: 0.7, dashArray: '10,5' },
 };
 
-export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ devices, deviceTiles }) => {
+export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ devices, deviceTiles, groups }) => {
   const { zoom, scroll, rendererSize } = useCanvasStore();
+  
+  // Build group positions map for efficient lookup
+  const groupPositions = new Map<string, Coords>();
+  groups?.forEach(group => {
+    groupPositions.set(group.id, group.position);
+  });
   
   // Create connections based on actual network topology
   const connections: Array<{
@@ -37,16 +44,33 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ devices, devic
     const fromTile = deviceTiles.get(device.id);
     if (!fromTile) return;
     
+    // Get absolute position for the source device (accounting for group offset)
+    const fromAbsoluteTile = getDeviceAbsolutePosition(
+      fromTile,
+      device.groupId,
+      groupPositions
+    );
+    
     // Iterate through actual connections from InControl
     device.connections.forEach(conn => {
       // Only create visual connection if this connection has a device_id (device-to-device)
       if (!conn.device_id) return;
       
+      const toDevice = devices.find(d => d.id === conn.device_id);
+      if (!toDevice) return;
+      
       const toTile = deviceTiles.get(conn.device_id);
       if (!toTile) return;
       
-      const fromPos = getTilePosition({ tile: fromTile, origin: 'BOTTOM' });
-      const toPos = getTilePosition({ tile: toTile, origin: 'BOTTOM' });
+      // Get absolute position for the target device (accounting for group offset)
+      const toAbsoluteTile = getDeviceAbsolutePosition(
+        toTile,
+        toDevice.groupId,
+        groupPositions
+      );
+      
+      const fromPos = getTilePosition({ tile: fromAbsoluteTile, origin: 'BOTTOM' });
+      const toPos = getTilePosition({ tile: toAbsoluteTile, origin: 'BOTTOM' });
       
       connections.push({
         from: fromPos,

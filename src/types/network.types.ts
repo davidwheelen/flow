@@ -56,9 +56,17 @@ export interface PeplinkDevice {
   connectionSpec?: DeviceConnectionSpec; // Optional device connection specifications
   lanClients?: LanClient[]; // LAN clients connected to this device
   interfaces?: Array<{ mac_address?: string }>; // Device interfaces for connection matching
+  groupId?: string; // Optional visual group ID for organizing devices
+}
+
+export interface DeviceGroup {
+  id: string;
+  name: string;
+  position: { x: number; y: number };
 }
 
 export interface NetworkData {
   devices: PeplinkDevice[];
+  groups?: DeviceGroup[];
   lastUpdated: Date;
 }
