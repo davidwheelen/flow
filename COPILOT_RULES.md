@@ -218,24 +218,42 @@ playwright-browser_navigate: { url: "http://localhost:5173?test=true" }
 
 #### 5. Example: PR #73 Connection Drawing Screenshots
 
-```bash
-# 1. Full Application (1920x1080)
+```typescript
+// 1. Full Application (1920x1080)
 playwright-browser_resize: { width: 1920, height: 1080 }
-playwright-browser_navigate: "http://localhost:5173?test=true"
-playwright-browser_take_screenshot: "01-full-application.png"
+playwright-browser_navigate: { url: "http://localhost:5173?test=true" }
+playwright-browser_take_screenshot: { 
+  filename: "01-full-application.png",
+  type: "png"
+}
 
-# 2. Device Details (1200x800)
+// 2. Device Details (1200x800)
 playwright-browser_resize: { width: 1200, height: 800 }
-playwright-browser_click: { element: "Balance 20X - HQ", ref: "e25" }
-playwright-browser_take_screenshot: "02-device-details.png"
+playwright-browser_click: { 
+  element: "Balance 20X - HQ device", 
+  ref: "e25" 
+}
+playwright-browser_take_screenshot: { 
+  filename: "02-device-details.png",
+  type: "png"
+}
 
-# 3. Connection Details
-playwright-browser_click: { element: "WAN1 - Xfinity", ref: "e76" }
-playwright-browser_take_screenshot: "03-connection-details.png"
+// 3. Connection Details
+playwright-browser_click: { 
+  element: "WAN1 - Xfinity connection", 
+  ref: "e76" 
+}
+playwright-browser_take_screenshot: { 
+  filename: "03-connection-details.png",
+  type: "png"
+}
 
-# 4. Group Connections
+// 4. Group Connections
 playwright-browser_resize: { width: 1200, height: 800 }
-playwright-browser_take_screenshot: "04-group-connections.png"
+playwright-browser_take_screenshot: { 
+  filename: "04-group-connections.png",
+  type: "png"
+}
 ```
 
 #### 6. Verification Steps
