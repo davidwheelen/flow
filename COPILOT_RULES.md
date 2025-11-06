@@ -80,102 +80,206 @@ Every PR description MUST include:
 
 ### Rule #7: Screenshot Generation Method
 
-**ALWAYS USE THE GITHUB CODING AGENT FOR SCREENSHOTS**
+**USE PLAYWRIGHT BROWSER TOOLS FOR INTERACTIVE SCREENSHOTS**
 
-This is the ONLY acceptable method for generating screenshots for PRs.
+This method generates high-quality screenshots of the actual running application with real interactions.
 
-#### 1. Use the `github-coding-agent-` tool with these parameters:
+#### 1. Setup and Preparation
 
-```typescript
-{
-  repository: "davidwheelen/flow",
-  branch: "current-branch-name",
-  problem_statement: `Generate screenshots for PR #X showing:
-    
-    1. Full application view (1920x1080)
-       - Dark theme (#1a1a1a background)
-       - Glassmorphism UI elements
-       - Complete interface with all changes visible
-    
-    2. Feature-specific views (800x600 or appropriate size)
-       - Close-ups of what changed
-       - Specific UI components affected
-    
-    3. Before/After comparisons (side-by-side if applicable)
-       - Old vs new interface
-       - Highlight specific differences
-    
-    4. Interaction states
-       - Hover states
-       - Active/clicked states
-       - Different data scenarios
-    
-    5. Example layouts with realistic data
-       - Device connections (blue=WAN, purple=cellular, green=WiFi, orange=SFP)
-       - Isoflow-style 3D isometric icons from /iconpacks/isoflow-default/
-       - Glassmorphism sidebar (280px wide)
-    
-    Requirements:
-    - Save all screenshots to /progress/PR#/ directory
-    - Use descriptive filenames (e.g., 01-full-application.png, 02-feature-closeup.png)
-    - Minimum 5-10 screenshots per PR
-    - PNG format with appropriate resolutions
-    - Ensure images show the actual changes being made in this PR
-    
-    After generating screenshots:
-    - Update PR description with embedded images using markdown
-    - Include captions for each screenshot
-    - Verify all images are accessible and properly formatted`
-}
+**Step 1: Create PR Directory**
+```bash
+mkdir -p /home/runner/work/flow/flow/progress/PR#/
 ```
 
-#### 2. The coding agent will:
+**Step 2: Start Development Server**
+```bash
+cd /home/runner/work/flow/flow
+npm run dev  # Runs in detached mode
+sleep 10     # Wait for server to start
+```
 
-- Create `/progress/PR#/` directory structure
-- Generate all required screenshots with proper dimensions
-- Use correct colors and styling matching the application
-- Apply dark theme (#1a1a1a) and glassmorphism effects
-- Add screenshots to the repository
-- Update PR description with embedded images and captions
-- Ensure all images are accessible via relative paths
+**Step 3: Enable Test Mode (if needed)**
+- Navigate to `http://localhost:5173?test=true` to load mock devices
+- Test mode injects realistic device data with connections for demonstration
 
-#### 3. NO EXCEPTIONS:
+#### 2. Generate Screenshots with Playwright
 
-- ❌ **NEVER** try to create screenshots manually
-- ❌ **NEVER** use other tools or methods (including Python scripts)
-- ❌ **NEVER** skip or postpone screenshot generation
-- ❌ **NEVER** say "I'll add screenshots later"
-- ✅ **ALWAYS** use the github-coding-agent- tool for EVERY PR
-- ✅ **ALWAYS** generate screenshots BEFORE making code changes
-- ✅ **ALWAYS** include the complete problem_statement with all requirements
+**Install and Initialize Browser:**
+```typescript
+playwright-browser_install  // One-time setup
+playwright-browser_navigate: { url: "http://localhost:5173?test=true" }
+```
 
-#### 4. Verification Steps:
+**Required Screenshots for Each PR:**
 
-After the coding agent completes:
-
-1. **Check Directory Structure:**
-   ```bash
-   ls -la /progress/PR#/
+1. **Full Application View (1920x1080)**
+   ```typescript
+   playwright-browser_resize: { width: 1920, height: 1080 }
+   playwright-browser_take_screenshot: { 
+     filename: "01-full-application-view.png",
+     type: "png"
+   }
    ```
-   - Verify all screenshot PNG files exist
-   - Confirm descriptive filenames are used
+   - Shows complete interface with all features
+   - Dark theme (#1a1a1a background)
+   - Glassmorphism UI elements visible
+   - All devices and connections rendered
 
-2. **Verify Screenshot Content:**
-   - Open each screenshot to ensure it matches the requirements
-   - Check dimensions (1920x1080 for full views, appropriate sizes for others)
-   - Verify dark theme and styling are correct
+2. **Feature-Specific Views (1200x800 or appropriate)**
+   ```typescript
+   playwright-browser_resize: { width: 1200, height: 800 }
+   playwright-browser_take_screenshot: { 
+     filename: "02-feature-details.png" 
+   }
+   ```
+   - Close-up of specific changes
+   - Zoomed or focused on relevant area
 
-3. **Confirm PR Description:**
-   - PR description includes all screenshots with markdown embeds
-   - Each screenshot has a descriptive caption
-   - Images are properly formatted and accessible
+3. **Interactive States**
+   ```typescript
+   // Click on device to show details panel
+   playwright-browser_click: { 
+     element: "Device name",
+     ref: "e25" 
+   }
+   playwright-browser_take_screenshot: { 
+     filename: "03-device-details.png" 
+   }
+   ```
+   - Device detail panels
+   - Hover states
+   - Expanded connection information
 
-4. **Validate Image Quality:**
-   - Screenshots show actual changes made in the PR
-   - Images are clear and readable
-   - All UI elements are visible and properly rendered
+4. **Connection Types (demonstrate all colors)**
+   - WAN connections: Blue (#3b82f6)
+   - Cellular connections: Purple (#a855f7) with glow
+   - WiFi connections: Green (#22c55e)
+   - SFP connections: Orange (#f97316) with thick lines
+   - Animated dashed lines for active connections
 
-**REMEMBER:** The github-coding-agent- tool is the ONLY approved method. Do not deviate from this process under any circumstances.
+5. **Before/After Comparisons**
+   - When applicable, show old vs new behavior
+   - Side-by-side or sequential screenshots
+
+#### 3. Screenshot Requirements
+
+**Technical Specifications:**
+- Format: PNG
+- Full application: 1920x1080
+- Feature details: 1200x800
+- Close-ups: 800x600 minimum
+- Dark theme: #1a1a1a background
+- Glassmorphism effects visible
+
+**Content Requirements:**
+- Show actual rendered application (not mockups)
+- Include realistic device data
+- Display connection paths between devices
+- Show interactive elements in various states
+- Capture isometric 3D device icons
+- Include glassmorphism sidebar (280px wide)
+
+**File Organization:**
+- Save to: `/home/runner/work/flow/flow/progress/PR#/`
+- Naming: `01-description.png`, `02-description.png`, etc.
+- Descriptive filenames (e.g., `03-connection-details.png`)
+- Minimum 5-10 screenshots per PR
+
+#### 4. Workflow Steps
+
+**Complete Screenshot Generation Process:**
+
+1. **Prepare Environment**
+   ```bash
+   npm install  # Ensure dependencies installed
+   npm run dev  # Start server in detached mode
+   mkdir -p progress/PR#/
+   ```
+
+2. **Generate Screenshots**
+   ```bash
+   # For each required screenshot:
+   - Navigate to URL
+   - Resize browser window
+   - Interact with UI elements (click, hover, etc.)
+   - Take screenshot
+   - Note screenshot URL from user feedback
+   ```
+
+3. **Collect Screenshot URLs**
+   - User will provide GitHub asset URLs after each screenshot
+   - Save URLs for PR description
+   - Format: `https://github.com/user-attachments/assets/[id]`
+
+4. **Update PR Description**
+   - Embed all screenshots with captions
+   - Provide context for each image
+   - Use markdown format
+
+#### 5. Example: PR #73 Connection Drawing Screenshots
+
+```bash
+# 1. Full Application (1920x1080)
+playwright-browser_resize: { width: 1920, height: 1080 }
+playwright-browser_navigate: "http://localhost:5173?test=true"
+playwright-browser_take_screenshot: "01-full-application.png"
+
+# 2. Device Details (1200x800)
+playwright-browser_resize: { width: 1200, height: 800 }
+playwright-browser_click: { element: "Balance 20X - HQ", ref: "e25" }
+playwright-browser_take_screenshot: "02-device-details.png"
+
+# 3. Connection Details
+playwright-browser_click: { element: "WAN1 - Xfinity", ref: "e76" }
+playwright-browser_take_screenshot: "03-connection-details.png"
+
+# 4. Group Connections
+playwright-browser_resize: { width: 1200, height: 800 }
+playwright-browser_take_screenshot: "04-group-connections.png"
+```
+
+#### 6. Verification Steps
+
+After generating screenshots:
+
+1. **Check File Organization:**
+   ```bash
+   ls -la /home/runner/work/flow/flow/progress/PR#/
+   ```
+   - Verify directory exists
+   - Note: Playwright saves to `/tmp/playwright-logs/`
+   - User provides GitHub asset URLs
+
+2. **Verify Screenshot Quality:**
+   - Review each screenshot URL provided
+   - Ensure correct dimensions
+   - Confirm dark theme visible
+   - Check that features are clearly shown
+
+3. **Update PR Description:**
+   - Include all screenshot URLs with markdown
+   - Add descriptive captions
+   - Organize logically (full view → details → interactions)
+
+4. **Validate Content:**
+   - Screenshots show actual changes
+   - Interactive states captured
+   - Connection paths visible
+   - Color coding correct (WAN=blue, cellular=purple, WiFi=green, SFP=orange)
+
+#### 7. NO EXCEPTIONS
+
+- ✅ **ALWAYS** use Playwright browser tools for screenshots
+- ✅ **ALWAYS** start dev server in test mode when needed
+- ✅ **ALWAYS** capture actual running application
+- ✅ **ALWAYS** show interactive states (clicks, hovers, expanded panels)
+- ✅ **ALWAYS** collect screenshot URLs from user feedback
+- ✅ **ALWAYS** include minimum 5-10 screenshots per PR
+- ❌ **NEVER** skip screenshot generation
+- ❌ **NEVER** use static mockups or diagrams
+- ❌ **NEVER** say "I'll add them later"
+
+**REMEMBER:** Screenshots document the actual working feature in the live application. They are critical for PRs and must show real interactions, not mock-ups.
 
 ## Project-Specific Context
 
