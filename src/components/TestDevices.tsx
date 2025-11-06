@@ -49,6 +49,13 @@ export function TestDevices() {
               status: 'connected',
               device_id: 'device-2', // Connected to Branch office
               metrics: { speedMbps: 50, latencyMs: 15, uploadMbps: 25, downloadMbps: 25 } 
+            },
+            { 
+              id: 'conn-wifi-1', 
+              type: 'wifi', 
+              status: 'connected',
+              device_id: 'device-3', // WiFi connection to Office
+              metrics: { speedMbps: 150, latencyMs: 10, uploadMbps: 20, downloadMbps: 130 } 
             }
           ],
           position: { x: 0, y: 0 }
@@ -88,6 +95,13 @@ export function TestDevices() {
               status: 'connected',
               device_id: 'device-1', // Connected to HQ
               metrics: { speedMbps: 50, latencyMs: 15, uploadMbps: 25, downloadMbps: 25 } 
+            },
+            { 
+              id: 'conn-cell-2', 
+              type: 'cellular', 
+              status: 'connected',
+              device_id: 'device-4', // Cellular connection to Mobile
+              metrics: { speedMbps: 80, latencyMs: 35, uploadMbps: 8, downloadMbps: 72 } 
             }
           ],
           position: { x: 0, y: 0 }
@@ -131,6 +145,13 @@ export function TestDevices() {
               type: 'cellular', 
               status: 'connected', 
               metrics: { speedMbps: 80, latencyMs: 30, uploadMbps: 8, downloadMbps: 72 } 
+            },
+            { 
+              id: 'conn-cell-4', 
+              type: 'cellular', 
+              status: 'connected',
+              device_id: 'device-2', // Cellular to Branch
+              metrics: { speedMbps: 80, latencyMs: 35, uploadMbps: 8, downloadMbps: 72 } 
             }
           ],
           position: { x: 0, y: 0 }
