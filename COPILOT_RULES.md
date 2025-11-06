@@ -78,6 +78,105 @@ Every PR description MUST include:
 - ✅ EMBED them in the PR description with markdown
 - ✅ Ensure images are accessible at `/progress/PR#/`
 
+### Rule #7: Screenshot Generation Method
+
+**ALWAYS USE THE GITHUB CODING AGENT FOR SCREENSHOTS**
+
+This is the ONLY acceptable method for generating screenshots for PRs.
+
+#### 1. Use the `github-coding-agent-` tool with these parameters:
+
+```typescript
+{
+  repository: "davidwheelen/flow",
+  branch: "current-branch-name",
+  problem_statement: `Generate screenshots for PR #X showing:
+    
+    1. Full application view (1920x1080)
+       - Dark theme (#1a1a1a background)
+       - Glassmorphism UI elements
+       - Complete interface with all changes visible
+    
+    2. Feature-specific views (800x600 or appropriate size)
+       - Close-ups of what changed
+       - Specific UI components affected
+    
+    3. Before/After comparisons (side-by-side if applicable)
+       - Old vs new interface
+       - Highlight specific differences
+    
+    4. Interaction states
+       - Hover states
+       - Active/clicked states
+       - Different data scenarios
+    
+    5. Example layouts with realistic data
+       - Device connections (blue=WAN, purple=cellular, green=WiFi, orange=SFP)
+       - Isoflow-style 3D isometric icons from /iconpacks/isoflow-default/
+       - Glassmorphism sidebar (280px wide)
+    
+    Requirements:
+    - Save all screenshots to /progress/PR#/ directory
+    - Use descriptive filenames (e.g., 01-full-application.png, 02-feature-closeup.png)
+    - Minimum 5-10 screenshots per PR
+    - PNG format with appropriate resolutions
+    - Ensure images show the actual changes being made in this PR
+    
+    After generating screenshots:
+    - Update PR description with embedded images using markdown
+    - Include captions for each screenshot
+    - Verify all images are accessible and properly formatted`
+}
+```
+
+#### 2. The coding agent will:
+
+- Create `/progress/PR#/` directory structure
+- Generate all required screenshots with proper dimensions
+- Use correct colors and styling matching the application
+- Apply dark theme (#1a1a1a) and glassmorphism effects
+- Add screenshots to the repository
+- Update PR description with embedded images and captions
+- Ensure all images are accessible via relative paths
+
+#### 3. NO EXCEPTIONS:
+
+- ❌ **NEVER** try to create screenshots manually
+- ❌ **NEVER** use other tools or methods (including Python scripts)
+- ❌ **NEVER** skip or postpone screenshot generation
+- ❌ **NEVER** say "I'll add screenshots later"
+- ✅ **ALWAYS** use the github-coding-agent- tool for EVERY PR
+- ✅ **ALWAYS** generate screenshots BEFORE making code changes
+- ✅ **ALWAYS** include the complete problem_statement with all requirements
+
+#### 4. Verification Steps:
+
+After the coding agent completes:
+
+1. **Check Directory Structure:**
+   ```bash
+   ls -la /progress/PR#/
+   ```
+   - Verify all screenshot PNG files exist
+   - Confirm descriptive filenames are used
+
+2. **Verify Screenshot Content:**
+   - Open each screenshot to ensure it matches the requirements
+   - Check dimensions (1920x1080 for full views, appropriate sizes for others)
+   - Verify dark theme and styling are correct
+
+3. **Confirm PR Description:**
+   - PR description includes all screenshots with markdown embeds
+   - Each screenshot has a descriptive caption
+   - Images are properly formatted and accessible
+
+4. **Validate Image Quality:**
+   - Screenshots show actual changes made in the PR
+   - Images are clear and readable
+   - All UI elements are visible and properly rendered
+
+**REMEMBER:** The github-coding-agent- tool is the ONLY approved method. Do not deviate from this process under any circumstances.
+
 ## Project-Specific Context
 
 ### Application Details
@@ -152,5 +251,5 @@ create_feature_closeup()
 
 ---
 
-*Last Updated: 2025-10-19*
+*Last Updated: 2025-11-06*
 *User: davidwheelen*
