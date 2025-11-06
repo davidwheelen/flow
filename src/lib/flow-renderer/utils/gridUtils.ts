@@ -120,14 +120,6 @@ export const SizeUtils = {
 };
 
 /**
- * Group position interface for visual grouping of devices
- */
-export interface GroupPosition {
-  id: string;
-  position: Coords;
-}
-
-/**
  * Get the absolute position of a group in tile coordinates
  */
 export const getGroupPosition = (
@@ -165,21 +157,5 @@ export const getDeviceAbsolutePosition = (
   return {
     x: groupPos.x + deviceTile.x,
     y: groupPos.y + deviceTile.y
-  };
-};
-
-/**
- * Transform screen coordinates relative to a group's position
- */
-export const transformToGroupSpace = (
-  screenPos: Coords,
-  groupId: string,
-  groups?: Map<string, Coords>
-): Coords => {
-  const groupPos = getGroupPosition(groupId, groups);
-  
-  return {
-    x: screenPos.x - groupPos.x,
-    y: screenPos.y - groupPos.y
   };
 };

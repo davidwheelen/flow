@@ -4,8 +4,6 @@ export { FlowConnection } from './core/FlowConnection';
 export { getDeviceIconUrl } from './icons/iconFactory';
 export { 
   getGroupPosition, 
-  getDeviceAbsolutePosition, 
-  transformToGroupSpace,
-  type GroupPosition,
+  getDeviceAbsolutePosition,
   type Coords
 } from './utils/gridUtils';
