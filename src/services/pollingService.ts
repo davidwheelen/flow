@@ -280,7 +280,12 @@ export class PollingService {
   private createDeviceConnection(source: PeplinkDevice, target: PeplinkDevice, type: ConnectionType): void {
     const connectionId = `${type}-${source.id}-to-${target.id}`;
     
-    if (!source.connections.find(c => c.id === connectionId)) {
+    // Check if connection already exists (by ID or by device_id)
+    const hasExistingConnection = source.connections.some(c => 
+      c.id === connectionId || (c.type === type && c.device_id === target.id)
+    );
+    
+    if (!hasExistingConnection) {
       source.connections.push({
         id: connectionId,
         type,
@@ -300,7 +305,12 @@ export class PollingService {
     // Create reverse connection for bi-directionality
     const reverseConnectionId = `${type}-${target.id}-to-${source.id}`;
     
-    if (!target.connections.find(c => c.id === reverseConnectionId)) {
+    // Check if reverse connection already exists (by ID or by device_id)
+    const hasExistingReverseConnection = target.connections.some(c => 
+      c.id === reverseConnectionId || (c.type === type && c.device_id === source.id)
+    );
+    
+    if (!hasExistingReverseConnection) {
       target.connections.push({
         id: reverseConnectionId,
         type,
