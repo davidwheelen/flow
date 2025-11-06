@@ -116,11 +116,10 @@ Balance 20X - HQ (device-1)
 
 Balance 310X - Branch (device-2)
   ├─ SFP → Balance 20X - HQ (device-1)
-  └─ WAN → MAX Transit - Mobile (device-4)
+  └─ Cellular → MAX Transit - Mobile (device-4)
 
 Balance 380 - Office (device-3)
-  ├─ SFP → Balance 2500 - DataCenter (device-5)
-  └─ WiFi → Balance 20X - HQ (device-1)
+  └─ SFP → Balance 2500 - DataCenter (device-5)
 
 MAX Transit - Mobile (device-4)
   └─ Cellular → Balance 310X - Branch (device-2)
