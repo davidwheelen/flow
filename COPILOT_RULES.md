@@ -93,9 +93,10 @@ mkdir -p /home/runner/work/flow/flow/progress/PR#/
 
 **Step 2: Start Development Server**
 ```bash
+# Start dev server in background
 cd /home/runner/work/flow/flow
-npm run dev  # Runs in detached mode
-sleep 10     # Wait for server to start
+npm run dev &
+sleep 10  # Wait for server to start
 ```
 
 **Step 3: Enable Test Mode (if needed)**
@@ -106,7 +107,10 @@ sleep 10     # Wait for server to start
 
 **Install and Initialize Browser:**
 ```typescript
-playwright-browser_install  // One-time setup
+// One-time browser setup
+playwright-browser_install
+
+// Navigate to the application
 playwright-browser_navigate: { url: "http://localhost:5173?test=true" }
 ```
 
@@ -191,9 +195,12 @@ playwright-browser_navigate: { url: "http://localhost:5173?test=true" }
 
 1. **Prepare Environment**
    ```bash
-   npm install  # Ensure dependencies installed
-   npm run dev  # Start server in detached mode
+   npm install
    mkdir -p progress/PR#/
+   
+   # Start development server in background (detached mode)
+   cd /home/runner/work/flow/flow && npm run dev &
+   sleep 10  # Wait for server to start
    ```
 
 2. **Generate Screenshots**
@@ -264,9 +271,10 @@ After generating screenshots:
    ```bash
    ls -la /home/runner/work/flow/flow/progress/PR#/
    ```
-   - Verify directory exists
-   - Note: Playwright saves to `/tmp/playwright-logs/`
-   - User provides GitHub asset URLs
+   - Verify progress directory exists
+   - Playwright tool saves screenshots temporarily to `/tmp/playwright-logs/`
+   - Screenshots are accessed via GitHub asset URLs provided by the user after each capture
+   - No manual file copying needed - reference URLs directly in PR description
 
 2. **Verify Screenshot Quality:**
    - Review each screenshot URL provided
