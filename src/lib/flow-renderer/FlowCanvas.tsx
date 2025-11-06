@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { PeplinkDevice } from '@/types/network.types';
+import { PeplinkDevice, DeviceGroup } from '@/types/network.types';
 import { Grid } from './components/Grid';
 import { DeviceNode } from './components/DeviceNode';
 import { ConnectionLines } from './components/ConnectionLines';
@@ -10,12 +10,13 @@ import { Coords } from './utils/gridUtils';
 
 interface FlowCanvasProps {
   devices: PeplinkDevice[];
+  groups?: DeviceGroup[];
   width?: number;
   height?: number;
   className?: string;
 }
 
-export function FlowCanvas({ devices, width, height, className }: FlowCanvasProps) {
+export function FlowCanvas({ devices, groups, width, height, className }: FlowCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const lastMousePos = useRef({ x: 0, y: 0 });
   
@@ -123,7 +124,7 @@ export function FlowCanvas({ devices, width, height, className }: FlowCanvasProp
       <Grid zoom={zoom} scroll={scroll} />
       
       {/* Connection lines (SVG) */}
-      <ConnectionLines devices={devices} deviceTiles={deviceTiles} />
+      <ConnectionLines devices={devices} deviceTiles={deviceTiles} groups={groups} />
       
       {/* Device nodes (HTML/React components) */}
       <div style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
