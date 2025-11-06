@@ -174,10 +174,11 @@ export class PollingService {
    * Build connection graph by detecting all connection types
    */
   private buildConnectionGraph(devices: PeplinkDevice[]): void {
-    devices.forEach(sourceDevice => {
-      // Check all target devices for connections
-      devices.forEach(targetDevice => {
-        if (targetDevice.id === sourceDevice.id) return;
+    // Process each device pair only once (avoiding duplicate processing)
+    for (let i = 0; i < devices.length; i++) {
+      for (let j = i + 1; j < devices.length; j++) {
+        const sourceDevice = devices[i];
+        const targetDevice = devices[j];
         
         // Check if devices are connected via any mechanism
         const isConnected = this.checkDeviceConnection(sourceDevice, targetDevice);
@@ -186,18 +187,8 @@ export class PollingService {
           // Create bi-directional connection with proper type
           this.createDeviceConnection(sourceDevice, targetDevice, isConnected.type);
         }
-      });
-      
-      // Handle wireless mesh connections
-      if (sourceDevice.model.includes('AP')) {
-        this.detectWirelessMeshConnections(sourceDevice, devices);
       }
-      
-      // Handle PepVPN/SpeedFusion connections
-      if (sourceDevice.connections.some(c => c.type === 'sfp' && c.device_id)) {
-        this.handlePepVPNConnections(sourceDevice, devices);
-      }
-    });
+    }
   }
 
   /**
@@ -325,63 +316,6 @@ export class PollingService {
       
       console.log(`Created reverse ${type} connection: ${target.name} -> ${source.name}`);
     }
-  }
-
-  /**
-   * Detect wireless mesh connections for APs
-   */
-  private detectWirelessMeshConnections(sourceDevice: PeplinkDevice, devices: PeplinkDevice[]): void {
-    devices.forEach(targetDevice => {
-      if (targetDevice.id === sourceDevice.id) return;
-      
-      // Check if target is also an AP
-      if (targetDevice.model.includes('AP')) {
-        // Check if they're in the same network/group and have WiFi capabilities
-        if (this.isWirelessMeshConnection(sourceDevice, targetDevice)) {
-          // Check if not already connected via LAN
-          const hasLANConnection = sourceDevice.connections.some(conn => 
-            conn.device_id === targetDevice.id && (conn.type === 'lan' || conn.type === 'wan')
-          );
-          
-          if (!hasLANConnection) {
-            this.createDeviceConnection(sourceDevice, targetDevice, 'wifi');
-          }
-        }
-      }
-    });
-  }
-
-  /**
-   * Handle PepVPN/SpeedFusion connections
-   */
-  private handlePepVPNConnections(sourceDevice: PeplinkDevice, devices: PeplinkDevice[]): void {
-    // PepVPN connections are already created in mapDevice()
-    // This method ensures bi-directionality
-    sourceDevice.connections.forEach(conn => {
-      if (conn.type === 'sfp' && conn.device_id) {
-        const targetDevice = devices.find(d => d.id === conn.device_id);
-        if (targetDevice) {
-          const reverseConnectionId = `sfp-${targetDevice.id}-to-${sourceDevice.id}`;
-          
-          if (!targetDevice.connections.find(c => c.id === reverseConnectionId)) {
-            targetDevice.connections.push({
-              id: reverseConnectionId,
-              type: 'sfp',
-              status: conn.status,
-              device_id: sourceDevice.id,
-              metrics: {
-                speedMbps: conn.metrics.speedMbps,
-                latencyMs: conn.metrics.latencyMs,
-                uploadMbps: conn.metrics.uploadMbps,
-                downloadMbps: conn.metrics.downloadMbps
-              }
-            });
-            
-            console.log(`Created reverse PepVPN connection: ${targetDevice.name} -> ${sourceDevice.name}`);
-          }
-        }
-      }
-    });
   }
 
   /**
