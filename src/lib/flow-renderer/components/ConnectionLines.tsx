@@ -11,6 +11,7 @@ interface ConnectionLinesProps {
 
 const CONNECTION_COLORS: Record<ConnectionType, string> = {
   wan: '#3b82f6',
+  lan: '#10b981',
   cellular: '#a855f7',
   wifi: '#22c55e',
   sfp: '#f97316',
