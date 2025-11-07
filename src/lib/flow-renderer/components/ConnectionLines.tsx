@@ -47,9 +47,9 @@ const generatePath = (from: Coords, to: Coords, zoom: number, scroll: { position
 };
 
 export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ devices, deviceTiles, groups }) => {
-  console.log('=== Rendering Connection Lines ===');
-  console.log('Devices:', devices.map(d => ({
+  console.log('Rendering connections for devices:', devices.map(d => ({
     name: d.name,
+    model: d.model,
     connections: d.connections
   })));
   
