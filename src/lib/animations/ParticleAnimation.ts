@@ -55,8 +55,8 @@ export class ParticleAnimation {
   
   // Horizontal animation constants
   private readonly OFFSCREEN_SPAWN_MARGIN = 10;
-  private readonly DRIFT_FREQUENCY = 0.05;
-  private readonly DRIFT_AMPLITUDE = 0.5;
+  private readonly DRIFT_FREQUENCY = 0.02; // Slower vertical drift (reduced from 0.05)
+  private readonly DRIFT_AMPLITUDE = 0.3; // Reduced drift amplitude (reduced from 0.5)
 
   constructor(options: ParticleAnimationOptions) {
     this.canvas = options.canvas;
@@ -69,7 +69,7 @@ export class ParticleAnimation {
     this.direction = options.direction ?? 'vertical';
     this.opacity = options.opacity ?? 0.4;
     this.particleCount = options.particleCount ?? 100;
-    this.particleSpeed = options.particleSpeed ?? 2;
+    this.particleSpeed = options.particleSpeed ?? 0.5; // Reduced from 2.0 to 0.5
 
     this.initCanvas();
     this.initParticles();
