@@ -5,6 +5,29 @@
  */
 
 /**
+ * SSID configuration for Access Points
+ */
+export interface IC2SSIDConfig {
+  name: string;
+  enabled: boolean;
+  wpa3_personal?: boolean;
+  wpa2_personal?: boolean;
+  wpa_personal?: boolean;
+}
+
+/**
+ * Radio information for Access Points
+ */
+export interface IC2RadioInfo {
+  band_2_4ghz?: {
+    enabled: boolean;
+  };
+  band_5ghz?: {
+    enabled: boolean;
+  };
+}
+
+/**
  * Interface/WAN connection from InControl2 API
  */
 export interface IC2Interface {
@@ -32,6 +55,9 @@ export interface IC2Interface {
   latency_ms?: number;
   upload_mbps?: number;
   download_mbps?: number;
+  // AP-specific fields
+  radio_info?: IC2RadioInfo;
+  ssids?: IC2SSIDConfig[];
 }
 
 /**

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { PeplinkDevice } from '@/types/network.types';
+import { PeplinkDevice, APInterface } from '@/types/network.types';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useAppStore } from '@/store/appStore';
 import { X, ChevronRight, ChevronDown } from 'lucide-react';
@@ -9,11 +9,31 @@ import { defaultThemes } from '@/themes/defaultThemes';
 // Particle animation configuration
 const PARTICLE_OPACITY = 0.4;
 const PARTICLE_COUNT = 50;
-const PARTICLE_SPEED = 2;
+const PARTICLE_SPEED = 0.5; // Slowed down from 2
 
 // Panel layout constants
 const HEADER_PADDING = 20;
 const CONTENT_PADDING = 20;
+
+// Helper function to check if a device is an access point
+const isAccessPoint = (device: PeplinkDevice): boolean => {
+  return device.model.toLowerCase().includes('ap one') || 
+         device.model.toLowerCase().includes('ap pro');
+};
+
+// Helper function to check if an interface is an APInterface
+const isAPInterface = (iface: unknown): iface is APInterface => {
+  return typeof iface === 'object' && iface !== null &&
+         'displayName' in iface && 'frequencies' in iface && 'ssids' in iface;
+};
+
+// Helper function to format speed
+const formatSpeed = (mbps: number): string => {
+  if (mbps >= 1000) {
+    return `${(mbps / 1000).toFixed(1)} Gbps`;
+  }
+  return `${mbps} Mbps`;
+};
 
 interface DeviceDetailsPanelProps {
   devices: PeplinkDevice[];
@@ -241,6 +261,13 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         </div>
       </div>
       
+      {/* Divider */}
+      <hr style={{
+        border: 'none',
+        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+        margin: 0
+      }} />
+      
       {/* Panel Content */}
       <div
         style={{
@@ -299,6 +326,90 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
             </div>
           </div>
         </div>
+        
+        {/* Wireless Mesh Section for Access Points */}
+        {isAccessPoint(device) && (
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Wireless Mesh
+            </div>
+            {device.interfaces
+              ?.filter((iface): iface is APInterface => isAPInterface(iface) && iface.type === 'wifi')
+              .map((mesh) => (
+                <div
+                  key={mesh.id}
+                  style={{
+                    background: 'rgba(30, 30, 30, 0.5)',
+                    borderRadius: 8,
+                    padding: 16,
+                    marginBottom: 8,
+                  }}
+                >
+                  {/* Status Indicator and Frequency Bands */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <div
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        background: mesh.status?.toLowerCase() === 'connected' ? '#22c55e' : '#ef4444',
+                      }}
+                    />
+                    <div style={{ fontSize: 14, color: '#a0a0a0' }}>
+                      {mesh.frequencies.length > 0 ? mesh.frequencies.join(' + ') : 'No frequencies'}
+                    </div>
+                  </div>
+                  
+                  {/* SSID List */}
+                  {mesh.ssids.length > 0 && (
+                    <div style={{ margin: '12px 0' }}>
+                      {mesh.ssids.map((ssid) => (
+                        <div
+                          key={ssid.name}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            padding: '4px 0',
+                          }}
+                        >
+                          <div style={{ fontSize: 13, color: '#e0e0e0' }}>{ssid.name}</div>
+                          <div style={{ fontSize: 12, color: '#a0a0a0' }}>{ssid.security}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Metrics Grid */}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: 16,
+                      margin: '12px 0',
+                    }}
+                  >
+                    <div>
+                      <div style={{ color: '#707070', fontSize: 10, marginBottom: 2 }}>Latency</div>
+                      <div style={{ color: '#e0e0e0', fontSize: 13 }}>{mesh.metrics.latency}ms</div>
+                    </div>
+                    <div>
+                      <div style={{ color: '#707070', fontSize: 10, marginBottom: 2 }}>Upload</div>
+                      <div style={{ color: '#e0e0e0', fontSize: 13 }}>{formatSpeed(mesh.metrics.uploadSpeed)}</div>
+                    </div>
+                    <div>
+                      <div style={{ color: '#707070', fontSize: 10, marginBottom: 2 }}>Download</div>
+                      <div style={{ color: '#e0e0e0', fontSize: 13 }}>{formatSpeed(mesh.metrics.downloadSpeed)}</div>
+                    </div>
+                  </div>
+                  
+                  {/* Client Count */}
+                  <div style={{ fontSize: 14, color: '#a0a0a0', marginTop: 8 }}>
+                    Connected Clients: {mesh.clientCount}
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
         
         {/* Connections */}
         <div>
