@@ -377,7 +377,7 @@ export class PollingService {
           if (iface.type === 'ethernet' && iface.name?.toLowerCase().includes('wan')) {
             // AP's ethernet WAN port
             connType = 'wan';
-          } else if (iface.type === 'wifi' || iface.type === 'wlan') {
+          } else if (iface.type === 'wifi' || iface.type === 'wlan' || iface.name?.toLowerCase().includes('wireless')) {
             // AP's WiFi mesh connection
             connType = 'wifi';
             // For APs, if device is online and has a WiFi interface, consider it connected

@@ -9,7 +9,7 @@ import { defaultThemes } from '@/themes/defaultThemes';
 // Particle animation configuration
 const PARTICLE_OPACITY = 0.4;
 const PARTICLE_COUNT = 50;
-const PARTICLE_SPEED = 2;
+const PARTICLE_SPEED = 1;
 
 // Panel layout constants
 const HEADER_PADDING = 20;
@@ -241,6 +241,9 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         </div>
       </div>
       
+      {/* Divider Line */}
+      <div style={{ height: '1px', background: 'rgba(255, 255, 255, 0.1)' }} />
+      
       {/* Panel Content */}
       <div
         style={{
@@ -307,7 +310,14 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
           </div>
           {device.connections.map((conn, index) => {
             const isExpanded = wanExpandedState.get(conn.id) ?? true;
+            const isAccessPoint = device.model.toLowerCase().includes('ap one') || 
+                                 device.model.toLowerCase().includes('ap pro');
             const wanName = conn.wanDetails?.name || `${conn.type} ${index + 1}`;
+            
+            // Display "Wireless Mesh" for WiFi connections on APs
+            const connectionTypeDisplay = isAccessPoint && conn.type === 'wifi' 
+              ? 'Wireless Mesh' 
+              : conn.type;
             
             return (
               <div
@@ -356,7 +366,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
                   <div style={{ padding: '0 12px 12px 12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                       <span style={{ color: '#a0a0a0', fontSize: 12, textTransform: 'capitalize' }}>
-                        {conn.type}
+                        {connectionTypeDisplay}
                       </span>
                       <span
                         style={{
