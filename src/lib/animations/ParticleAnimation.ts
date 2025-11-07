@@ -13,16 +13,21 @@ interface Particle {
   y: number;
   vx: number;
   vy: number;
+  speed: number;
   radius: number;
   color: string;
   active: number;
+  life: number;
+  maxLife: number;
 }
 
 export interface ParticleAnimationOptions {
   canvas: HTMLCanvasElement;
   colors: string[];
+  direction?: 'horizontal' | 'vertical';
   opacity?: number;
   particleCount?: number;
+  particleSpeed?: number;
 }
 
 export class ParticleAnimation {
@@ -30,6 +35,8 @@ export class ParticleAnimation {
   private ctx: CanvasRenderingContext2D;
   private colors: string[];
   private opacity: number;
+  private direction: 'horizontal' | 'vertical';
+  private particleSpeed: number;
   private particles: Particle[] = [];
   private animationFrame: number | null = null;
   private target: Point = { x: 0, y: 0 };
@@ -45,6 +52,11 @@ export class ParticleAnimation {
   private readonly ATTRACTION_FORCE = 0.0001;
   private readonly DEACTIVATION_RATE = 0.005;
   private readonly HEX_COLOR_PATTERN = /^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/;
+  
+  // Horizontal animation constants
+  private readonly OFFSCREEN_SPAWN_MARGIN = 10;
+  private readonly DRIFT_FREQUENCY = 0.05;
+  private readonly DRIFT_AMPLITUDE = 0.5;
 
   constructor(options: ParticleAnimationOptions) {
     this.canvas = options.canvas;
@@ -54,8 +66,10 @@ export class ParticleAnimation {
     }
     this.ctx = ctx;
     this.colors = options.colors.length > 0 ? options.colors : ['#3b82f6'];
+    this.direction = options.direction ?? 'vertical';
     this.opacity = options.opacity ?? 0.4;
     this.particleCount = options.particleCount ?? 100;
+    this.particleSpeed = options.particleSpeed ?? 2;
 
     this.initCanvas();
     this.initParticles();
@@ -74,18 +88,46 @@ export class ParticleAnimation {
     const width = this.canvas.width;
     const height = this.canvas.height;
 
-    for (let i = 0; i < this.particleCount; i++) {
-      const colorIndex = Math.floor(Math.random() * this.colors.length);
-      this.particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * this.PARTICLE_SPEED,
-        vy: (Math.random() - 0.5) * this.PARTICLE_SPEED,
-        radius: this.PARTICLE_BASE_RADIUS + Math.random() * 2,
-        color: this.colors[colorIndex],
-        active: 0,
-      });
+    // For horizontal mode, we don't pre-populate with particles
+    // They will be created dynamically in animateParticles
+    if (this.direction === 'vertical') {
+      for (let i = 0; i < this.particleCount; i++) {
+        const colorIndex = Math.floor(Math.random() * this.colors.length);
+        this.particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * this.PARTICLE_SPEED,
+          vy: (Math.random() - 0.5) * this.PARTICLE_SPEED,
+          speed: this.particleSpeed,
+          radius: this.PARTICLE_BASE_RADIUS + Math.random() * 2,
+          color: this.colors[colorIndex],
+          active: 0,
+          life: 0,
+          maxLife: 100 + Math.random() * 100,
+        });
+      }
     }
+  }
+
+  private createParticle(): Particle {
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+    const colorIndex = Math.floor(Math.random() * this.colors.length);
+    
+    return {
+      x: this.direction === 'horizontal' ? -this.OFFSCREEN_SPAWN_MARGIN : Math.random() * width,
+      y: this.direction === 'horizontal' ? 
+         Math.random() * height : 
+         height + this.OFFSCREEN_SPAWN_MARGIN,
+      vx: 0,
+      vy: 0,
+      speed: this.particleSpeed * (1 + Math.random()),
+      radius: 1 + Math.random() * 2,
+      color: this.colors[colorIndex],
+      active: 0,
+      life: 0,
+      maxLife: 100 + Math.random() * 100,
+    };
   }
 
   private addEventListeners(): void {
@@ -130,6 +172,12 @@ export class ParticleAnimation {
     if (!this.animate) return;
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    // Add new particles for horizontal mode if below max count
+    if (this.direction === 'horizontal' && this.particles.length < this.particleCount) {
+      this.particles.push(this.createParticle());
+    }
+    
     this.updateParticles();
     this.drawParticles();
 
@@ -140,81 +188,119 @@ export class ParticleAnimation {
     const width = this.canvas.width;
     const height = this.canvas.height;
 
-    for (const particle of this.particles) {
-      // Move particle
-      particle.x += particle.vx;
-      particle.y += particle.vy;
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const particle = this.particles[i];
+      
+      if (this.direction === 'horizontal') {
+        // Move particle horizontally (left to right)
+        particle.x += particle.speed;
+        // Add slight vertical drift
+        particle.y += Math.sin(particle.life * this.DRIFT_FREQUENCY) * this.DRIFT_AMPLITUDE;
+        particle.life++;
+        
+        // Remove particles that are off screen
+        if (particle.x > width + this.OFFSCREEN_SPAWN_MARGIN) {
+          this.particles.splice(i, 1);
+          continue;
+        }
+      } else {
+        // Original vertical behavior
+        // Move particle
+        particle.x += particle.vx;
+        particle.y += particle.vy;
 
-      // Bounce off edges
-      if (particle.x < 0 || particle.x > width) {
-        particle.vx = -particle.vx;
-        particle.x = Math.max(0, Math.min(width, particle.x));
-      }
-      if (particle.y < 0 || particle.y > height) {
-        particle.vy = -particle.vy;
-        particle.y = Math.max(0, Math.min(height, particle.y));
-      }
+        // Bounce off edges
+        if (particle.x < 0 || particle.x > width) {
+          particle.vx = -particle.vx;
+          particle.x = Math.max(0, Math.min(width, particle.x));
+        }
+        if (particle.y < 0 || particle.y > height) {
+          particle.vy = -particle.vy;
+          particle.y = Math.max(0, Math.min(height, particle.y));
+        }
 
-      // Calculate distance to target (mouse position)
-      const dx = this.target.x - particle.x;
-      const dy = this.target.y - particle.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+        // Calculate distance to target (mouse position)
+        const dx = this.target.x - particle.x;
+        const dy = this.target.y - particle.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
 
-      // Activate particles near the target
-      if (distance < this.PARTICLE_DISTANCE) {
-        particle.active = this.PARTICLE_ACTIVATION_LEVEL;
-        // Add slight attraction to target
-        particle.vx += dx * this.ATTRACTION_FORCE;
-        particle.vy += dy * this.ATTRACTION_FORCE;
-      }
+        // Activate particles near the target
+        if (distance < this.PARTICLE_DISTANCE) {
+          particle.active = this.PARTICLE_ACTIVATION_LEVEL;
+          // Add slight attraction to target
+          particle.vx += dx * this.ATTRACTION_FORCE;
+          particle.vy += dy * this.ATTRACTION_FORCE;
+        }
 
-      // Gradually deactivate
-      if (particle.active > 0) {
-        particle.active -= this.DEACTIVATION_RATE;
-        if (particle.active < 0) particle.active = 0;
-      }
+        // Gradually deactivate
+        if (particle.active > 0) {
+          particle.active -= this.DEACTIVATION_RATE;
+          if (particle.active < 0) particle.active = 0;
+        }
 
-      // Limit velocity
-      const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy);
-      if (speed > this.PARTICLE_SPEED * 2) {
-        particle.vx = (particle.vx / speed) * this.PARTICLE_SPEED * 2;
-        particle.vy = (particle.vy / speed) * this.PARTICLE_SPEED * 2;
+        // Limit velocity
+        const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy);
+        if (speed > this.PARTICLE_SPEED * 2) {
+          particle.vx = (particle.vx / speed) * this.PARTICLE_SPEED * 2;
+          particle.vy = (particle.vy / speed) * this.PARTICLE_SPEED * 2;
+        }
       }
     }
   }
 
   private drawParticles(): void {
-    // Draw connections between nearby particles
-    // Note: O(n²) complexity is acceptable for ~100 particles (~5000 checks/frame at 60fps)
-    // Consider spatial partitioning if particle count increases significantly
-    for (let i = 0; i < this.particles.length; i++) {
-      const p1 = this.particles[i];
-      
-      for (let j = i + 1; j < this.particles.length; j++) {
-        const p2 = this.particles[j];
-        const dx = p1.x - p2.x;
-        const dy = p1.y - p2.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < this.PARTICLE_DISTANCE) {
-          this.ctx.strokeStyle = this.hexToRgba(
-            p1.color,
-            (1 - distance / this.PARTICLE_DISTANCE) * this.opacity * 0.5
-          );
-          this.ctx.lineWidth = 0.5;
-          this.ctx.beginPath();
-          this.ctx.moveTo(p1.x, p1.y);
-          this.ctx.lineTo(p2.x, p2.y);
-          this.ctx.stroke();
-        }
+    if (this.direction === 'horizontal') {
+      // For horizontal mode, draw simple glowing particles without connections
+      for (const p of this.particles) {
+        // Calculate opacity based on life
+        const lifeOpacity = Math.max(0, (p.maxLife - p.life) / p.maxLife);
+        const particleOpacity = lifeOpacity * this.opacity;
+        
+        // Add glow effect
+        this.ctx.shadowBlur = 10;
+        this.ctx.shadowColor = p.color;
+        
+        this.ctx.fillStyle = this.hexToRgba(p.color, particleOpacity);
+        this.ctx.beginPath();
+        this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Reset shadow for next particle
+        this.ctx.shadowBlur = 0;
       }
+    } else {
+      // Original vertical behavior - draw connections between nearby particles
+      // Note: O(n²) complexity is acceptable for ~100 particles (~5000 checks/frame at 60fps)
+      // Consider spatial partitioning if particle count increases significantly
+      for (let i = 0; i < this.particles.length; i++) {
+        const p1 = this.particles[i];
+        
+        for (let j = i + 1; j < this.particles.length; j++) {
+          const p2 = this.particles[j];
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
 
-      // Draw particle circles
-      const activeOpacity = Math.max(this.opacity, p1.active);
-      this.ctx.fillStyle = this.hexToRgba(p1.color, activeOpacity);
-      this.ctx.beginPath();
-      this.ctx.arc(p1.x, p1.y, p1.radius, 0, Math.PI * 2);
-      this.ctx.fill();
+          if (distance < this.PARTICLE_DISTANCE) {
+            this.ctx.strokeStyle = this.hexToRgba(
+              p1.color,
+              (1 - distance / this.PARTICLE_DISTANCE) * this.opacity * 0.5
+            );
+            this.ctx.lineWidth = 0.5;
+            this.ctx.beginPath();
+            this.ctx.moveTo(p1.x, p1.y);
+            this.ctx.lineTo(p2.x, p2.y);
+            this.ctx.stroke();
+          }
+        }
+
+        // Draw particle circles
+        const activeOpacity = Math.max(this.opacity, p1.active);
+        this.ctx.fillStyle = this.hexToRgba(p1.color, activeOpacity);
+        this.ctx.beginPath();
+        this.ctx.arc(p1.x, p1.y, p1.radius, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
     }
   }
 
