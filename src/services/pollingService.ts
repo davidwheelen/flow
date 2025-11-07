@@ -174,7 +174,18 @@ export class PollingService {
    * Build connection graph by detecting all connection types
    */
   private buildConnectionGraph(devices: PeplinkDevice[]): void {
+    console.log('=== Starting Connection Graph Build ===');
+    
     devices.forEach(sourceDevice => {
+      console.log(`\nDevice: ${sourceDevice.name} (${sourceDevice.model})`);
+      console.log('Interfaces:', sourceDevice.interfaces?.map(i => ({
+        type: i.type,
+        status: i.status,
+        mac: i.mac_address
+      })));
+      console.log('LAN Clients:', sourceDevice.lanClients);
+      console.log('Current Connections:', sourceDevice.connections);
+      
       if (!sourceDevice.lanClients?.length) return;
 
       sourceDevice.lanClients.forEach(client => {
@@ -198,6 +209,10 @@ export class PollingService {
    * Create device connection
    */
   private createDeviceConnection(source: PeplinkDevice, target: PeplinkDevice): void {
+    console.log(`\nAttempting to create connection:`);
+    console.log(`  From: ${source.name} (${source.model})`);
+    console.log(`  To: ${target.name} (${target.model})`);
+    
     const connectionId = `${source.id}-to-${target.id}`;
     
     // Don't duplicate connections
@@ -205,6 +220,7 @@ export class PollingService {
 
     // Determine connection type based on devices
     const type = this.determineConnectionType(source, target);
+    console.log(`  Connection Type: ${type}`);
 
     source.connections.push({
       id: connectionId,
