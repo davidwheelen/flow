@@ -14,6 +14,7 @@ import { IC2DeviceData } from '@/types/incontrol.types';
  */
 const DEFAULT_WIFI_SPEED_MBPS = 1000; // Default speed for connected WiFi interfaces
 const AP_MODEL_PATTERNS = ['ap one', 'ap pro', 'ap mini']; // AP device model patterns
+const ROUTER_MODEL_PATTERNS = ['balance', 'b20x']; // Router device model patterns
 
 /**
  * Rate limiter to ensure we don't exceed 20 req/sec
@@ -94,6 +95,14 @@ export class PollingService {
   private isAccessPoint(model: string): boolean {
     const modelLower = model.toLowerCase();
     return AP_MODEL_PATTERNS.some(pattern => modelLower.includes(pattern));
+  }
+
+  /**
+   * Check if a device model is a Router
+   */
+  private isRouter(model: string): boolean {
+    const modelLower = model.toLowerCase();
+    return ROUTER_MODEL_PATTERNS.some(pattern => modelLower.includes(pattern));
   }
 
   /**
@@ -197,7 +206,7 @@ export class PollingService {
         const connectedDevices = devices.filter(targetDevice => 
           targetDevice.id !== sourceDevice.id &&
           targetDevice.status?.toLowerCase() === 'online' &&
-          (targetDevice.model.toLowerCase().includes('balance') || // Connect to routers
+          (this.isRouter(targetDevice.model) || // Connect to routers
            this.isAccessPoint(targetDevice.model)) // or other APs
         );
         
@@ -212,10 +221,7 @@ export class PollingService {
 
     // Then handle regular WAN/LAN connections
     // First identify all Balance devices
-    const balanceDevices = devices.filter(d => 
-      d.model.toLowerCase().includes('balance') || 
-      d.model.toLowerCase().includes('b20x')
-    );
+    const balanceDevices = devices.filter(d => this.isRouter(d.model));
 
     // Then for each Balance device, check its LAN clients
     balanceDevices.forEach(balanceDevice => {
