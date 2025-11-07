@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
-import { ChevronRight, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ChevronRight, Loader2, RefreshCw } from 'lucide-react';
 import { useAppStore } from '@/store/appStore';
 import { useAuth, useDeviceData } from '@/hooks/useInControl2';
 import { getGroups } from '@/services/groupsService';
 import { SwirlBackground } from '@/components/SwirlBackground';
+import { RefreshButton } from '@/components/ui/RefreshButton';
 import './Sidebar.css';
 
 const APP_VERSION = '0.1.0';
@@ -25,6 +26,7 @@ export function Sidebar() {
   } = useAppStore();
 
   const { isAuthenticated } = useAuth();
+  const [isRefreshingGroups, setIsRefreshingGroups] = useState(false);
   
   // Use device data polling when authenticated
   const { devices: polledDevices } = useDeviceData(
@@ -78,6 +80,22 @@ export function Sidebar() {
     // The useDeviceData hook (lines 26-37) starts polling when selectedGroup changes
   };
 
+  const handleRefreshGroups = async () => {
+    if (!isAuthenticated || isRefreshingGroups) return;
+    
+    setIsRefreshingGroups(true);
+    setError(null);
+    
+    try {
+      const groupsData = await getGroups();
+      setGroups(groupsData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to refresh groups');
+    } finally {
+      setIsRefreshingGroups(false);
+    }
+  };
+
   if (!isSidebarOpen) {
     return null;
   }
@@ -98,8 +116,16 @@ export function Sidebar() {
       <div className="border-t border-gray-700 mx-4"></div>
 
       {/* Network Groups Section */}
-      <div className="px-4 py-3">
+      <div className="px-4 py-3 flex items-center justify-between">
         <p className="text-sm font-medium" style={{ color: '#a0a0a0' }}>Network Groups</p>
+        {isAuthenticated && (
+          <RefreshButton
+            onClick={handleRefreshGroups}
+            isLoading={isRefreshingGroups}
+            icon={<RefreshCw size={14} />}
+            size="sm"
+          />
+        )}
       </div>
 
       {/* Groups List */}

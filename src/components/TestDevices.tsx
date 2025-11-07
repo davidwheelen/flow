@@ -1,16 +1,29 @@
 import { useEffect } from 'react';
 import { useAppStore } from '@/store/appStore';
 import { PeplinkDevice } from '@/types/network.types';
+import { InControlGroup } from '@/services/groupsService';
 
 // Test component to inject mock devices for demonstration
 export function TestDevices() {
-  const { setDevices } = useAppStore();
+  const { setDevices, setGroups, setSelectedGroup } = useAppStore();
 
   useEffect(() => {
     // Check if we should inject test data (when no real devices are loaded)
     const shouldInjectTestData = new URLSearchParams(window.location.search).get('test') === 'true';
     
     if (shouldInjectTestData) {
+      // Inject test groups
+      const mockGroups: InControlGroup[] = [
+        {
+          id: 'group-1',
+          name: 'Test Network Group',
+          description: 'Demo group for testing',
+          device_count: 6,
+        },
+      ];
+      setGroups(mockGroups);
+      setSelectedGroup(mockGroups[0]);
+      
       const mockDevices: PeplinkDevice[] = [
         // Main Router (HQ)
         {
@@ -207,10 +220,10 @@ export function TestDevices() {
         }
       ];
 
-      console.log('🧪 Test mode enabled: Injecting mock devices', mockDevices);
+      console.log('🧪 Test mode enabled: Injecting mock devices and groups', mockDevices);
       setDevices(mockDevices);
     }
-  }, [setDevices]);
+  }, [setDevices, setGroups, setSelectedGroup]);
 
   return null;
 }

@@ -5,6 +5,7 @@ import { useAppStore } from '@/store/appStore';
 import { X, ChevronRight, ChevronDown } from 'lucide-react';
 import { ParticleAnimation } from '@/lib/animations/ParticleAnimation';
 import { defaultThemes } from '@/themes/defaultThemes';
+import { EthernetPort } from '@/components/ui/EthernetPort';
 
 // Particle animation configuration
 const PARTICLE_OPACITY = 0.4;
@@ -14,6 +15,15 @@ const PARTICLE_SPEED = 2;
 // Panel layout constants
 const HEADER_PADDING = 20;
 const CONTENT_PADDING = 20;
+
+// Helper function to format speed
+const formatSpeed = (speedMbps?: number): string => {
+  if (!speedMbps) return 'N/A';
+  if (speedMbps >= 1000) {
+    return `${(speedMbps / 1000).toFixed(1)} Gbps`;
+  }
+  return `${speedMbps} Mbps`;
+};
 
 interface DeviceDetailsPanelProps {
   devices: PeplinkDevice[];
@@ -300,10 +310,39 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
           </div>
         </div>
         
+        {/* LAN Ports Section */}
+        {device.interfaces && device.interfaces.filter(iface => iface.type === 'lan' || iface.type === 'ethernet').length > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              LAN PORTS
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                gap: '8px',
+              }}
+            >
+              {device.interfaces
+                .filter(iface => iface.type === 'lan' || iface.type === 'ethernet')
+                .map(port => (
+                  <EthernetPort
+                    key={port.id}
+                    name={port.name}
+                    type={port.conn_mode || 'Access'}
+                    speed={formatSpeed(port.speed_mbps)}
+                    isConnected={port.status?.toLowerCase() === 'connected'}
+                    colors={themeColors}
+                  />
+                ))}
+            </div>
+          </div>
+        )}
+        
         {/* Connections */}
         <div>
           <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            Connections ({device.connections.length})
+            WAN CONNECTIONS ({device.connections.length})
           </div>
           {device.connections.map((conn, index) => {
             const isExpanded = wanExpandedState.get(conn.id) ?? true;
