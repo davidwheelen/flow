@@ -253,3 +253,32 @@ create_feature_closeup()
 
 *Last Updated: 2025-11-06*
 *User: davidwheelen*
+
+## ADDENDUM 2: Repository and Path Handling
+
+### Critical Rules for Repository References
+
+1. Repository Format
+   - MUST use "owner/repo" format
+   - Example: "davidwheelen/flow"
+   - NEVER use placeholder names ("your-repo-name")
+   - NEVER use assumed paths ("path/to/file")
+
+2. File Path Verification
+   - MUST verify paths using githubread before operations
+   - MUST use exact paths from repository structure
+   - NEVER assume directory structures
+   - ALWAYS use full, verified paths
+
+3. Tool-Specific Requirements
+   - github-coding-agent-: MUST use "owner/repo" format
+   - githubwrite: MUST verify paths before operations
+   - semantic-code-search: MUST include both owner and repo
+   - lexical-code-search: MUST specify correct repository scope
+
+❌ Do NOT use placeholder repository names
+❌ Do NOT assume file paths exist
+❌ Do NOT skip path verification
+✅ DO verify paths before operations
+✅ DO use exact repository references
+✅ DO maintain consistent formatting
