@@ -38,10 +38,11 @@ export class RisingParticleAnimation {
   private readonly MIN_RADIUS = 1;
   private readonly MAX_RADIUS = 2;
   private readonly MIN_LIFE = 100;
-  private readonly MAX_LIFE = 100;
+  private readonly MAX_LIFE = 200;
   private readonly DRIFT_INTENSITY = 0.05;
   private readonly DRIFT_AMPLITUDE = 0.5;
   private readonly GLOW_BLUR = 10;
+  private readonly FALLBACK_COLOR = 'rgba(59, 130, 246, {alpha})'; // Primary blue
   private readonly HEX_COLOR_PATTERN = /^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/;
 
   constructor(options: RisingParticleAnimationOptions) {
@@ -94,7 +95,7 @@ export class RisingParticleAnimation {
       speed: this.MIN_SPEED + Math.random() * (this.MAX_SPEED - this.MIN_SPEED),
       radius: this.MIN_RADIUS + Math.random() * (this.MAX_RADIUS - this.MIN_RADIUS),
       life: 0,
-      maxLife: this.MIN_LIFE + Math.random() * this.MAX_LIFE,
+      maxLife: this.MIN_LIFE + Math.random() * (this.MAX_LIFE - this.MIN_LIFE),
       color: this.getRandomFlowColor(),
     };
   }
@@ -176,7 +177,7 @@ export class RisingParticleAnimation {
     // Validate hex format (3 or 6 characters)
     if (!this.HEX_COLOR_PATTERN.test(cleanHex)) {
       console.warn(`Invalid hex color: ${hex}, using fallback color`);
-      return `rgba(59, 130, 246, ${alpha})`; // Fallback to primary blue
+      return this.FALLBACK_COLOR.replace('{alpha}', alpha.toString());
     }
     
     // Expand short hex codes (e.g., '#fff' -> '#ffffff')
