@@ -40,6 +40,9 @@ export class ParticleAnimation {
   private readonly PARTICLE_DISTANCE = 120;
   private readonly PARTICLE_BASE_RADIUS = 0.4;
   private readonly PARTICLE_SPEED = 0.03;
+  private readonly PARTICLE_ACTIVATION_LEVEL = 0.3;
+  private readonly ATTRACTION_FORCE = 0.0001;
+  private readonly DEACTIVATION_RATE = 0.005;
 
   constructor(options: ParticleAnimationOptions) {
     this.canvas = options.canvas;
@@ -83,6 +86,8 @@ export class ParticleAnimation {
     }
   }
 
+  private cleanup: (() => void) | null = null;
+
   private addEventListeners(): void {
     const handleResize = () => {
       this.initCanvas();
@@ -104,8 +109,6 @@ export class ParticleAnimation {
       this.canvas.removeEventListener('mousemove', handleMouseMove);
     };
   }
-
-  private cleanup: (() => void) | null = null;
 
   public start(): void {
     this.animate = true;
@@ -159,15 +162,15 @@ export class ParticleAnimation {
 
       // Activate particles near the target
       if (distance < this.PARTICLE_DISTANCE) {
-        particle.active = 0.3;
+        particle.active = this.PARTICLE_ACTIVATION_LEVEL;
         // Add slight attraction to target
-        particle.vx += dx * 0.0001;
-        particle.vy += dy * 0.0001;
+        particle.vx += dx * this.ATTRACTION_FORCE;
+        particle.vy += dy * this.ATTRACTION_FORCE;
       }
 
       // Gradually deactivate
       if (particle.active > 0) {
-        particle.active -= 0.005;
+        particle.active -= this.DEACTIVATION_RATE;
         if (particle.active < 0) particle.active = 0;
       }
 

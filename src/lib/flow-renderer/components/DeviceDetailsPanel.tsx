@@ -6,6 +6,10 @@ import { X, ChevronRight, ChevronDown } from 'lucide-react';
 import { ParticleAnimation } from '@/lib/animations/ParticleAnimation';
 import { defaultThemes } from '@/themes/defaultThemes';
 
+// Particle animation configuration
+const PARTICLE_OPACITY = 0.4;
+const PARTICLE_COUNT = 100;
+
 interface DeviceDetailsPanelProps {
   devices: PeplinkDevice[];
 }
@@ -69,8 +73,8 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
     const animation = new ParticleAnimation({
       canvas: canvasRef.current,
       colors: getThemeColors(),
-      opacity: 0.4,
-      particleCount: 100,
+      opacity: PARTICLE_OPACITY,
+      particleCount: PARTICLE_COUNT,
     });
     
     animation.start();
@@ -184,7 +188,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
           width: '100%',
           height: '100%',
           zIndex: -1,
-          opacity: 0.4,
+          opacity: PARTICLE_OPACITY,
           pointerEvents: 'none',
         }}
       />
