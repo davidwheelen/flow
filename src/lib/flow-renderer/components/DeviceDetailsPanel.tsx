@@ -188,7 +188,6 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
           width: '100%',
           height: '100%',
           zIndex: -1,
-          opacity: PARTICLE_OPACITY,
           pointerEvents: 'none',
         }}
       />

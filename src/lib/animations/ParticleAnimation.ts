@@ -185,6 +185,8 @@ export class ParticleAnimation {
 
   private drawParticles(): void {
     // Draw connections between nearby particles
+    // Note: O(n²) complexity is acceptable for ~100 particles (~5000 checks/frame at 60fps)
+    // Consider spatial partitioning if particle count increases significantly
     for (let i = 0; i < this.particles.length; i++) {
       const p1 = this.particles[i];
       
@@ -219,9 +221,21 @@ export class ParticleAnimation {
   private hexToRgba(hex: string, alpha: number): string {
     // Handle hex colors with or without #
     const cleanHex = hex.replace('#', '');
-    const r = parseInt(cleanHex.substring(0, 2), 16);
-    const g = parseInt(cleanHex.substring(2, 4), 16);
-    const b = parseInt(cleanHex.substring(4, 6), 16);
+    
+    // Validate hex format (3 or 6 characters)
+    if (!/^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/.test(cleanHex)) {
+      console.warn(`Invalid hex color: ${hex}, using fallback color`);
+      return `rgba(59, 130, 246, ${alpha})`; // Fallback to primary blue
+    }
+    
+    // Expand short hex codes (e.g., '#fff' -> '#ffffff')
+    const fullHex = cleanHex.length === 3
+      ? cleanHex.split('').map(c => c + c).join('')
+      : cleanHex;
+    
+    const r = parseInt(fullHex.substring(0, 2), 16);
+    const g = parseInt(fullHex.substring(2, 4), 16);
+    const b = parseInt(fullHex.substring(4, 6), 16);
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 }
