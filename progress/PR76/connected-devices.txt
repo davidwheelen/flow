@@ -1,0 +1,77 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║              Devices with WAN Connections to Balance 20X                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─ Device 1: Branch Router ───────────────────────────────────────────────────┐
+│                                                                              │
+│  Name: Branch Router                                                         │
+│  Model: MAX Transit DUO                                                      │
+│  Serial: ROUTER-002                                                          │
+│  Status: online                                                              │
+│  Firmware: 8.3.0                                                             │
+│                                                                              │
+│  WAN Interfaces:                                                             │
+│    ┌─ WAN 1 ─────────────────────────────────────────────────────────────┐  │
+│    │  Type: ethernet                                                      │  │
+│    │  Status: ✓ connected                                                 │  │
+│    │  IP: 192.168.1.10                                                    │  │
+│    │  Speed: 100 Mbps                                                     │  │
+│    │  Latency: 5 ms                                                       │  │
+│    │  Connection ID: 2-wan-1                                              │  │
+│    └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                              │
+│    ┌─ Cellular 1 ────────────────────────────────────────────────────────┐  │
+│    │  Type: cellular (gobi)                                               │  │
+│    │  Status: ✓ connected                                                 │  │
+│    │  Speed: 50 Mbps                                                      │  │
+│    │  Latency: 30 ms                                                      │  │
+│    │  Connection ID: 2-cellular-2                                         │  │
+│    └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                              │
+│  Device Connection to Balance:                                               │
+│    ✓ WAN connection to Office Balance 20X (Connection ID: 2-to-1-wan)       │
+│    Status: connected                                                         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ Device 2: AP One AC Mini ──────────────────────────────────────────────────┐
+│                                                                              │
+│  Name: AP One AC Mini                                                        │
+│  Model: AP-ONE-AC-MINI                                                       │
+│  Serial: AP-003                                                              │
+│  Status: online                                                              │
+│  Firmware: 8.3.0                                                             │
+│                                                                              │
+│  WAN Interfaces:                                                             │
+│    ┌─ WAN ──────────────────────────────────────────────────────────────┐   │
+│    │  Type: ethernet                                                     │   │
+│    │  Status: ✓ connected                                                │   │
+│    │  IP: 192.168.1.20                                                   │   │
+│    │  Speed: 1000 Mbps                                                   │   │
+│    │  Connection ID: 3-wan-1                                             │   │
+│    └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  Device Connection to Balance:                                               │
+│    ✓ WAN connection to Office Balance 20X (Connection ID: 3-to-1-wan)       │
+│    Status: connected                                                         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ Connection Detection Logic ────────────────────────────────────────────────┐
+│                                                                              │
+│  The system identifies Balance 20X devices and automatically detects        │
+│  connected devices that have active WAN connections.                         │
+│                                                                              │
+│  For each detected device:                                                   │
+│    1. Checks if device has at least one active WAN connection               │
+│    2. Creates bi-directional connections:                                    │
+│       - LAN connection FROM Balance TO device                                │
+│       - WAN connection FROM device TO Balance                                │
+│    3. Prevents duplicate connections                                         │
+│    4. Logs connection creation for debugging                                 │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+✅ Both devices detected with active WAN connections
+✅ Bi-directional connections properly established
+✅ All connection metrics properly mapped

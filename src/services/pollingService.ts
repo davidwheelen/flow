@@ -6,7 +6,7 @@
  */
 
 import { authService } from './authService';
-import { PeplinkDevice, ConnectionType, ConnectionStatus, LanClient } from '@/types/network.types';
+import { PeplinkDevice, ConnectionType, LanClient } from '@/types/network.types';
 import { IC2DeviceData } from '@/types/incontrol.types';
 
 /**
@@ -174,53 +174,54 @@ export class PollingService {
    * Build connection graph by detecting all connection types
    */
   private buildConnectionGraph(devices: PeplinkDevice[]): void {
-    console.log('=== Starting Connection Graph Build ===');
-    
-    devices.forEach(sourceDevice => {
-      console.log(`\nDevice: ${sourceDevice.name} (${sourceDevice.model})`);
-      console.log('Interfaces:', sourceDevice.interfaces?.map(i => ({
-        type: i.type,
-        status: i.status,
-        mac_address: i.mac_address
-      })));
-      console.log('LAN Clients:', sourceDevice.lanClients);
-      console.log('Current Connections:', sourceDevice.connections);
-      
-      if (!sourceDevice.lanClients?.length) return;
+    // First identify all Balance devices
+    const balanceDevices = devices.filter(d => 
+      d.model.toLowerCase().includes('balance') || 
+      d.model.toLowerCase().includes('b20x')
+    );
 
-      sourceDevice.lanClients.forEach(client => {
-        const targetDevice = devices.find(d => 
-          (client.sn && d.serial === client.sn) ||
-          (client.mac && d.interfaces?.some(i => 
-            i.mac_address?.toLowerCase() === client.mac.toLowerCase()
-          ))
-        );
+    // Then for each Balance device, check its LAN clients
+    balanceDevices.forEach(balanceDevice => {
+      // Find devices that should be connected to this Balance device's LAN
+      const connectedDevices = devices.filter(d =>
+        d.id !== balanceDevice.id && // Not the same device
+        d.connections.some(c => c.type === 'wan' && c.status === 'connected') // Has active WAN
+      );
 
-        if (targetDevice && targetDevice.id !== sourceDevice.id) {
-          // Create bi-directional connection
-          this.createDeviceConnection(sourceDevice, targetDevice);
-          this.createDeviceConnection(targetDevice, sourceDevice);
-        }
+      // Create connections for each connected device
+      connectedDevices.forEach(connectedDevice => {
+        // Create LAN connection from Balance to device
+        this.createDeviceConnection(balanceDevice, connectedDevice, 'lan');
+        
+        // Create WAN connection from device to Balance
+        this.createDeviceConnection(connectedDevice, balanceDevice, 'wan');
       });
     });
+
+    console.log('Connection graph built:', devices.map(d => ({
+      name: d.name,
+      connections: d.connections.map(c => ({
+        type: c.type,
+        status: c.status,
+        device_id: c.device_id
+      }))
+    })));
   }
 
   /**
    * Create device connection
    */
-  private createDeviceConnection(source: PeplinkDevice, target: PeplinkDevice): void {
-    console.log(`\nAttempting to create connection:`);
-    console.log(`  From: ${source.name} (${source.model})`);
-    console.log(`  To: ${target.name} (${target.model})`);
+  private createDeviceConnection(
+    source: PeplinkDevice,
+    target: PeplinkDevice,
+    type: ConnectionType
+  ): void {
+    const connectionId = `${source.id}-to-${target.id}-${type}`;
     
-    const connectionId = `${source.id}-to-${target.id}`;
-    
-    // Don't duplicate connections
-    if (source.connections.some(c => c.id === connectionId)) return;
-
-    // Determine connection type based on devices
-    const type = this.determineConnectionType(source, target);
-    console.log(`  Connection Type: ${type}`);
+    // Don't create duplicate connections
+    if (source.connections.some(c => c.id === connectionId)) {
+      return;
+    }
 
     source.connections.push({
       id: connectionId,
@@ -234,44 +235,8 @@ export class PollingService {
         downloadMbps: 500
       }
     });
-  }
 
-  /**
-   * Determine connection type based on device types
-   */
-  private determineConnectionType(source: PeplinkDevice, target: PeplinkDevice): ConnectionType {
-    // Check for wireless mesh between APs
-    if (source.model.includes('AP') && target.model.includes('AP')) {
-      return 'wifi';
-    }
-
-    // AP to Router = LAN
-    if (source.model.includes('AP') || target.model.includes('AP')) {
-      return 'lan';
-    }
-
-    // Check for PepVPN/SpeedFusion
-    if (this.hasPepVPNConnection(source, target)) {
-      return 'sfp';
-    }
-
-    // Default to WAN for router-to-router
-    return 'wan';
-  }
-
-  /**
-   * Check if devices have PepVPN connection
-   */
-  private hasPepVPNConnection(source: PeplinkDevice, target: PeplinkDevice): boolean {
-    // Check if either device has a PepVPN connection to the other
-    const sourceToTarget = source.connections.some(conn => 
-      conn.type === 'sfp' && conn.device_id === target.id
-    );
-    const targetToSource = target.connections.some(conn => 
-      conn.type === 'sfp' && conn.device_id === source.id
-    );
-    
-    return sourceToTarget || targetToSource;
+    console.log(`Created ${type} connection: ${source.name} -> ${target.name}`);
   }
 
   /**
@@ -359,60 +324,55 @@ export class PollingService {
       }
     });
 
-    // InControl uses 'interfaces' array, not 'wans'
+    // Map LAN interfaces first
     device.interfaces?.forEach((iface) => {
-      // Determine connection type from interface type
-      let connType: ConnectionType = 'wan';
-      if (iface.virtualType === 'cellular' || iface.type === 'gobi') {
-        connType = 'cellular';
-      } else if (iface.type === 'wifi' || iface.type === 'wlan') {
-        connType = 'wifi';
-      } else if (iface.type === 'sfp') {
-        connType = 'sfp';
+      if (iface.type === 'lan' || iface.name?.toLowerCase().includes('lan')) {
+        connections.push({
+          id: `${device.id}-lan-${iface.id}`,
+          type: 'lan',
+          status: 'connected',
+          metrics: {
+            speedMbps: iface.speed_mbps || 1000,
+            latencyMs: 1,
+            uploadMbps: 500,
+            downloadMbps: 500
+          }
+        });
       }
+    });
 
-      // Map interface status to connection status (case-insensitive)
-      let connStatus: ConnectionStatus = 'disconnected';
-      let wanStatus: 'connected' | 'disconnected' | 'standby' = 'disconnected';
-      const ifaceStatus = iface.status?.toLowerCase();
-      if (ifaceStatus === 'connected') {
-        connStatus = 'connected';
-        wanStatus = 'connected';
-      } else if (ifaceStatus === 'standby') {
-        connStatus = 'degraded';
-        wanStatus = 'standby';
+    // Then map WAN interfaces
+    device.interfaces?.forEach((iface) => {
+      if (iface.type !== 'lan' && !iface.name?.toLowerCase().includes('lan')) {
+        let connType: ConnectionType = 'wan';
+        if (iface.virtualType === 'cellular' || iface.type === 'gobi') {
+          connType = 'cellular';
+        } else if (iface.type === 'wifi' || iface.type === 'wlan') {
+          connType = 'wifi';
+        } else if (iface.type === 'sfp') {
+          connType = 'sfp';
+        }
+
+        connections.push({
+          id: `${device.id}-${connType}-${iface.id}`,
+          type: connType,
+          status: iface.status?.toLowerCase() === 'connected' ? 'connected' : 'disconnected',
+          metrics: {
+            speedMbps: iface.speed_mbps || 0,
+            latencyMs: iface.latency_ms || 0,
+            uploadMbps: iface.upload_mbps || 0,
+            downloadMbps: iface.download_mbps || 0
+          },
+          wanDetails: {
+            id: String(iface.id),
+            name: iface.name || `${connType.toUpperCase()} ${iface.id}`,
+            type: iface.type || 'ethernet',
+            status: iface.status?.toLowerCase() === 'connected' ? 'connected' : 'disconnected',
+            ipAddress: iface.ip || '',
+            macAddress: macAddressMap.get(iface.id)
+          }
+        });
       }
-
-      // LOOKUP MAC ADDRESS FROM mac_info ARRAY BY MATCHING connId
-      const macAddress = macAddressMap.get(iface.id);
-
-      connections.push({
-        id: `${device.id}-interface-${iface.id}`,
-        type: connType,
-        status: connStatus,
-        metrics: {
-          speedMbps: iface.speed_mbps || 0,
-          latencyMs: iface.latency_ms || 0,
-          uploadMbps: iface.upload_mbps || 0,
-          downloadMbps: iface.download_mbps || 0,
-        },
-        wanDetails: {
-          id: String(iface.id),
-          name: iface.name || `Interface ${iface.id}`,
-          type: iface.type || 'ethernet',
-          status: wanStatus,
-          ipAddress: iface.ip || '',
-          subnetMask: iface.netmask,
-          macAddress: macAddress, // USE MAC FROM mac_info LOOKUP
-          gateway: iface.gateway,
-          dnsServers: iface.dns_servers || [],
-          connectionMethod: iface.conn_config_method || 'Unknown',
-          routingMode: iface.conn_mode || 'NAT',
-          mtu: iface.mtu,
-          healthCheckMethod: iface.healthcheck,
-          serviceProvider: iface.carrier_name,
-        },
-      });
     });
 
     // Map PepVPN connections as SFP type with device_id for topology
