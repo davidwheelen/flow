@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PeplinkDevice } from '@/types/network.types';
 import { useCanvasStore } from '@/store/canvasStore';
+import { useAppStore } from '@/store/appStore';
 import { X, ChevronRight, ChevronDown } from 'lucide-react';
+import { ParticleAnimation } from '@/lib/animations/ParticleAnimation';
+import { defaultThemes } from '@/themes/defaultThemes';
 
 interface DeviceDetailsPanelProps {
   devices: PeplinkDevice[];
@@ -28,6 +31,8 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [wanExpandedState, setWanExpandedState] = useState<Map<string, boolean>>(new Map());
   const panelRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { appearanceSettings } = useAppStore();
   
   // Initialize WAN states as collapsed by default (only reset when device changes)
   useEffect(() => {
@@ -38,6 +43,39 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
     setWanExpandedState(initialState);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [device.id]); // Only reset when device ID changes, not when connections update
+  
+  // Initialize particle animation
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    
+    // Get theme colors
+    const getThemeColors = () => {
+      if (appearanceSettings.customTheme) {
+        return [
+          appearanceSettings.customTheme.colors.primary,
+          appearanceSettings.customTheme.colors.secondary,
+          appearanceSettings.customTheme.colors.accent,
+        ];
+      }
+      
+      const theme = appearanceSettings.theme === 'light' ? defaultThemes.light : defaultThemes.dark;
+      return [
+        theme.colors.primary,
+        theme.colors.secondary,
+        theme.colors.accent,
+      ];
+    };
+    
+    const animation = new ParticleAnimation({
+      canvas: canvasRef.current,
+      colors: getThemeColors(),
+      opacity: 0.4,
+      particleCount: 100,
+    });
+    
+    animation.start();
+    return () => animation.stop();
+  }, [appearanceSettings]);
   
   const toggleWanExpanded = (wanId: string) => {
     setWanExpandedState(prev => {
@@ -123,9 +161,9 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         top: position.y,
         width: 320,
         maxHeight: 'calc(100vh - 100px)',
-        background: 'rgba(30, 30, 30, 0.95)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
+        background: 'rgba(23, 23, 23, 0.7)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         border: '1px solid rgba(255, 255, 255, 0.1)',
         borderRadius: 12,
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
@@ -133,8 +171,23 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         display: 'flex',
         flexDirection: 'column',
         userSelect: isDragging ? 'none' : 'auto',
+        overflow: 'hidden',
       }}
     >
+      {/* Particle Animation Background */}
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: -1,
+          opacity: 0.4,
+          pointerEvents: 'none',
+        }}
+      />
       {/* Draggable Title Bar */}
       <div
         onMouseDown={handleMouseDown}
