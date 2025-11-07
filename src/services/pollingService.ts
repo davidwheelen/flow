@@ -10,6 +10,12 @@ import { PeplinkDevice, ConnectionType, ConnectionStatus, LanClient } from '@/ty
 import { IC2DeviceData } from '@/types/incontrol.types';
 
 /**
+ * Constants
+ */
+const DEFAULT_WIFI_SPEED_MBPS = 1000; // Default speed for connected WiFi interfaces
+const AP_MODEL_PATTERNS = ['ap one', 'ap pro', 'ap mini']; // AP device model patterns
+
+/**
  * Rate limiter to ensure we don't exceed 20 req/sec
  */
 class RateLimiter {
@@ -81,6 +87,14 @@ export class PollingService {
   private onUpdate: ((devices: PeplinkDevice[]) => void) | null = null;
   private onError: ((error: Error) => void) | null = null;
   private groupId: string | null = null;
+
+  /**
+   * Check if a device model is an Access Point
+   */
+  private isAccessPoint(model: string): boolean {
+    const modelLower = model.toLowerCase();
+    return AP_MODEL_PATTERNS.some(pattern => modelLower.includes(pattern));
+  }
 
   /**
    * Start polling for device updates
@@ -177,15 +191,14 @@ export class PollingService {
     // First handle AP mesh connections
     devices.forEach(sourceDevice => {
       if (sourceDevice.status?.toLowerCase() === 'online' && 
-          (sourceDevice.model.toLowerCase().includes('ap one') || 
-           sourceDevice.model.toLowerCase().includes('ap pro'))) {
+          this.isAccessPoint(sourceDevice.model)) {
         
         // Find the router or AP this device is connected to
         const connectedDevices = devices.filter(targetDevice => 
           targetDevice.id !== sourceDevice.id &&
           targetDevice.status?.toLowerCase() === 'online' &&
           (targetDevice.model.toLowerCase().includes('balance') || // Connect to routers
-           targetDevice.model.toLowerCase().includes('ap')) // or other APs
+           this.isAccessPoint(targetDevice.model)) // or other APs
         );
         
         connectedDevices.forEach(targetDevice => {
@@ -351,8 +364,7 @@ export class PollingService {
     });
 
     // Identify if this is an AP device
-    const isAccessPoint = device.model.toLowerCase().includes('ap one') || 
-                         device.model.toLowerCase().includes('ap pro');
+    const isAccessPoint = this.isAccessPoint(device.model);
 
     if (isAccessPoint) {
       // Handle AP devices specially
@@ -378,7 +390,7 @@ export class PollingService {
           type: connType,
           status: connStatus,
           metrics: {
-            speedMbps: iface.speed_mbps || (connStatus === 'connected' ? 1000 : 0),
+            speedMbps: iface.speed_mbps || (connStatus === 'connected' ? DEFAULT_WIFI_SPEED_MBPS : 0),
             latencyMs: iface.latency_ms || 1,
             uploadMbps: iface.upload_mbps || 0,
             downloadMbps: iface.download_mbps || 0
