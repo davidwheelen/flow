@@ -12,194 +12,195 @@ export function TestDevices() {
     
     if (shouldInjectTestData) {
       const mockDevices: PeplinkDevice[] = [
+        // Main Router (HQ)
         {
           id: 'device-1',
-          name: 'Balance 20X - HQ',
+          name: 'Balance 20X - HQ Router',
           model: 'Balance 20X',
           serial: 'SN-2024-001',
           firmware_version: '8.3.0',
           status: 'online',
           ipAddress: '192.168.1.1',
+          lanClients: [
+            { mac: 'AA:BB:CC:DD:EE:01', sn: 'SN-2024-008', ip: '192.168.1.10', name: 'AP One HQ' },
+            { mac: 'AA:BB:CC:DD:EE:02', sn: 'SN-2024-009', ip: '192.168.1.11', name: 'AP Two HQ' }
+          ],
+          interfaces: [
+            { id: 1, name: 'WAN1', type: 'ethernet', status: 'connected', mac_address: '10:56:CA:68:BA:C1', ip: '73.24.74.112' }
+          ],
           connections: [
             { 
-              id: 'conn-1', 
-              type: 'wan', 
-              status: 'connected', 
-              metrics: { speedMbps: 100, latencyMs: 20, uploadMbps: 10, downloadMbps: 90 },
-              wanDetails: {
-                id: 'wan-1',
-                name: 'WAN1 - Xfinity',
-                type: 'ethernet',
-                status: 'connected',
-                ipAddress: '73.24.74.112',
-                subnetMask: '255.255.252.0',
-                macAddress: '10:56:CA:68:BA:C1',
-                gateway: '73.24.72.1',
-                dnsServers: ['75.75.75.75', '75.75.76.76', '1.1.1.1', '8.8.4.4'],
-                connectionMethod: 'DHCP',
-                routingMode: 'NAT',
-                mtu: 1500,
-                healthCheckMethod: 'PING',
-                serviceProvider: 'Xfinity'
-              }
+              id: 'device-1-to-device-8', 
+              type: 'lan', 
+              status: 'connected',
+              device_id: 'device-8',
+              metrics: { speedMbps: 1000, latencyMs: 1, uploadMbps: 500, downloadMbps: 500 } 
             },
             { 
-              id: 'conn-vpn-1', 
+              id: 'device-1-to-device-9', 
+              type: 'lan', 
+              status: 'connected',
+              device_id: 'device-9',
+              metrics: { speedMbps: 1000, latencyMs: 1, uploadMbps: 500, downloadMbps: 500 } 
+            },
+            { 
+              id: 'device-1-to-device-2', 
               type: 'sfp', 
               status: 'connected',
-              device_id: 'device-2', // Connected to Branch office
-              metrics: { speedMbps: 50, latencyMs: 15, uploadMbps: 25, downloadMbps: 25 } 
+              device_id: 'device-2',
+              metrics: { speedMbps: 1000, latencyMs: 1, uploadMbps: 500, downloadMbps: 500 } 
             }
           ],
           position: { x: 0, y: 0 }
         },
+        // Branch Router
         {
           id: 'device-2',
-          name: 'Balance 310X - Branch',
+          name: 'Balance 310X - Branch Router',
           model: 'Balance 310X',
           serial: 'SN-2024-002',
           firmware_version: '8.3.0',
           status: 'online',
           ipAddress: '192.168.2.1',
+          lanClients: [
+            { mac: 'BB:CC:DD:EE:FF:01', sn: 'SN-2024-010', ip: '192.168.2.10', name: 'AP One Branch' }
+          ],
+          interfaces: [
+            { id: 1, name: 'WAN1', type: 'ethernet', status: 'connected', mac_address: '20:67:DB:79:CB:D2', ip: '10.45.23.67' }
+          ],
           connections: [
             { 
-              id: 'conn-2', 
-              type: 'cellular', 
-              status: 'connected', 
-              metrics: { speedMbps: 50, latencyMs: 40, uploadMbps: 5, downloadMbps: 45 },
-              wanDetails: {
-                id: 'cell-1',
-                name: 'Cellular 1 - Verizon',
-                type: 'cellular',
-                status: 'connected',
-                ipAddress: '10.45.23.67',
-                gateway: '10.45.23.1',
-                dnsServers: ['8.8.8.8', '8.8.4.4'],
-                connectionMethod: 'LTE',
-                routingMode: 'NAT',
-                mtu: 1428,
-                healthCheckMethod: 'PING',
-                serviceProvider: 'Verizon'
-              }
-            },
-            { 
-              id: 'conn-vpn-2', 
+              id: 'device-2-to-device-1', 
               type: 'sfp', 
               status: 'connected',
-              device_id: 'device-1', // Connected to HQ
-              metrics: { speedMbps: 50, latencyMs: 15, uploadMbps: 25, downloadMbps: 25 } 
+              device_id: 'device-1',
+              metrics: { speedMbps: 1000, latencyMs: 1, uploadMbps: 500, downloadMbps: 500 } 
+            },
+            { 
+              id: 'device-2-to-device-10', 
+              type: 'lan', 
+              status: 'connected',
+              device_id: 'device-10',
+              metrics: { speedMbps: 1000, latencyMs: 1, uploadMbps: 500, downloadMbps: 500 } 
+            },
+            { 
+              id: 'device-2-to-device-3', 
+              type: 'wan', 
+              status: 'connected',
+              device_id: 'device-3',
+              metrics: { speedMbps: 1000, latencyMs: 1, uploadMbps: 500, downloadMbps: 500 } 
             }
           ],
           position: { x: 0, y: 0 }
         },
+        // Office Router
         {
           id: 'device-3',
-          name: 'Balance 380 - Office',
+          name: 'Balance 380 - Office Router',
           model: 'Balance 380',
           serial: 'SN-2024-003',
           firmware_version: '8.2.5',
           status: 'online',
           ipAddress: '192.168.3.1',
+          lanClients: [],
+          interfaces: [
+            { id: 1, name: 'WAN1', type: 'ethernet', status: 'connected', mac_address: '30:78:EC:8A:DC:E3', ip: '192.168.3.100' }
+          ],
           connections: [
             { 
-              id: 'conn-3', 
+              id: 'device-3-to-device-2', 
+              type: 'wan', 
+              status: 'connected',
+              device_id: 'device-2',
+              metrics: { speedMbps: 1000, latencyMs: 1, uploadMbps: 500, downloadMbps: 500 } 
+            }
+          ],
+          position: { x: 0, y: 0 }
+        },
+        // Access Point 1 - HQ
+        {
+          id: 'device-8',
+          name: 'AP One HQ',
+          model: 'AP One AC Mini',
+          serial: 'SN-2024-008',
+          firmware_version: '8.3.0',
+          status: 'online',
+          ipAddress: '192.168.1.10',
+          lanClients: [],
+          interfaces: [
+            { id: 1, name: 'LAN', type: 'ethernet', status: 'connected', mac_address: 'AA:BB:CC:DD:EE:01', ip: '192.168.1.10' },
+            { id: 2, name: 'WiFi', type: 'wifi', status: 'connected', mac_address: 'AA:BB:CC:DD:EE:11', ip: '192.168.1.10' }
+          ],
+          connections: [
+            { 
+              id: 'device-8-to-device-1', 
+              type: 'lan', 
+              status: 'connected',
+              device_id: 'device-1',
+              metrics: { speedMbps: 1000, latencyMs: 1, uploadMbps: 500, downloadMbps: 500 } 
+            },
+            { 
+              id: 'device-8-to-device-9', 
               type: 'wifi', 
-              status: 'connected', 
-              metrics: { speedMbps: 150, latencyMs: 15, uploadMbps: 20, downloadMbps: 130 } 
-            },
-            { 
-              id: 'conn-vpn-3', 
-              type: 'sfp', 
               status: 'connected',
-              device_id: 'device-5', // Connected to DataCenter
-              metrics: { speedMbps: 200, latencyMs: 8, uploadMbps: 100, downloadMbps: 100 } 
+              device_id: 'device-9',
+              metrics: { speedMbps: 1000, latencyMs: 1, uploadMbps: 500, downloadMbps: 500 } 
             }
           ],
           position: { x: 0, y: 0 }
         },
+        // Access Point 2 - HQ
         {
-          id: 'device-4',
-          name: 'MAX Transit - Mobile',
-          model: 'MAX Transit',
-          serial: 'SN-2024-004',
+          id: 'device-9',
+          name: 'AP Two HQ',
+          model: 'AP One AC Mini',
+          serial: 'SN-2024-009',
           firmware_version: '8.3.0',
           status: 'online',
-          ipAddress: '192.168.4.1',
-          connections: [
-            { 
-              id: 'conn-4', 
-              type: 'cellular', 
-              status: 'connected', 
-              metrics: { speedMbps: 80, latencyMs: 30, uploadMbps: 8, downloadMbps: 72 } 
-            }
+          ipAddress: '192.168.1.11',
+          lanClients: [],
+          interfaces: [
+            { id: 1, name: 'LAN', type: 'ethernet', status: 'connected', mac_address: 'AA:BB:CC:DD:EE:02', ip: '192.168.1.11' },
+            { id: 2, name: 'WiFi', type: 'wifi', status: 'connected', mac_address: 'AA:BB:CC:DD:EE:22', ip: '192.168.1.11' }
           ],
-          position: { x: 0, y: 0 }
-        },
-        {
-          id: 'device-5',
-          name: 'Balance 2500 - DataCenter',
-          model: 'Balance 2500',
-          serial: 'SN-2024-005',
-          firmware_version: '8.3.1',
-          status: 'online',
-          ipAddress: '192.168.5.1',
           connections: [
             { 
-              id: 'conn-5', 
-              type: 'sfp', 
+              id: 'device-9-to-device-1', 
+              type: 'lan', 
               status: 'connected',
-              device_id: 'device-3', // Connected to Office
-              metrics: { speedMbps: 1000, latencyMs: 5, uploadMbps: 500, downloadMbps: 500 } 
+              device_id: 'device-1',
+              metrics: { speedMbps: 1000, latencyMs: 1, uploadMbps: 500, downloadMbps: 500 } 
             },
             { 
-              id: 'conn-vpn-5', 
-              type: 'sfp', 
+              id: 'device-9-to-device-8', 
+              type: 'wifi', 
               status: 'connected',
-              device_id: 'device-6', // Connected to Remote
-              metrics: { speedMbps: 100, latencyMs: 20, uploadMbps: 50, downloadMbps: 50 } 
+              device_id: 'device-8',
+              metrics: { speedMbps: 1000, latencyMs: 1, uploadMbps: 500, downloadMbps: 500 } 
             }
           ],
           position: { x: 0, y: 0 }
         },
+        // Access Point - Branch
         {
-          id: 'device-6',
-          name: 'Balance 20X - Remote',
-          model: 'Balance 20X',
-          serial: 'SN-2024-006',
+          id: 'device-10',
+          name: 'AP One Branch',
+          model: 'AP One AC Mini',
+          serial: 'SN-2024-010',
           firmware_version: '8.3.0',
           status: 'online',
-          ipAddress: '192.168.6.1',
-          connections: [
-            { 
-              id: 'conn-6', 
-              type: 'wan', 
-              status: 'connected', 
-              metrics: { speedMbps: 100, latencyMs: 25, uploadMbps: 10, downloadMbps: 90 } 
-            },
-            { 
-              id: 'conn-vpn-6', 
-              type: 'sfp', 
-              status: 'connected',
-              device_id: 'device-5', // Connected to DataCenter
-              metrics: { speedMbps: 100, latencyMs: 20, uploadMbps: 50, downloadMbps: 50 } 
-            }
+          ipAddress: '192.168.2.10',
+          lanClients: [],
+          interfaces: [
+            { id: 1, name: 'LAN', type: 'ethernet', status: 'connected', mac_address: 'BB:CC:DD:EE:FF:01', ip: '192.168.2.10' }
           ],
-          position: { x: 0, y: 0 }
-        },
-        {
-          id: 'device-7',
-          name: 'Balance 30 - Offline',
-          model: 'Balance 30',
-          serial: 'SN-2024-007',
-          firmware_version: '8.2.0',
-          status: 'offline',
-          ipAddress: '192.168.7.1',
           connections: [
             { 
-              id: 'conn-7', 
-              type: 'wan', 
-              status: 'disconnected', 
-              metrics: { speedMbps: 0, latencyMs: 0, uploadMbps: 0, downloadMbps: 0 } 
+              id: 'device-10-to-device-2', 
+              type: 'lan', 
+              status: 'connected',
+              device_id: 'device-2',
+              metrics: { speedMbps: 1000, latencyMs: 1, uploadMbps: 500, downloadMbps: 500 } 
             }
           ],
           position: { x: 0, y: 0 }
