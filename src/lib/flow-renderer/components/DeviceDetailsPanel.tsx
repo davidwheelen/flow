@@ -3,12 +3,12 @@ import { PeplinkDevice } from '@/types/network.types';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useAppStore } from '@/store/appStore';
 import { X, ChevronRight, ChevronDown } from 'lucide-react';
-import { ParticleAnimation } from '@/lib/animations/ParticleAnimation';
+import { RisingParticleAnimation } from '@/lib/animations/RisingParticleAnimation';
 import { defaultThemes } from '@/themes/defaultThemes';
 
 // Particle animation configuration
 const PARTICLE_OPACITY = 0.4;
-const PARTICLE_COUNT = 100;
+const PARTICLE_COUNT = 50;
 
 interface DeviceDetailsPanelProps {
   devices: PeplinkDevice[];
@@ -66,11 +66,11 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [device.id]); // Only reset when device ID changes, not when connections update
   
-  // Initialize particle animation
+  // Initialize rising particle animation (only for online devices)
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current || device.status !== 'online') return;
     
-    const animation = new ParticleAnimation({
+    const animation = new RisingParticleAnimation({
       canvas: canvasRef.current,
       colors: themeColors,
       opacity: PARTICLE_OPACITY,
@@ -79,7 +79,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
     
     animation.start();
     return () => animation.stop();
-  }, [themeColors]);
+  }, [themeColors, device.status]);
   
   const toggleWanExpanded = (wanId: string) => {
     setWanExpandedState(prev => {
@@ -178,19 +178,21 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         overflow: 'hidden',
       }}
     >
-      {/* Particle Animation Background */}
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: -1,
-          pointerEvents: 'none',
-        }}
-      />
+      {/* Particle Animation Background - Only for online devices */}
+      {device.status === 'online' && (
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            zIndex: -1,
+            pointerEvents: 'none',
+          }}
+        />
+      )}
       {/* Draggable Title Bar */}
       <div
         onMouseDown={handleMouseDown}

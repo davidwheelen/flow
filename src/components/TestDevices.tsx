@@ -185,6 +185,24 @@ export function TestDevices() {
             }
           ],
           position: { x: 0, y: 0 }
+        },
+        {
+          id: 'device-7',
+          name: 'Balance 30 - Offline',
+          model: 'Balance 30',
+          serial: 'SN-2024-007',
+          firmware_version: '8.2.0',
+          status: 'offline',
+          ipAddress: '192.168.7.1',
+          connections: [
+            { 
+              id: 'conn-7', 
+              type: 'wan', 
+              status: 'disconnected', 
+              metrics: { speedMbps: 0, latencyMs: 0, uploadMbps: 0, downloadMbps: 0 } 
+            }
+          ],
+          position: { x: 0, y: 0 }
         }
       ];
 
