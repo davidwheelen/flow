@@ -52,6 +52,11 @@ export class ParticleAnimation {
   private readonly ATTRACTION_FORCE = 0.0001;
   private readonly DEACTIVATION_RATE = 0.005;
   private readonly HEX_COLOR_PATTERN = /^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/;
+  
+  // Horizontal animation constants
+  private readonly OFFSCREEN_SPAWN_MARGIN = 10;
+  private readonly DRIFT_FREQUENCY = 0.05;
+  private readonly DRIFT_AMPLITUDE = 0.5;
 
   constructor(options: ParticleAnimationOptions) {
     this.canvas = options.canvas;
@@ -110,10 +115,10 @@ export class ParticleAnimation {
     const colorIndex = Math.floor(Math.random() * this.colors.length);
     
     return {
-      x: this.direction === 'horizontal' ? -10 : Math.random() * width,
+      x: this.direction === 'horizontal' ? -this.OFFSCREEN_SPAWN_MARGIN : Math.random() * width,
       y: this.direction === 'horizontal' ? 
          Math.random() * height : 
-         height + 10,
+         height + this.OFFSCREEN_SPAWN_MARGIN,
       vx: 0,
       vy: 0,
       speed: this.particleSpeed * (1 + Math.random()),
@@ -190,11 +195,11 @@ export class ParticleAnimation {
         // Move particle horizontally (left to right)
         particle.x += particle.speed;
         // Add slight vertical drift
-        particle.y += Math.sin(particle.life * 0.05) * 0.5;
+        particle.y += Math.sin(particle.life * this.DRIFT_FREQUENCY) * this.DRIFT_AMPLITUDE;
         particle.life++;
         
         // Remove particles that are off screen
-        if (particle.x > width + 10) {
+        if (particle.x > width + this.OFFSCREEN_SPAWN_MARGIN) {
           this.particles.splice(i, 1);
           continue;
         }

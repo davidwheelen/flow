@@ -11,6 +11,10 @@ const PARTICLE_OPACITY = 0.4;
 const PARTICLE_COUNT = 50;
 const PARTICLE_SPEED = 2;
 
+// Panel layout constants
+const HEADER_PADDING = 20;
+const CONTENT_PADDING = 20;
+
 interface DeviceDetailsPanelProps {
   devices: PeplinkDevice[];
 }
@@ -187,7 +191,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         onClick={handleTitleClick}
         style={{
           position: 'relative',
-          padding: 20,
+          padding: HEADER_PADDING,
           overflow: 'hidden',
           borderRadius: '12px 12px 0 0',
           background: 'rgba(23, 23, 23, 0.7)',
@@ -240,7 +244,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
       {/* Panel Content */}
       <div
         style={{
-          padding: 20,
+          padding: CONTENT_PADDING,
           background: 'rgba(23, 23, 23, 0.7)',
           flex: 1,
           overflowY: 'auto',
