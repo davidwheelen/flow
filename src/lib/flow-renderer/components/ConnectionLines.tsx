@@ -47,6 +47,12 @@ const generatePath = (from: Coords, to: Coords, zoom: number, scroll: { position
 };
 
 export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ devices, deviceTiles, groups }) => {
+  console.log('=== Rendering Connection Lines ===');
+  console.log('Devices:', devices.map(d => ({
+    name: d.name,
+    connections: d.connections
+  })));
+  
   const { zoom, scroll, rendererSize } = useCanvasStore();
   
   // Build group positions map for efficient lookup
