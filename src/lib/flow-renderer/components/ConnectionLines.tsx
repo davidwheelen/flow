@@ -23,6 +23,29 @@ const STATUS_STYLES: Record<ConnectionStatus, { opacity: number; dashArray: stri
   degraded: { opacity: 0.7, dashArray: '10,5' },
 };
 
+// Helper function to generate curved path between two points
+const generatePath = (from: Coords, to: Coords, zoom: number, scroll: { position: Coords }, rendererSize: { width: number; height: number }): string => {
+  // Apply zoom and scroll transformations
+  const fromX = from.x * zoom + scroll.position.x + rendererSize.width / 2;
+  const fromY = from.y * zoom + scroll.position.y + rendererSize.height / 2;
+  const toX = to.x * zoom + scroll.position.x + rendererSize.width / 2;
+  const toY = to.y * zoom + scroll.position.y + rendererSize.height / 2;
+  
+  // Calculate control point for quadratic curve
+  const midX = (fromX + toX) / 2;
+  const midY = (fromY + toY) / 2;
+  const dx = toX - fromX;
+  const dy = toY - fromY;
+  const perpX = -dy;
+  const perpY = dx;
+  const length = Math.sqrt(perpX * perpX + perpY * perpY);
+  const offsetAmount = 50 * zoom;
+  const controlX = midX + (perpX / length) * offsetAmount;
+  const controlY = midY + (perpY / length) * offsetAmount;
+  
+  return `M ${fromX} ${fromY} Q ${controlX} ${controlY} ${toX} ${toY}`;
+};
+
 export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ devices, deviceTiles, groups }) => {
   const { zoom, scroll, rendererSize } = useCanvasStore();
   
@@ -32,7 +55,7 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ devices, devic
     groupPositions.set(group.id, group.position);
   });
   
-  // Create connections based on actual network topology
+  // Create connections array
   const connections: Array<{
     from: Coords;
     to: Coords;
@@ -40,44 +63,31 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ devices, devic
     status: ConnectionStatus;
   }> = [];
   
-  // Iterate through each device and its connections
+  // Build all valid connections
   devices.forEach(device => {
+    if (!device.connections?.length) return;
+
     const fromTile = deviceTiles.get(device.id);
     if (!fromTile) return;
-    
-    // Get absolute position for the source device (accounting for group offset)
-    const fromAbsoluteTile = getDeviceAbsolutePosition(
-      fromTile,
-      device.groupId,
-      groupPositions
-    );
-    
-    // Iterate through actual connections from InControl
+
     device.connections.forEach(conn => {
-      // Only create visual connection if this connection has a device_id (device-to-device)
       if (!conn.device_id) return;
-      
-      const toDevice = devices.find(d => d.id === conn.device_id);
-      if (!toDevice) return;
-      
+
+      const targetDevice = devices.find(d => d.id === conn.device_id);
+      if (!targetDevice) return;
+
       const toTile = deviceTiles.get(conn.device_id);
       if (!toTile) return;
-      
-      // Get absolute position for the target device (accounting for group offset)
-      const toAbsoluteTile = getDeviceAbsolutePosition(
-        toTile,
-        toDevice.groupId,
-        groupPositions
-      );
-      
-      const fromPos = getTilePosition({ tile: fromAbsoluteTile, origin: 'BOTTOM' });
-      const toPos = getTilePosition({ tile: toAbsoluteTile, origin: 'BOTTOM' });
-      
+
+      // Get actual positions including group offsets
+      const fromPos = getDeviceAbsolutePosition(fromTile, device.groupId, groupPositions);
+      const toPos = getDeviceAbsolutePosition(toTile, targetDevice.groupId, groupPositions);
+
       connections.push({
-        from: fromPos,
-        to: toPos,
+        from: getTilePosition({ tile: fromPos, origin: 'BOTTOM' }),
+        to: getTilePosition({ tile: toPos, origin: 'BOTTOM' }),
         type: conn.type,
-        status: conn.status,
+        status: conn.status
       });
     });
   });
@@ -94,71 +104,29 @@ export const ConnectionLines: React.FC<ConnectionLinesProps> = ({ devices, devic
         overflow: 'visible',
       }}
     >
-      {connections.map((conn, index) => {
-        // Apply zoom and scroll transformations
-        const fromX = conn.from.x * zoom + scroll.position.x + rendererSize.width / 2;
-        const fromY = conn.from.y * zoom + scroll.position.y + rendererSize.height / 2;
-        const toX = conn.to.x * zoom + scroll.position.x + rendererSize.width / 2;
-        const toY = conn.to.y * zoom + scroll.position.y + rendererSize.height / 2;
-        
-        // Calculate control point for quadratic curve
-        const midX = (fromX + toX) / 2;
-        const midY = (fromY + toY) / 2;
-        const dx = toX - fromX;
-        const dy = toY - fromY;
-        const perpX = -dy;
-        const perpY = dx;
-        const length = Math.sqrt(perpX * perpX + perpY * perpY);
-        const offsetAmount = 50 * zoom;
-        const controlX = midX + (perpX / length) * offsetAmount;
-        const controlY = midY + (perpY / length) * offsetAmount;
-        
-        const pathData = `M ${fromX} ${fromY} Q ${controlX} ${controlY} ${toX} ${toY}`;
-        const color = CONNECTION_COLORS[conn.type];
-        const styles = STATUS_STYLES[conn.status];
-        
-        return (
-          <g key={index}>
-            {/* Connection line */}
-            <path
-              d={pathData}
-              stroke={color}
-              strokeWidth={3 * zoom}
-              fill="none"
-              strokeLinecap="round"
-              opacity={styles.opacity}
-              strokeDasharray={conn.status === 'connected' ? '10,10' : styles.dashArray}
-              style={{
-                filter: conn.type === 'cellular' ? `drop-shadow(0 0 ${12 * zoom}px ${color})` : 'none',
-              }}
-            >
-              {/* Animated dash for connected status */}
-              {conn.status === 'connected' && (
-                <animate
-                  attributeName="stroke-dashoffset"
-                  from="0"
-                  to="20"
-                  dur="1s"
-                  repeatCount="indefinite"
-                />
-              )}
-            </path>
-            
-            {/* Thicker line for SFP connections */}
-            {conn.type === 'sfp' && (
-              <path
-                d={pathData}
-                stroke={color}
-                strokeWidth={4 * zoom}
-                fill="none"
-                strokeLinecap="round"
-                opacity={styles.opacity * 0.3}
-                strokeDasharray={conn.status === 'connected' ? '10,10' : styles.dashArray}
-              />
-            )}
-          </g>
-        );
-      })}
+      {connections.map((conn, index) => (
+        <path
+          key={index}
+          d={generatePath(conn.from, conn.to, zoom, scroll, rendererSize)}
+          stroke={CONNECTION_COLORS[conn.type]}
+          strokeWidth={conn.type === 'sfp' ? 4 * zoom : 3 * zoom}
+          fill="none"
+          strokeLinecap="round"
+          opacity={STATUS_STYLES[conn.status].opacity}
+          strokeDasharray={conn.status === 'connected' ? '10,10' : STATUS_STYLES[conn.status].dashArray}
+        >
+          {/* Animated dash for connected status */}
+          {conn.status === 'connected' && (
+            <animate
+              attributeName="stroke-dashoffset"
+              from="0"
+              to="20"
+              dur="1s"
+              repeatCount="indefinite"
+            />
+          )}
+        </path>
+      ))}
     </svg>
   );
 };
