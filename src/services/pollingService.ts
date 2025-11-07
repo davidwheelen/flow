@@ -6,8 +6,15 @@
  */
 
 import { authService } from './authService';
-import { PeplinkDevice, ConnectionType, LanClient } from '@/types/network.types';
+import { PeplinkDevice, ConnectionType, ConnectionStatus, LanClient } from '@/types/network.types';
 import { IC2DeviceData } from '@/types/incontrol.types';
+
+/**
+ * Constants
+ */
+const DEFAULT_WIFI_SPEED_MBPS = 1000; // Default speed for connected WiFi interfaces
+const AP_MODEL_PATTERNS = ['ap one', 'ap pro', 'ap mini']; // AP device model patterns
+const ROUTER_MODEL_PATTERNS = ['balance', 'b20x']; // Router device model patterns
 
 /**
  * Rate limiter to ensure we don't exceed 20 req/sec
@@ -81,6 +88,22 @@ export class PollingService {
   private onUpdate: ((devices: PeplinkDevice[]) => void) | null = null;
   private onError: ((error: Error) => void) | null = null;
   private groupId: string | null = null;
+
+  /**
+   * Check if a device model is an Access Point
+   */
+  private isAccessPoint(model: string): boolean {
+    const modelLower = model.toLowerCase();
+    return AP_MODEL_PATTERNS.some(pattern => modelLower.includes(pattern));
+  }
+
+  /**
+   * Check if a device model is a Router
+   */
+  private isRouter(model: string): boolean {
+    const modelLower = model.toLowerCase();
+    return ROUTER_MODEL_PATTERNS.some(pattern => modelLower.includes(pattern));
+  }
 
   /**
    * Start polling for device updates
@@ -174,11 +197,31 @@ export class PollingService {
    * Build connection graph by detecting all connection types
    */
   private buildConnectionGraph(devices: PeplinkDevice[]): void {
+    // First handle AP mesh connections
+    devices.forEach(sourceDevice => {
+      if (sourceDevice.status?.toLowerCase() === 'online' && 
+          this.isAccessPoint(sourceDevice.model)) {
+        
+        // Find the router or AP this device is connected to
+        const connectedDevices = devices.filter(targetDevice => 
+          targetDevice.id !== sourceDevice.id &&
+          targetDevice.status?.toLowerCase() === 'online' &&
+          (this.isRouter(targetDevice.model) || // Connect to routers
+           this.isAccessPoint(targetDevice.model)) // or other APs
+        );
+        
+        connectedDevices.forEach(targetDevice => {
+          if (sourceDevice.connections.some(c => c.type === 'wifi' && c.status === 'connected')) {
+            // Create WiFi mesh connection
+            this.createDeviceConnection(sourceDevice, targetDevice, 'wifi');
+          }
+        });
+      }
+    });
+
+    // Then handle regular WAN/LAN connections
     // First identify all Balance devices
-    const balanceDevices = devices.filter(d => 
-      d.model.toLowerCase().includes('balance') || 
-      d.model.toLowerCase().includes('b20x')
-    );
+    const balanceDevices = devices.filter(d => this.isRouter(d.model));
 
     // Then for each Balance device, check its LAN clients
     balanceDevices.forEach(balanceDevice => {
@@ -200,6 +243,8 @@ export class PollingService {
 
     console.log('Connection graph built:', devices.map(d => ({
       name: d.name,
+      model: d.model,
+      status: d.status,
       connections: d.connections.map(c => ({
         type: c.type,
         status: c.status,
@@ -324,56 +369,93 @@ export class PollingService {
       }
     });
 
-    // Map LAN interfaces first
-    device.interfaces?.forEach((iface) => {
-      if (iface.type === 'lan' || iface.name?.toLowerCase().includes('lan')) {
-        connections.push({
-          id: `${device.id}-lan-${iface.id}`,
-          type: 'lan',
-          status: 'connected',
-          metrics: {
-            speedMbps: iface.speed_mbps || 1000,
-            latencyMs: 1,
-            uploadMbps: 500,
-            downloadMbps: 500
-          }
-        });
-      }
-    });
+    // Identify if this is an AP device
+    const isAccessPoint = this.isAccessPoint(device.model);
 
-    // Then map WAN interfaces
-    device.interfaces?.forEach((iface) => {
-      if (iface.type !== 'lan' && !iface.name?.toLowerCase().includes('lan')) {
-        let connType: ConnectionType = 'wan';
-        if (iface.virtualType === 'cellular' || iface.type === 'gobi') {
-          connType = 'cellular';
+    if (isAccessPoint) {
+      // Handle AP devices specially
+      device.interfaces?.forEach((iface) => {
+        let connType: ConnectionType;
+        let connStatus: ConnectionStatus;
+        
+        if (iface.type === 'ethernet' && iface.name?.toLowerCase().includes('wan')) {
+          // Physical WAN port
+          connType = 'wan';
+          connStatus = iface.status?.toLowerCase() === 'connected' ? 'connected' : 'disconnected';
         } else if (iface.type === 'wifi' || iface.type === 'wlan') {
+          // WiFi mesh connection
           connType = 'wifi';
-        } else if (iface.type === 'sfp') {
-          connType = 'sfp';
+          // For APs, if device is online, WiFi mesh is connected
+          connStatus = device.status?.toLowerCase() === 'online' ? 'connected' : 'disconnected';
+        } else {
+          return; // Skip other interfaces for APs
         }
-
+        
         connections.push({
           id: `${device.id}-${connType}-${iface.id}`,
           type: connType,
-          status: iface.status?.toLowerCase() === 'connected' ? 'connected' : 'disconnected',
+          status: connStatus,
           metrics: {
-            speedMbps: iface.speed_mbps || 0,
-            latencyMs: iface.latency_ms || 0,
+            speedMbps: iface.speed_mbps || (connStatus === 'connected' ? DEFAULT_WIFI_SPEED_MBPS : 0),
+            latencyMs: iface.latency_ms || 1,
             uploadMbps: iface.upload_mbps || 0,
             downloadMbps: iface.download_mbps || 0
-          },
-          wanDetails: {
-            id: String(iface.id),
-            name: iface.name || `${connType.toUpperCase()} ${iface.id}`,
-            type: iface.type || 'ethernet',
-            status: iface.status?.toLowerCase() === 'connected' ? 'connected' : 'disconnected',
-            ipAddress: iface.ip || '',
-            macAddress: macAddressMap.get(iface.id)
           }
         });
-      }
-    });
+      });
+    } else {
+      // Handle non-AP devices as before
+      // Map LAN interfaces first
+      device.interfaces?.forEach((iface) => {
+        if (iface.type === 'lan' || iface.name?.toLowerCase().includes('lan')) {
+          connections.push({
+            id: `${device.id}-lan-${iface.id}`,
+            type: 'lan',
+            status: 'connected',
+            metrics: {
+              speedMbps: iface.speed_mbps || 1000,
+              latencyMs: 1,
+              uploadMbps: 500,
+              downloadMbps: 500
+            }
+          });
+        }
+      });
+
+      // Then map WAN interfaces
+      device.interfaces?.forEach((iface) => {
+        if (iface.type !== 'lan' && !iface.name?.toLowerCase().includes('lan')) {
+          let connType: ConnectionType = 'wan';
+          if (iface.virtualType === 'cellular' || iface.type === 'gobi') {
+            connType = 'cellular';
+          } else if (iface.type === 'wifi' || iface.type === 'wlan') {
+            connType = 'wifi';
+          } else if (iface.type === 'sfp') {
+            connType = 'sfp';
+          }
+
+          connections.push({
+            id: `${device.id}-${connType}-${iface.id}`,
+            type: connType,
+            status: iface.status?.toLowerCase() === 'connected' ? 'connected' : 'disconnected',
+            metrics: {
+              speedMbps: iface.speed_mbps || 0,
+              latencyMs: iface.latency_ms || 0,
+              uploadMbps: iface.upload_mbps || 0,
+              downloadMbps: iface.download_mbps || 0
+            },
+            wanDetails: {
+              id: String(iface.id),
+              name: iface.name || `${connType.toUpperCase()} ${iface.id}`,
+              type: iface.type || 'ethernet',
+              status: iface.status?.toLowerCase() === 'connected' ? 'connected' : 'disconnected',
+              ipAddress: iface.ip || '',
+              macAddress: macAddressMap.get(iface.id)
+            }
+          });
+        }
+      });
+    }
 
     // Map PepVPN connections as SFP type with device_id for topology
     device.pepvpn?.forEach((vpn, i) => {
