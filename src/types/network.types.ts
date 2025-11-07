@@ -1,6 +1,7 @@
 import { DeviceConnectionSpec } from './connectionTypes';
+import { IC2Interface } from './incontrol.types';
 
-export type ConnectionType = 'wan' | 'cellular' | 'wifi' | 'sfp';
+export type ConnectionType = 'wan' | 'lan' | 'cellular' | 'wifi' | 'sfp';
 export type ConnectionStatus = 'connected' | 'disconnected' | 'degraded';
 
 export interface NetworkMetrics {
@@ -55,7 +56,7 @@ export interface PeplinkDevice {
   position: { x: number; y: number };
   connectionSpec?: DeviceConnectionSpec; // Optional device connection specifications
   lanClients?: LanClient[]; // LAN clients connected to this device
-  interfaces?: Array<{ mac_address?: string }>; // Device interfaces for connection matching
+  interfaces?: IC2Interface[]; // Device interfaces for connection matching
   groupId?: string; // Optional visual group ID for organizing devices
 }
 
