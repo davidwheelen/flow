@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSID and Security Display</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            background: #0a0a0a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+        }
+        h1 {
+            text-align: center;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+        }
+        .ssid-section {
+            background: rgba(30, 30, 30, 0.5);
+            border-radius: 8px;
+            padding: 24px;
+            border: 2px solid rgba(255, 255, 0, 0.3);
+        }
+        .section-title {
+            color: #a0a0a0;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+        .ssid-list {
+            margin: 0;
+        }
+        .ssid-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .ssid-item:last-child {
+            border-bottom: none;
+        }
+        .ssid-name {
+            font-size: 15px;
+            color: #e0e0e0;
+            font-weight: 500;
+        }
+        .ssid-security {
+            font-size: 13px;
+            color: #a0a0a0;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .info {
+            text-align: center;
+            color: #707070;
+            margin-top: 30px;
+            font-size: 13px;
+        }
+        .highlight-label {
+            display: inline-block;
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SSID and Security Policy Display</h1>
+        
+        <div class="ssid-section">
+            <div class="section-title">NETWORK SSIDs</div>
+            <div class="ssid-list">
+                <div class="ssid-item">
+                    <div class="ssid-name">Corporate-WiFi</div>
+                    <div class="ssid-security">WPA3/WPA2 - Personal</div>
+                </div>
+                <div class="ssid-item">
+                    <div class="ssid-name">Guest-Network</div>
+                    <div class="ssid-security">WPA2 - Personal</div>
+                </div>
+                <div class="ssid-item">
+                    <div class="ssid-name">IoT-Devices</div>
+                    <div class="ssid-security">WPA2 - Personal</div>
+                </div>
+                <div class="ssid-item">
+                    <div class="ssid-name">Public-Access</div>
+                    <div class="ssid-security">Open</div>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <span class="highlight-label">✓ Security policies automatically detected</span>
+            </div>
+        </div>
+        
+        <div class="info">
+            Security policies are extracted from SSID configuration:<br>
+            WPA3, WPA2, WPA support with automatic fallback detection
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireless Mesh Display - Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0a0a0a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #e0e0e0;
+        }
+        .panel {
+            width: 320px;
+            background: rgba(23, 23, 23, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            margin: 0 auto;
+        }
+        .header {
+            padding: 20px;
+            background: rgba(23, 23, 23, 0.7);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .device-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .device-model {
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .section-title {
+            color: #a0a0a0;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .mesh-info {
+            background: rgba(30, 30, 30, 0.5);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 8px;
+        }
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+        .frequency-bands {
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+        .ssid-list {
+            margin: 12px 0;
+        }
+        .ssid-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+        .ssid-name {
+            font-size: 13px;
+            color: #e0e0e0;
+        }
+        .ssid-security {
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 12px 0;
+        }
+        .metric {
+            text-align: left;
+        }
+        .metric-label {
+            color: #707070;
+            font-size: 10px;
+            margin-bottom: 2px;
+        }
+        .metric-value {
+            color: #e0e0e0;
+            font-size: 13px;
+        }
+        .client-count {
+            font-size: 14px;
+            color: #a0a0a0;
+            margin-top: 8px;
+        }
+        .highlight {
+            background: rgba(255, 255, 0, 0.1);
+            border: 1px dashed rgba(255, 255, 0, 0.3);
+            border-radius: 4px;
+            padding: 2px;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #a0a0a0; margin-bottom: 30px;">
+        Wireless Mesh Information Display
+    </h1>
+    
+    <div class="panel">
+        <div class="header">
+            <div class="device-name">AP One AC Mini</div>
+            <div class="device-model">Access Point</div>
+        </div>
+        
+        <div class="content">
+            <div class="section-title">WIRELESS MESH</div>
+            <div class="mesh-info highlight">
+                <div class="status-row">
+                    <div class="status-dot"></div>
+                    <div class="frequency-bands">2.4GHz + 5GHz</div>
+                </div>
+                
+                <div class="ssid-list">
+                    <div class="ssid-item">
+                        <div class="ssid-name">Corporate-WiFi</div>
+                        <div class="ssid-security">WPA3/WPA2 - Personal</div>
+                    </div>
+                    <div class="ssid-item">
+                        <div class="ssid-name">Guest-Network</div>
+                        <div class="ssid-security">WPA2 - Personal</div>
+                    </div>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-label">Latency</div>
+                        <div class="metric-value">5ms</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Upload</div>
+                        <div class="metric-value">100 Mbps</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Download</div>
+                        <div class="metric-value">250 Mbps</div>
+                    </div>
+                </div>
+                
+                <div class="client-count">Connected Clients: 12</div>
+            </div>
+        </div>
+    </div>
+    
+    <p style="text-align: center; color: #707070; margin-top: 30px; font-size: 12px;">
+        Note: Highlighted section shows the new Wireless Mesh information display
+    </p>
+</body>
+</html>
