@@ -181,7 +181,7 @@ export class PollingService {
       console.log('Interfaces:', sourceDevice.interfaces?.map(i => ({
         type: i.type,
         status: i.status,
-        mac: i.mac_address
+        mac_address: i.mac_address
       })));
       console.log('LAN Clients:', sourceDevice.lanClients);
       console.log('Current Connections:', sourceDevice.connections);
