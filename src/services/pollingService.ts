@@ -6,7 +6,7 @@
  */
 
 import { authService } from './authService';
-import { PeplinkDevice, ConnectionType, LanClient } from '@/types/network.types';
+import { PeplinkDevice, ConnectionType, ConnectionStatus, LanClient } from '@/types/network.types';
 import { IC2DeviceData } from '@/types/incontrol.types';
 
 /**
@@ -198,6 +198,27 @@ export class PollingService {
       });
     });
 
+    // Handle AP WiFi mesh connections
+    devices.forEach(sourceDevice => {
+      const isAP = sourceDevice.model.toLowerCase().includes('ap one') || 
+                   sourceDevice.model.toLowerCase().includes('ap pro');
+                   
+      if (isAP && sourceDevice.status === 'online') {
+        // Find potential mesh connections for online APs
+        const meshConnectedDevices = devices.filter(targetDevice => 
+          targetDevice.id !== sourceDevice.id &&
+          (targetDevice.model.toLowerCase().includes('balance') || // Connect to routers
+           targetDevice.model.toLowerCase().includes('ap')) && // or other APs
+          targetDevice.status === 'online'
+        );
+        
+        meshConnectedDevices.forEach(targetDevice => {
+          // Create WiFi mesh connection
+          this.createDeviceConnection(sourceDevice, targetDevice, 'wifi');
+        });
+      }
+    });
+
     console.log('Connection graph built:', devices.map(d => ({
       name: d.name,
       connections: d.connections.map(c => ({
@@ -324,6 +345,10 @@ export class PollingService {
       }
     });
 
+    // First check if this is an AP device
+    const isAccessPoint = device.model.toLowerCase().includes('ap one') || 
+                         device.model.toLowerCase().includes('ap pro');
+
     // Map LAN interfaces first
     device.interfaces?.forEach((iface) => {
       if (iface.type === 'lan' || iface.name?.toLowerCase().includes('lan')) {
@@ -341,22 +366,52 @@ export class PollingService {
       }
     });
 
-    // Then map WAN interfaces
+    // For APs, check both hardwired WAN and WiFi mesh connections
     device.interfaces?.forEach((iface) => {
       if (iface.type !== 'lan' && !iface.name?.toLowerCase().includes('lan')) {
-        let connType: ConnectionType = 'wan';
-        if (iface.virtualType === 'cellular' || iface.type === 'gobi') {
-          connType = 'cellular';
-        } else if (iface.type === 'wifi' || iface.type === 'wlan') {
-          connType = 'wifi';
-        } else if (iface.type === 'sfp') {
-          connType = 'sfp';
+        let connType: ConnectionType;
+        let connStatus: ConnectionStatus = 'disconnected';
+        
+        // Determine interface type
+        if (isAccessPoint) {
+          if (iface.type === 'ethernet' && iface.name?.toLowerCase().includes('wan')) {
+            // AP's ethernet WAN port
+            connType = 'wan';
+          } else if (iface.type === 'wifi' || iface.type === 'wlan') {
+            // AP's WiFi mesh connection
+            connType = 'wifi';
+            // For APs, if device is online and has a WiFi interface, consider it connected
+            if (device.status?.toLowerCase() === 'online') {
+              connStatus = 'connected';
+            }
+          } else {
+            return; // Skip other interface types for APs
+          }
+        } else {
+          // Regular device interface handling
+          connType = 'wan';
+          if (iface.virtualType === 'cellular' || iface.type === 'gobi') {
+            connType = 'cellular';
+          } else if (iface.type === 'wifi' || iface.type === 'wlan') {
+            connType = 'wifi';
+          } else if (iface.type === 'sfp') {
+            connType = 'sfp';
+          }
+        }
+        
+        // Set connection status based on device type and interface
+        if (!isAccessPoint) {
+          // Regular device - use interface status
+          connStatus = iface.status?.toLowerCase() === 'connected' ? 'connected' : 'disconnected';
+        } else if (device.status?.toLowerCase() !== 'online') {
+          // AP is offline - all connections disconnected
+          connStatus = 'disconnected';
         }
 
         connections.push({
           id: `${device.id}-${connType}-${iface.id}`,
           type: connType,
-          status: iface.status?.toLowerCase() === 'connected' ? 'connected' : 'disconnected',
+          status: connStatus,
           metrics: {
             speedMbps: iface.speed_mbps || 0,
             latencyMs: iface.latency_ms || 0,
@@ -367,7 +422,7 @@ export class PollingService {
             id: String(iface.id),
             name: iface.name || `${connType.toUpperCase()} ${iface.id}`,
             type: iface.type || 'ethernet',
-            status: iface.status?.toLowerCase() === 'connected' ? 'connected' : 'disconnected',
+            status: connStatus,
             ipAddress: iface.ip || '',
             macAddress: macAddressMap.get(iface.id)
           }
