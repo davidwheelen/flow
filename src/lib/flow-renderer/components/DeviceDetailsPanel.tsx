@@ -3,12 +3,13 @@ import { PeplinkDevice } from '@/types/network.types';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useAppStore } from '@/store/appStore';
 import { X, ChevronRight, ChevronDown } from 'lucide-react';
-import { RisingParticleAnimation } from '@/lib/animations/RisingParticleAnimation';
+import { ParticleAnimation } from '@/lib/animations/ParticleAnimation';
 import { defaultThemes } from '@/themes/defaultThemes';
 
 // Particle animation configuration
 const PARTICLE_OPACITY = 0.4;
 const PARTICLE_COUNT = 50;
+const PARTICLE_SPEED = 2;
 
 interface DeviceDetailsPanelProps {
   devices: PeplinkDevice[];
@@ -66,15 +67,17 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [device.id]); // Only reset when device ID changes, not when connections update
   
-  // Initialize rising particle animation (only for online devices)
+  // Initialize horizontal particle animation (only for online devices)
   useEffect(() => {
     if (!canvasRef.current || device.status !== 'online') return;
     
-    const animation = new RisingParticleAnimation({
+    const animation = new ParticleAnimation({
       canvas: canvasRef.current,
       colors: themeColors,
+      direction: 'horizontal',
       opacity: PARTICLE_OPACITY,
       particleCount: PARTICLE_COUNT,
+      particleSpeed: PARTICLE_SPEED,
     });
     
     animation.start();
@@ -165,7 +168,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         top: position.y,
         width: 320,
         maxHeight: 'calc(100vh - 100px)',
-        background: 'rgba(23, 23, 23, 0.7)',
+        background: 'transparent',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -178,66 +181,69 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         overflow: 'hidden',
       }}
     >
-      {/* Particle Animation Background - Only for online devices */}
-      {device.status === 'online' && (
-        <canvas
-          ref={canvasRef}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            zIndex: -1,
-            pointerEvents: 'none',
-          }}
-        />
-      )}
-      {/* Draggable Title Bar */}
+      {/* Animated Header */}
       <div
         onMouseDown={handleMouseDown}
         onClick={handleTitleClick}
         style={{
-          padding: '12px 16px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          position: 'relative',
+          padding: 20,
+          overflow: 'hidden',
+          borderRadius: '12px 12px 0 0',
+          background: 'rgba(23, 23, 23, 0.7)',
           cursor: isDragging ? 'grabbing' : 'grab',
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
         }}
       >
-        <div style={{ flex: 1 }}>
-          <h3 style={{ color: '#e0e0e0', fontSize: 18, fontWeight: 600, margin: 0, marginBottom: 4 }}>
-            {device.name}
-          </h3>
-          <p style={{ color: '#a0a0a0', fontSize: 12, margin: 0 }}>
-            {device.model}
-          </p>
+        {/* Particle Animation Background - Only for online devices */}
+        {device.status === 'online' && (
+          <canvas
+            ref={canvasRef}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              zIndex: 0,
+              pointerEvents: 'none',
+            }}
+          />
+        )}
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 18, marginBottom: 4, color: '#e0e0e0', fontWeight: 600 }}>
+              {device.name}
+            </div>
+            <div style={{ color: '#a0a0a0', fontSize: 14 }}>
+              {device.model}
+            </div>
+          </div>
+          <button
+            className="close-button"
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 4,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#a0a0a0',
+            }}
+          >
+            <X size={20} />
+          </button>
         </div>
-        <button
-          className="close-button"
-          onClick={onClose}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 4,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#a0a0a0',
-          }}
-        >
-          <X size={20} />
-        </button>
       </div>
       
-      {/* Scrollable Content */}
+      {/* Panel Content */}
       <div
         style={{
-          padding: 16,
-          overflowY: 'auto',
+          padding: 20,
+          background: 'rgba(23, 23, 23, 0.7)',
           flex: 1,
+          overflowY: 'auto',
         }}
       >
         {/* Device Details */}
