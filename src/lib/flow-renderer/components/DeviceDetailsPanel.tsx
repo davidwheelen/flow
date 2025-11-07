@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { PeplinkDevice } from '@/types/network.types';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useAppStore } from '@/store/appStore';
@@ -38,6 +38,24 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { appearanceSettings } = useAppStore();
   
+  // Memoize theme colors to avoid recalculation on every render
+  const themeColors = useMemo(() => {
+    if (appearanceSettings.customTheme) {
+      return [
+        appearanceSettings.customTheme.colors.primary,
+        appearanceSettings.customTheme.colors.secondary,
+        appearanceSettings.customTheme.colors.accent,
+      ];
+    }
+    
+    const theme = appearanceSettings.theme === 'light' ? defaultThemes.light : defaultThemes.dark;
+    return [
+      theme.colors.primary,
+      theme.colors.secondary,
+      theme.colors.accent,
+    ];
+  }, [appearanceSettings]);
+  
   // Initialize WAN states as collapsed by default (only reset when device changes)
   useEffect(() => {
     const initialState = new Map<string, boolean>();
@@ -52,34 +70,16 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
   useEffect(() => {
     if (!canvasRef.current) return;
     
-    // Get theme colors
-    const getThemeColors = () => {
-      if (appearanceSettings.customTheme) {
-        return [
-          appearanceSettings.customTheme.colors.primary,
-          appearanceSettings.customTheme.colors.secondary,
-          appearanceSettings.customTheme.colors.accent,
-        ];
-      }
-      
-      const theme = appearanceSettings.theme === 'light' ? defaultThemes.light : defaultThemes.dark;
-      return [
-        theme.colors.primary,
-        theme.colors.secondary,
-        theme.colors.accent,
-      ];
-    };
-    
     const animation = new ParticleAnimation({
       canvas: canvasRef.current,
-      colors: getThemeColors(),
+      colors: themeColors,
       opacity: PARTICLE_OPACITY,
       particleCount: PARTICLE_COUNT,
     });
     
     animation.start();
     return () => animation.stop();
-  }, [appearanceSettings]);
+  }, [themeColors]);
   
   const toggleWanExpanded = (wanId: string) => {
     setWanExpandedState(prev => {

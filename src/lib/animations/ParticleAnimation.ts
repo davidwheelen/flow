@@ -35,6 +35,7 @@ export class ParticleAnimation {
   private target: Point = { x: 0, y: 0 };
   private particleCount: number;
   private animate = true;
+  private cleanup: (() => void) | null = null;
 
   // Animation configuration
   private readonly PARTICLE_DISTANCE = 120;
@@ -43,6 +44,7 @@ export class ParticleAnimation {
   private readonly PARTICLE_ACTIVATION_LEVEL = 0.3;
   private readonly ATTRACTION_FORCE = 0.0001;
   private readonly DEACTIVATION_RATE = 0.005;
+  private readonly HEX_COLOR_PATTERN = /^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/;
 
   constructor(options: ParticleAnimationOptions) {
     this.canvas = options.canvas;
@@ -85,8 +87,6 @@ export class ParticleAnimation {
       });
     }
   }
-
-  private cleanup: (() => void) | null = null;
 
   private addEventListeners(): void {
     const handleResize = () => {
@@ -223,7 +223,7 @@ export class ParticleAnimation {
     const cleanHex = hex.replace('#', '');
     
     // Validate hex format (3 or 6 characters)
-    if (!/^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/.test(cleanHex)) {
+    if (!this.HEX_COLOR_PATTERN.test(cleanHex)) {
       console.warn(`Invalid hex color: ${hex}, using fallback color`);
       return `rgba(59, 130, 246, ${alpha})`; // Fallback to primary blue
     }
