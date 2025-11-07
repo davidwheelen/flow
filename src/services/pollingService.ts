@@ -224,14 +224,14 @@ export class PollingService {
    * Determine connection type based on device types
    */
   private determineConnectionType(source: PeplinkDevice, target: PeplinkDevice): ConnectionType {
-    // AP to Router = LAN
-    if (source.model.includes('AP') || target.model.includes('AP')) {
-      return 'lan';
-    }
-
     // Check for wireless mesh between APs
     if (source.model.includes('AP') && target.model.includes('AP')) {
       return 'wifi';
+    }
+
+    // AP to Router = LAN
+    if (source.model.includes('AP') || target.model.includes('AP')) {
+      return 'lan';
     }
 
     // Check for PepVPN/SpeedFusion
