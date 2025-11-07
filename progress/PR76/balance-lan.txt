@@ -1,0 +1,51 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    Balance 20X LAN Connection Details                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Device: Office Balance 20X (Balance 20X)
+Model: B20X
+Status: online
+Firmware: 8.3.0
+
+┌─ LAN Interfaces ────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  Interface: LAN 1                                                            │
+│  Type: lan                                                                   │
+│  Status: ✓ connected                                                         │
+│  Speed: 1000 Mbps                                                            │
+│  IP Address: 192.168.1.1                                                     │
+│  Connection ID: 1-lan-1                                                      │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ Device-to-Device LAN Connections ──────────────────────────────────────────┐
+│                                                                              │
+│  Connection 1:                                                               │
+│    From: Office Balance 20X                                                  │
+│    To: Branch Router (MAX Transit DUO)                                       │
+│    Type: LAN                                                                 │
+│    Status: ✓ connected                                                       │
+│    Connection ID: 1-to-2-lan                                                 │
+│    Metrics:                                                                  │
+│      - Speed: 1000 Mbps                                                      │
+│      - Latency: 1 ms                                                         │
+│      - Upload: 500 Mbps                                                      │
+│      - Download: 500 Mbps                                                    │
+│                                                                              │
+│  Connection 2:                                                               │
+│    From: Office Balance 20X                                                  │
+│    To: AP One AC Mini                                                        │
+│    Type: LAN                                                                 │
+│    Status: ✓ connected                                                       │
+│    Connection ID: 1-to-3-lan                                                 │
+│    Metrics:                                                                  │
+│      - Speed: 1000 Mbps                                                      │
+│      - Latency: 1 ms                                                         │
+│      - Upload: 500 Mbps                                                      │
+│      - Download: 500 Mbps                                                    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+✅ Balance 20X LAN interfaces properly identified and mapped
+✅ Bi-directional connections established with downstream devices
+✅ All LAN connections showing as active and healthy

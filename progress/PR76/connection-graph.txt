@@ -1,0 +1,100 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                     Complete Network Topology Graph                          ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+                                  Internet
+                                     │
+                         ┌───────────┴───────────┐
+                         │                       │
+                      WAN 1                   WAN 2
+                   (Connected)              (Standby)
+                         │                       │
+                         └───────────┬───────────┘
+                                     │
+                    ╔════════════════════════════════╗
+                    ║   Office Balance 20X (B20X)    ║
+                    ║                                ║
+                    ║  Status: online                ║
+                    ║  IP: 192.168.1.1               ║
+                    ║                                ║
+                    ║  Interfaces:                   ║
+                    ║    • LAN 1: connected          ║
+                    ║    • WAN 1: connected          ║
+                    ║    • WAN 2: disconnected       ║
+                    ╚════════════════════════════════╝
+                                     │
+                        ┌────────────┴────────────┐
+                        │                         │
+                   LAN (1000M)               LAN (1000M)
+                        │                         │
+                        │                         │
+         ╔══════════════════════════╗  ╔═════════════════════════╗
+         ║  Branch Router           ║  ║  AP One AC Mini         ║
+         ║  (MAX Transit DUO)       ║  ║  (AP-ONE-AC-MINI)       ║
+         ║                          ║  ║                         ║
+         ║  Status: online          ║  ║  Status: online         ║
+         ║  IP: 192.168.1.10        ║  ║  IP: 192.168.1.20       ║
+         ║                          ║  ║                         ║
+         ║  Interfaces:             ║  ║  Interfaces:            ║
+         ║    • WAN 1: connected    ║  ║    • WAN: connected     ║
+         ║    • Cellular: connected ║  ║                         ║
+         ║                          ║  ║  Connections:           ║
+         ║  Connections:            ║  ║    ⬆ WAN to Balance     ║
+         ║    ⬆ WAN to Balance      ║  ╚═════════════════════════╝
+         ╚══════════════════════════╝
+
+
+┌─ Connection Summary ─────────────────────────────────────────────────────────┐
+│                                                                              │
+│  Balance 20X Connections (5 total):                                          │
+│    1. LAN interface (physical port)                                          │
+│    2. WAN 1 interface (connected to Internet)                                │
+│    3. WAN 2 interface (standby)                                              │
+│    4. LAN device connection → Branch Router                                  │
+│    5. LAN device connection → AP One AC Mini                                 │
+│                                                                              │
+│  Branch Router Connections (3 total):                                        │
+│    1. WAN 1 interface (connected)                                            │
+│    2. Cellular interface (connected)                                         │
+│    3. WAN device connection → Balance 20X                                    │
+│                                                                              │
+│  AP One AC Mini Connections (2 total):                                       │
+│    1. WAN interface (connected)                                              │
+│    2. WAN device connection → Balance 20X                                    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ Connection Flow ────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  ┌─────────────────┐           LAN              ┌─────────────────┐         │
+│  │  Balance 20X    │ ───────────────────────> │  Branch Router  │         │
+│  │                 │                             │                 │         │
+│  │                 │ <─────────────────────────  │                 │         │
+│  └─────────────────┘           WAN              └─────────────────┘         │
+│                                                                              │
+│  ┌─────────────────┐           LAN              ┌─────────────────┐         │
+│  │  Balance 20X    │ ───────────────────────> │  AP One AC Mini │         │
+│  │                 │                             │                 │         │
+│  │                 │ <─────────────────────────  │                 │         │
+│  └─────────────────┘           WAN              └─────────────────┘         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ Key Features ───────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  ✅ Bi-directional connections properly established                          │
+│  ✅ LAN interfaces correctly identified on Balance device                    │
+│  ✅ WAN interfaces mapped with correct status (connected/standby)            │
+│  ✅ Device-to-device connections show proper direction                       │
+│  ✅ All connection metrics captured (speed, latency, bandwidth)              │
+│  ✅ Connection IDs uniquely identify each connection                         │
+│  ✅ Balance devices automatically detected by model name                     │
+│  ✅ Devices with active WANs automatically connected to Balance LAN          │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+Legend:
+  ╔═══╗  Device (Router/Gateway)
+  │     Connection line
+  ⬆     Connection direction
+  •     Interface

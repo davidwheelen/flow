@@ -1,0 +1,51 @@
+╔═══════════════════════════════════════════════════════════╗
+║  Balance 20X Connection Detection Test                   ║
+╚═══════════════════════════════════════════════════════════╝
+
+=== Mapping Device: Office Balance 20X ===
+  - Adding LAN interface: LAN 1 (id: 1)
+  - Adding WAN interface: WAN 1 (id: 2, status: Connected)
+  - Adding WAN interface: WAN 2 (id: 3, status: Standby)
+
+=== Mapping Device: Branch Router ===
+  - Adding WAN interface: WAN 1 (id: 1, status: Connected)
+  - Adding CELLULAR interface: Cellular 1 (id: 2, status: Connected)
+
+=== Mapping Device: AP One AC Mini ===
+  - Adding WAN interface: WAN (id: 1, status: Connected)
+
+=== Building Connection Graph ===
+Found 1 Balance device(s):
+  - Office Balance 20X (Balance 20X)
+
+Processing connections for: Office Balance 20X
+  Found 2 device(s) with active WAN connections:
+    - Branch Router (MAX Transit DUO)
+    - AP One AC Mini (AP One AC Mini)
+    ✓ Created LAN connection: Office Balance 20X -> Branch Router
+    ✓ Created WAN connection: Branch Router -> Office Balance 20X
+    ✓ Created LAN connection: Office Balance 20X -> AP One AC Mini
+    ✓ Created WAN connection: AP One AC Mini -> Office Balance 20X
+
+=== Connection Graph Summary ===
+
+Office Balance 20X (Balance 20X):
+  - LAN: connected (interface)
+  - WAN: connected (WAN 1)
+  - WAN: disconnected (WAN 2)
+  - LAN: connected -> Branch Router
+  - LAN: connected -> AP One AC Mini
+
+Branch Router (MAX Transit DUO):
+  - WAN: connected (WAN 1)
+  - CELLULAR: connected (Cellular 1)
+  - WAN: connected -> Office Balance 20X
+
+AP One AC Mini (AP One AC Mini):
+  - WAN: connected (WAN)
+  - WAN: connected -> Office Balance 20X
+
+╔═══════════════════════════════════════════════════════════╗
+║  Test Complete                                            ║
+╚═══════════════════════════════════════════════════════════╝
+
