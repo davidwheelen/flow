@@ -177,6 +177,32 @@ After the coding agent completes:
 
 **REMEMBER:** The github-coding-agent- tool is the ONLY approved method. Do not deviate from this process under any circumstances.
 
+## CRITICAL: Timestamp and Date Handling
+
+**These rules apply to ALL interactions and MUST be followed without exception:**
+
+1. **NEVER display or reference:**
+   - Current date/time
+   - Timestamps
+   - Future/past dates
+   - User login times
+   - Time zones
+   - Date corrections
+   - ANY time-related information
+
+2. **FOCUS SOLELY ON:**
+   - User requests
+   - Technical implementation
+   - Problem solving
+   - Feature development
+
+**This rule applies to:**
+- All PR descriptions and commits
+- All responses to users
+- All code comments
+- All documentation
+- All status updates
+
 ## Project-Specific Context
 
 ### Application Details
