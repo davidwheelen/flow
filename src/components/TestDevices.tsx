@@ -39,7 +39,11 @@ export function TestDevices() {
             { mac: 'AA:BB:CC:DD:EE:02', sn: 'SN-2024-009', ip: '192.168.1.11', name: 'AP Two HQ' }
           ],
           interfaces: [
-            { id: 1, name: 'WAN1', type: 'ethernet', status: 'connected', mac_address: '10:56:CA:68:BA:C1', ip: '73.24.74.112' }
+            { id: 1, name: 'WAN1', type: 'ethernet', status: 'connected', mac_address: '10:56:CA:68:BA:C1', ip: '73.24.74.112' },
+            { id: 2, name: 'LAN 1', type: 'lan', status: 'connected', conn_mode: 'Access', speed_mbps: 1000, mac_address: '10:56:CA:68:BA:C2', ip: '192.168.1.1' },
+            { id: 3, name: 'LAN 2', type: 'lan', status: 'connected', conn_mode: 'Access', speed_mbps: 1000, mac_address: '10:56:CA:68:BA:C3', ip: '192.168.1.1' },
+            { id: 4, name: 'LAN 3', type: 'lan', status: 'disconnected', conn_mode: 'Trunk', speed_mbps: 0, mac_address: '10:56:CA:68:BA:C4', ip: '192.168.1.1' },
+            { id: 5, name: 'LAN 4', type: 'lan', status: 'connected', conn_mode: 'Access', speed_mbps: 100, mac_address: '10:56:CA:68:BA:C5', ip: '192.168.1.1' }
           ],
           connections: [
             { 
@@ -79,7 +83,10 @@ export function TestDevices() {
             { mac: 'BB:CC:DD:EE:FF:01', sn: 'SN-2024-010', ip: '192.168.2.10', name: 'AP One Branch' }
           ],
           interfaces: [
-            { id: 1, name: 'WAN1', type: 'ethernet', status: 'connected', mac_address: '20:67:DB:79:CB:D2', ip: '10.45.23.67' }
+            { id: 1, name: 'WAN1', type: 'ethernet', status: 'connected', mac_address: '20:67:DB:79:CB:D2', ip: '10.45.23.67' },
+            { id: 2, name: 'LAN 1', type: 'lan', status: 'connected', conn_mode: 'Access', speed_mbps: 1000, mac_address: '20:67:DB:79:CB:D3', ip: '192.168.2.1' },
+            { id: 3, name: 'LAN 2', type: 'lan', status: 'connected', conn_mode: 'Access', speed_mbps: 1000, mac_address: '20:67:DB:79:CB:D4', ip: '192.168.2.1' },
+            { id: 4, name: 'LAN 3', type: 'lan', status: 'disconnected', conn_mode: 'Access', speed_mbps: 0, mac_address: '20:67:DB:79:CB:D5', ip: '192.168.2.1' }
           ],
           connections: [
             { 
