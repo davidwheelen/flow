@@ -169,7 +169,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
       let newY = e.clientY - dragOffset.y;
       
       // Constrain to canvas bounds
-      const minX = sidebarWidth + 10;
+      const minX = sidebarWidth;
       const maxX = window.innerWidth - panelWidth - 10;
       const minY = 10;
       const maxY = window.innerHeight - Math.min(panelHeight, 100) - 10;
