@@ -32,6 +32,16 @@ export interface IC2Interface {
   latency_ms?: number;
   upload_mbps?: number;
   download_mbps?: number;
+  // Extended fields for AP interfaces
+  displayName?: string;
+  frequencies?: string[];
+  ssids?: Array<{ name: string; security: string }>;
+  clientCount?: number;
+  metrics?: {
+    latency: number;
+    uploadSpeed: number;
+    downloadSpeed: number;
+  };
 }
 
 /**
