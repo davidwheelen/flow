@@ -6,6 +6,7 @@ import { X, ChevronRight, ChevronDown } from 'lucide-react';
 import { ParticleAnimation } from '@/lib/animations/ParticleAnimation';
 import { defaultThemes } from '@/themes/defaultThemes';
 import { EthernetPort } from '@/components/ui/EthernetPort';
+import { LANConnectionCard } from '@/components/ui/LANConnectionCard';
 import { pollingService } from '@/services/pollingService';
 
 // Particle animation configuration
@@ -366,12 +367,49 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
           </div>
         )}
         
-        {/* Connections */}
-        <div>
-          <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            WAN CONNECTIONS ({device.connections.length})
+        {/* LAN Connections Section */}
+        {device.connections.filter(conn => conn.type === 'lan').length > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              LAN CONNECTIONS ({device.connections.filter(conn => conn.type === 'lan').length})
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                gap: '8px',
+              }}
+            >
+              {device.connections
+                .filter(conn => conn.type === 'lan')
+                .map(conn => {
+                  // Try to find matching device name for the connection
+                  const connectedDeviceName = conn.device_id 
+                    ? (device.lanClients?.find(c => c.sn === conn.device_id)?.name || `Device ${conn.device_id}`)
+                    : 'Unknown';
+                  
+                  return (
+                    <LANConnectionCard
+                      key={conn.id}
+                      name={connectedDeviceName}
+                      type="LAN"
+                      speed={formatSpeed(conn.metrics.speedMbps)}
+                      isConnected={conn.status === 'connected'}
+                      colors={themeColors}
+                    />
+                  );
+                })}
+            </div>
           </div>
-          {device.connections.map((conn, index) => {
+        )}
+        
+        {/* WAN Connections Section */}
+        {device.connections.filter(conn => conn.type !== 'lan').length > 0 && (
+          <div>
+            <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              WAN CONNECTIONS ({device.connections.filter(conn => conn.type !== 'lan').length})
+            </div>
+            {device.connections.filter(conn => conn.type !== 'lan').map((conn, index, filteredArray) => {
             const isExpanded = wanExpandedState.get(conn.id) ?? true;
             const isAccessPoint = device.model.toLowerCase().includes('ap one') || 
                                  device.model.toLowerCase().includes('ap pro');
@@ -389,7 +427,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
                   background: 'rgba(255, 255, 255, 0.05)',
                   borderRadius: 8,
                   overflow: 'hidden',
-                  marginBottom: index < device.connections.length - 1 ? 8 : 0,
+                  marginBottom: index < filteredArray.length - 1 ? 8 : 0,
                 }}
               >
                 {/* WAN Header - Collapsible */}
@@ -566,7 +604,8 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
               </div>
             );
           })}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
