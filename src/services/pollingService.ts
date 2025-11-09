@@ -6,8 +6,8 @@
  */
 
 import { authService } from './authService';
-import { PeplinkDevice, ConnectionType, ConnectionStatus, LanClient } from '@/types/network.types';
-import { IC2DeviceData } from '@/types/incontrol.types';
+import { PeplinkDevice, ConnectionType, ConnectionStatus, LanClient, Connection } from '@/types/network.types';
+import { IC2DeviceData, IC2Interface } from '@/types/incontrol.types';
 
 /**
  * Rate limiter to ensure we don't exceed 20 req/sec
@@ -69,6 +69,113 @@ class RateLimiter {
 
     this.processing = false;
   }
+}
+
+/**
+ * Helper: Get frequencies from AP interfaces
+ */
+function getAPFrequencies(interfaces: IC2DeviceData['interfaces']): string[] {
+  if (!interfaces) return [];
+  
+  const frequencies: string[] = [];
+  interfaces.forEach(iface => {
+    if (iface.type === 'wifi' || iface.type === 'wlan' || iface.name?.toLowerCase().includes('wireless')) {
+      // Extract frequency information if available in interface data
+      // Common patterns: 2.4GHz, 5GHz, 6GHz
+      const name = iface.name?.toLowerCase() || '';
+      if (name.includes('2.4') || name.includes('2ghz')) {
+        frequencies.push('2.4 GHz');
+      } else if (name.includes('5') || name.includes('5ghz')) {
+        frequencies.push('5 GHz');
+      } else if (name.includes('6') || name.includes('6ghz')) {
+        frequencies.push('6 GHz');
+      } else {
+        // Default if we can't determine from name
+        frequencies.push('2.4/5 GHz');
+      }
+    }
+  });
+  
+  return [...new Set(frequencies)]; // Remove duplicates
+}
+
+/**
+ * Helper: Get security policy from interface
+ */
+function getSecurityPolicy(iface: IC2Interface): string {
+  // Check for security information in interface data
+  // Common security types: WPA2, WPA3, Open, etc.
+  const name = iface.name?.toLowerCase() || '';
+  
+  if (name.includes('wpa3')) return 'WPA3';
+  if (name.includes('wpa2')) return 'WPA2';
+  if (name.includes('wpa')) return 'WPA';
+  if (name.includes('open')) return 'Open';
+  
+  // Default to WPA2 as it's most common
+  return 'WPA2/WPA3';
+}
+
+/**
+ * Helper: Get SSIDs with security information from AP interfaces
+ */
+function getAPSSIDs(interfaces: IC2DeviceData['interfaces']): Array<{ name: string; security: string }> {
+  if (!interfaces) return [];
+  
+  const ssids: Array<{ name: string; security: string }> = [];
+  interfaces.forEach(iface => {
+    if (iface.type === 'wifi' || iface.type === 'wlan' || iface.name?.toLowerCase().includes('wireless')) {
+      const security = getSecurityPolicy(iface);
+      // Extract SSID name from interface name or use generic name
+      const ssidName = iface.name || `SSID-${iface.id}`;
+      ssids.push({ name: ssidName, security });
+    }
+  });
+  
+  return ssids;
+}
+
+/**
+ * Helper: Get connected clients count from LAN clients
+ */
+function getConnectedClients(lanClients?: LanClient[]): number {
+  return lanClients?.length || 0;
+}
+
+/**
+ * Helper: Map AP interface with wireless mesh details
+ */
+function mapAPInterface(iface: IC2Interface, device: IC2DeviceData): Connection {
+  const displayName = 'Wireless Mesh';
+  const frequencies = getAPFrequencies(device.interfaces);
+  const ssids = getAPSSIDs(device.interfaces);
+  const clientCount = getConnectedClients((device as IC2DeviceData & { lanClients?: LanClient[] }).lanClients);
+  
+  return {
+    id: `${device.id}-wifi-${iface.id}`,
+    type: 'wifi',
+    status: device.status?.toLowerCase() === 'online' ? 'connected' : 'disconnected',
+    metrics: {
+      speedMbps: iface.speed_mbps || 0,
+      latencyMs: iface.latency_ms || 0,
+      uploadMbps: iface.upload_mbps || 0,
+      downloadMbps: iface.download_mbps || 0,
+    },
+    wanDetails: {
+      id: String(iface.id),
+      name: displayName,
+      type: iface.type || 'wifi',
+      status: device.status?.toLowerCase() === 'online' ? 'connected' : 'disconnected',
+      ipAddress: iface.ip || '',
+      macAddress: iface.mac_address,
+    },
+    apDetails: {
+      displayName,
+      frequencies,
+      ssids,
+      clientCount,
+    },
+  };
 }
 
 /**
@@ -378,12 +485,10 @@ export class PollingService {
             // AP's ethernet WAN port
             connType = 'wan';
           } else if (iface.type === 'wifi' || iface.type === 'wlan' || iface.name?.toLowerCase().includes('wireless')) {
-            // AP's WiFi mesh connection
-            connType = 'wifi';
-            // For APs, if device is online and has a WiFi interface, consider it connected
-            if (device.status?.toLowerCase() === 'online') {
-              connStatus = 'connected';
-            }
+            // AP's WiFi mesh connection - use specialized mapper
+            const mappedAPInterface = mapAPInterface(iface, device);
+            connections.push(mappedAPInterface);
+            return; // Skip regular mapping for AP WiFi interfaces
           } else {
             return; // Skip other interface types for APs
           }
@@ -475,6 +580,13 @@ export class PollingService {
    */
   isPolling(): boolean {
     return this.intervalId !== null;
+  }
+
+  /**
+   * Manually trigger a refresh (useful for on-demand updates)
+   */
+  async refresh(): Promise<void> {
+    await this.poll();
   }
 }
 

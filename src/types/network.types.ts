@@ -35,6 +35,13 @@ export interface WANConnection {
   serviceProvider?: string;
 }
 
+export interface APDetails {
+  displayName: string;
+  frequencies: string[];
+  ssids: Array<{ name: string; security: string }>;
+  clientCount: number;
+}
+
 export interface Connection {
   id: string;
   type: ConnectionType;
@@ -42,6 +49,7 @@ export interface Connection {
   metrics: NetworkMetrics;
   device_id?: string; // Optional device ID for device-to-device connections
   wanDetails?: WANConnection; // Add WAN-specific details
+  apDetails?: APDetails; // Add AP-specific details for wireless mesh
 }
 
 export interface PeplinkDevice {

@@ -6,11 +6,15 @@ import { X, ChevronRight, ChevronDown } from 'lucide-react';
 import { ParticleAnimation } from '@/lib/animations/ParticleAnimation';
 import { defaultThemes } from '@/themes/defaultThemes';
 import { EthernetPort } from '@/components/ui/EthernetPort';
+import { pollingService } from '@/services/pollingService';
 
 // Particle animation configuration
 const PARTICLE_OPACITY = 0.4;
 const PARTICLE_COUNT = 50;
-const PARTICLE_SPEED = 1;
+const PARTICLE_SPEED = 0.5; // Slowed down particle movement
+
+// Refresh interval configuration (in milliseconds)
+const REFRESH_INTERVAL_MS = 5000; // 5 seconds
 
 // Panel layout constants
 const HEADER_PADDING = 20;
@@ -97,6 +101,26 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
     animation.start();
     return () => animation.stop();
   }, [themeColors, device.status]);
+  
+  // Refresh device data when panel opens and periodically while open
+  useEffect(() => {
+    // Trigger immediate refresh when panel opens
+    pollingService.refresh().catch(err => {
+      console.error('Failed to refresh device data:', err);
+    });
+    
+    // Set up periodic refresh while panel is open
+    const refreshInterval = setInterval(() => {
+      pollingService.refresh().catch(err => {
+        console.error('Failed to refresh device data:', err);
+      });
+    }, REFRESH_INTERVAL_MS);
+    
+    // Clear interval on unmount
+    return () => {
+      clearInterval(refreshInterval);
+    };
+  }, [device.id]); // Re-run when device changes
   
   const toggleWanExpanded = (wanId: string) => {
     setWanExpandedState(prev => {
@@ -480,6 +504,61 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
                             Health Check: {conn.wanDetails.healthCheckMethod}
                           </div>
                         )}
+                      </div>
+                    )}
+                    
+                    {/* Wireless Mesh Details for AP devices */}
+                    {conn.apDetails && (
+                      <div style={{ paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                        {/* Frequencies */}
+                        {conn.apDetails.frequencies.length > 0 && (
+                          <div style={{ marginBottom: 8 }}>
+                            <div style={{ color: '#a0a0a0', fontSize: 10, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                              Frequencies
+                            </div>
+                            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                              {conn.apDetails.frequencies.map((freq, idx) => (
+                                <div
+                                  key={idx}
+                                  style={{
+                                    fontSize: 11,
+                                    color: '#e0e0e0',
+                                    background: 'rgba(59, 130, 246, 0.2)',
+                                    padding: '2px 8px',
+                                    borderRadius: 4,
+                                  }}
+                                >
+                                  {freq}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* SSIDs with Security */}
+                        {conn.apDetails.ssids.length > 0 && (
+                          <div style={{ marginBottom: 8 }}>
+                            <div style={{ color: '#a0a0a0', fontSize: 10, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                              SSIDs
+                            </div>
+                            {conn.apDetails.ssids.map((ssid, idx) => (
+                              <div key={idx} style={{ fontSize: 11, color: '#e0e0e0', marginBottom: 3 }}>
+                                <span style={{ fontFamily: 'monospace' }}>{ssid.name}</span>
+                                <span style={{ color: '#a0a0a0', marginLeft: 8 }}>({ssid.security})</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {/* Connected Clients */}
+                        <div>
+                          <div style={{ color: '#a0a0a0', fontSize: 10, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            Connected Clients
+                          </div>
+                          <div style={{ fontSize: 13, color: '#e0e0e0', fontWeight: 500 }}>
+                            {conn.apDetails.clientCount} {conn.apDetails.clientCount === 1 ? 'client' : 'clients'}
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
