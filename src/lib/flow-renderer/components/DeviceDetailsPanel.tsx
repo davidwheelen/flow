@@ -342,6 +342,84 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
           </div>
         )}
         
+        {/* Wireless Mesh Section */}
+        {device.interfaces && device.interfaces.filter(iface => iface.displayName === 'Wireless Mesh' || (iface.type === 'wifi' && device.model.toLowerCase().includes('ap'))).length > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              WIRELESS MESH
+            </div>
+            {device.interfaces
+              .filter(iface => iface.displayName === 'Wireless Mesh' || (iface.type === 'wifi' && device.model.toLowerCase().includes('ap')))
+              .map(mesh => (
+                <div
+                  key={mesh.id}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: 8,
+                    padding: 12,
+                    marginBottom: 8,
+                  }}
+                >
+                  <h4 style={{ color: '#e0e0e0', fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+                    {mesh.displayName || 'Wireless Mesh'}
+                  </h4>
+                  
+                  {/* Frequencies */}
+                  {mesh.frequencies && mesh.frequencies.length > 0 && (
+                    <div style={{ marginBottom: 6 }}>
+                      <span style={{ color: '#a0a0a0', fontSize: 11 }}>Frequency: </span>
+                      <span style={{ color: '#e0e0e0', fontSize: 12 }}>{mesh.frequencies.join(' + ')}</span>
+                    </div>
+                  )}
+                  
+                  {/* Metrics */}
+                  {mesh.metrics && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
+                      <div>
+                        <div style={{ color: '#707070', fontSize: 10, marginBottom: 2 }}>Latency</div>
+                        <div style={{ color: '#e0e0e0', fontSize: 13 }}>
+                          {mesh.metrics.latency ? `${mesh.metrics.latency} ms` : '—'}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#707070', fontSize: 10, marginBottom: 2 }}>Upload</div>
+                        <div style={{ color: '#e0e0e0', fontSize: 13 }}>
+                          {mesh.metrics.uploadSpeed ? formatSpeed(mesh.metrics.uploadSpeed) : '—'}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#707070', fontSize: 10, marginBottom: 2 }}>Download</div>
+                        <div style={{ color: '#e0e0e0', fontSize: 13 }}>
+                          {mesh.metrics.downloadSpeed ? formatSpeed(mesh.metrics.downloadSpeed) : '—'}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* SSIDs */}
+                  {mesh.ssids && mesh.ssids.length > 0 && (
+                    <div style={{ marginBottom: 6 }}>
+                      <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 4 }}>SSIDs:</div>
+                      <ul style={{ margin: 0, paddingLeft: 20, color: '#e0e0e0', fontSize: 12 }}>
+                        {mesh.ssids.map((s, i) => (
+                          <li key={i}>{s.name} ({s.security})</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {/* Connected Clients */}
+                  {mesh.clientCount !== undefined && (
+                    <div>
+                      <span style={{ color: '#a0a0a0', fontSize: 11 }}>Connected Clients: </span>
+                      <span style={{ color: '#e0e0e0', fontSize: 12 }}>{mesh.clientCount}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+          </div>
+        )}
+        
         {/* Connections */}
         <div>
           <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>

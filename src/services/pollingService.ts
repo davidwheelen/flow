@@ -7,7 +7,7 @@
 
 import { authService } from './authService';
 import { PeplinkDevice, ConnectionType, ConnectionStatus, LanClient } from '@/types/network.types';
-import { IC2DeviceData } from '@/types/incontrol.types';
+import { IC2DeviceData, IC2Interface } from '@/types/incontrol.types';
 
 /**
  * Rate limiter to ensure we don't exceed 20 req/sec
@@ -332,6 +332,61 @@ export class PollingService {
   }
 
   /**
+   * Get AP frequencies from interface
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private getAPFrequencies(_iface: IC2Interface): string[] {
+    // For now, return empty array. This can be extended when API provides frequency data
+    return [];
+  }
+
+  /**
+   * Get AP SSIDs from interface
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private getAPSSIDs(_iface: IC2Interface): Array<{ name: string; security: string }> {
+    // For now, return empty array. This can be extended when API provides SSID data
+    return [];
+  }
+
+  /**
+   * Get connected clients count from interface
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private getConnectedClients(_iface: IC2Interface): number {
+    // For now, return 0. This can be extended when API provides client count data
+    return 0;
+  }
+
+  /**
+   * Map AP interface with display name and metrics
+   */
+  private mapAPInterface(iface: IC2Interface): IC2Interface & {
+    displayName: string;
+    frequencies: string[];
+    ssids: Array<{ name: string; security: string }>;
+    clientCount: number;
+    metrics: {
+      latency: number;
+      uploadSpeed: number;
+      downloadSpeed: number;
+    };
+  } {
+    return {
+      ...iface,
+      displayName: 'Wireless Mesh',
+      frequencies: this.getAPFrequencies(iface),
+      ssids: this.getAPSSIDs(iface),
+      clientCount: this.getConnectedClients(iface),
+      metrics: {
+        latency: iface.latency_ms ?? 0,
+        uploadSpeed: iface.upload_mbps ?? 0,
+        downloadSpeed: iface.download_mbps ?? 0
+      }
+    };
+  }
+
+  /**
    * Map IC2DeviceData to PeplinkDevice
    */
   private mapDevice(device: IC2DeviceData, index: number): PeplinkDevice {
@@ -463,10 +518,20 @@ export class PollingService {
       connections,
       position,
       lanClients: (device as IC2DeviceData & { lanClients?: LanClient[] }).lanClients || [], // Include LAN clients
-      interfaces: device.interfaces?.map(iface => ({
-        ...iface,
-        mac_address: macAddressMap.get(iface.id) // ADD MAC ADDRESS from pre-built map
-      })),
+      interfaces: device.interfaces?.map(iface => {
+        // For AP wifi interfaces, use mapAPInterface to add display name and metrics
+        if (isAccessPoint && (iface.type === 'wifi' || iface.type === 'wlan' || iface.name?.toLowerCase().includes('wireless'))) {
+          return {
+            ...this.mapAPInterface(iface),
+            mac_address: macAddressMap.get(iface.id)
+          };
+        }
+        // For other interfaces, just add MAC address
+        return {
+          ...iface,
+          mac_address: macAddressMap.get(iface.id)
+        };
+      }),
     };
   }
 
