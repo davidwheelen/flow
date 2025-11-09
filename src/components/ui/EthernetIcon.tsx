@@ -14,12 +14,12 @@ export const EthernetIcon: React.FC<EthernetIconProps> = ({
   size = 48
 }) => {
   const iconRef = useRef<SVGSVGElement>(null);
-  const pathRef = useRef<SVGPathElement>(null);
+  const circleRef = useRef<SVGCircleElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!isConnected || !useAnimation || !pathRef.current) {
+    if (!isConnected || !useAnimation || !circleRef.current) {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
@@ -49,8 +49,8 @@ export const EthernetIcon: React.FC<EthernetIconProps> = ({
         colorProgress
       );
       
-      if (pathRef.current) {
-        pathRef.current.style.fill = currentColor;
+      if (circleRef.current) {
+        circleRef.current.style.fill = currentColor;
       }
       
       animationFrameRef.current = requestAnimationFrame(animate);
@@ -78,14 +78,48 @@ export const EthernetIcon: React.FC<EthernetIconProps> = ({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
+      {/* RJ-45 Ethernet Port Body */}
+      <rect
+        x="3"
+        y="6"
+        width="18"
+        height="12"
+        rx="1.5"
+        stroke={baseColor}
+        strokeWidth="1.5"
+        fill="rgba(0, 0, 0, 0.3)"
+      />
+      
+      {/* Ethernet Port Pins (Top) */}
+      <g stroke={baseColor} strokeWidth="1" fill="none">
+        <line x1="5" y1="6" x2="5" y2="9" />
+        <line x1="7.5" y1="6" x2="7.5" y2="9" />
+        <line x1="10" y1="6" x2="10" y2="9" />
+        <line x1="12.5" y1="6" x2="12.5" y2="9" />
+        <line x1="15" y1="6" x2="15" y2="9" />
+        <line x1="17.5" y1="6" x2="17.5" y2="9" />
+        <line x1="19" y1="6" x2="19" y2="9" />
+      </g>
+      
+      {/* Cable Notch (Bottom) */}
       <path
-        ref={pathRef}
-        d="M3 9h18M3 15h18M7 3v18M17 3v18M3 7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
-        stroke={isConnected && useAnimation ? undefined : baseColor}
-        fill={isConnected && useAnimation ? baseColor : 'none'}
-        strokeWidth="2"
+        d="M10 18 L10 15 L14 15 L14 18"
+        stroke={baseColor}
+        strokeWidth="1.5"
+        fill="rgba(0, 0, 0, 0.2)"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+      
+      {/* Status Indicator - Animated when connected */}
+      <circle
+        ref={circleRef}
+        cx="12"
+        cy="12"
+        r="2.5"
+        stroke={isConnected && useAnimation ? undefined : baseColor}
+        fill={isConnected && useAnimation ? baseColor : 'none'}
+        strokeWidth="1.5"
         style={{
           transition: isConnected && useAnimation ? 'none' : 'fill 0.3s ease',
         }}
