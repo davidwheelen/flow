@@ -72,20 +72,23 @@ export const EthernetIcon: React.FC<EthernetIconProps> = ({
   return (
     <svg
       ref={iconRef}
-      viewBox="0 0 24 24"
+      viewBox="0 0 16 16"
       width={size}
       height={size}
-      fill="none"
+      fill={isConnected && useAnimation ? undefined : baseColor}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
         ref={pathRef}
-        d="M3 9h18M3 15h18M7 3v18M17 3v18M3 7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
-        stroke={isConnected && useAnimation ? undefined : baseColor}
-        fill={isConnected && useAnimation ? baseColor : 'none'}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        d="M10 3H6v1h4V3zM8 5H6v.5h2V5zm2 0h-1v.5h1V5zm1.5.5h-1v1H12V8h.5V6a.5.5 0 0 0-.5-.5zM8 7h1v1H8V7zm-2 0h1v1H6V7zm-1-.5H4v1h1v-1zm6 0h-1v1h1v-1zm1 2.5V8h-1v1.5h-1V8H9v1.5H7V8H6v1.5H5V8H4v1c0 .28.22.5.5.5h1v1H4v1h1v.5h1V11h1v1h2v-1h1v1.5h1V11h1v1h1v-1h-1.5v-1h1a.5.5 0 0 0 .5-.5V8h-1v1.5h-1z"
+        fill={isConnected && useAnimation ? baseColor : undefined}
+        style={{
+          transition: isConnected && useAnimation ? 'none' : 'fill 0.3s ease',
+        }}
+      />
+      <path
+        d="M4.5 0A2.5 2.5 0 0 0 2 2.5v11A2.5 2.5 0 0 0 4.5 16h7a2.5 2.5 0 0 0 2.5-2.5v-11A2.5 2.5 0 0 0 11.5 0h-7zM3 2.5A1.5 1.5 0 0 1 4.5 1h7A1.5 1.5 0 0 1 13 2.5v11a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13.5v-11z"
+        fill={isConnected && useAnimation ? undefined : baseColor}
         style={{
           transition: isConnected && useAnimation ? 'none' : 'fill 0.3s ease',
         }}

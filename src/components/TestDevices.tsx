@@ -39,7 +39,12 @@ export function TestDevices() {
             { mac: 'AA:BB:CC:DD:EE:02', sn: 'SN-2024-009', ip: '192.168.1.11', name: 'AP Two HQ' }
           ],
           interfaces: [
-            { id: 1, name: 'WAN1', type: 'ethernet', status: 'connected', mac_address: '10:56:CA:68:BA:C1', ip: '73.24.74.112' }
+            { id: 1, name: 'WAN1', type: 'ethernet', virtualType: 'wan', status: 'Connected', mac_address: '10:56:CA:68:BA:C1', ip: '73.24.74.112', speed_mbps: 1000 },
+            { id: 2, name: 'WAN2', type: 'ethernet', virtualType: 'wan', status: 'Disconnected', mac_address: '10:56:CA:68:BA:C2', speed_mbps: 1000 },
+            { id: 3, name: 'LAN1', type: 'lan', status: 'Connected', mac_address: '10:56:CA:68:BA:D1', ip: '192.168.1.2', speed_mbps: 1000 },
+            { id: 4, name: 'LAN2', type: 'lan', status: 'Connected', mac_address: '10:56:CA:68:BA:D2', ip: '192.168.1.3', speed_mbps: 1000 },
+            { id: 5, name: 'LAN3', type: 'ethernet', status: 'Connected', mac_address: '10:56:CA:68:BA:D3', ip: '192.168.1.4', speed_mbps: 100 },
+            { id: 6, name: 'LAN4', type: 'ethernet', status: 'Disconnected', mac_address: '10:56:CA:68:BA:D4', speed_mbps: 10 }
           ],
           connections: [
             { 
@@ -79,7 +84,13 @@ export function TestDevices() {
             { mac: 'BB:CC:DD:EE:FF:01', sn: 'SN-2024-010', ip: '192.168.2.10', name: 'AP One Branch' }
           ],
           interfaces: [
-            { id: 1, name: 'WAN1', type: 'ethernet', status: 'connected', mac_address: '20:67:DB:79:CB:D2', ip: '10.45.23.67' }
+            { id: 1, name: 'WAN1', type: 'ethernet', virtualType: 'wan', status: 'Connected', mac_address: '20:67:DB:79:CB:D2', ip: '10.45.23.67', speed_mbps: 1000 },
+            { id: 2, name: 'WAN2', type: 'ethernet', virtualType: 'wan', status: 'Connected', mac_address: '20:67:DB:79:CB:D3', ip: '10.45.23.68', speed_mbps: 1000 },
+            { id: 3, name: 'WAN3', type: 'cellular', virtualType: 'wan', status: 'Standby', mac_address: '20:67:DB:79:CB:D4', speed_mbps: 0 },
+            { id: 4, name: 'LAN1', type: 'lan', status: 'Connected', mac_address: '20:67:DB:79:CB:E1', ip: '192.168.2.2', speed_mbps: 1000 },
+            { id: 5, name: 'LAN2', type: 'lan', status: 'Connected', mac_address: '20:67:DB:79:CB:E2', ip: '192.168.2.3', speed_mbps: 1000 },
+            { id: 6, name: 'LAN3', type: 'ethernet', status: 'Connected', mac_address: '20:67:DB:79:CB:E3', ip: '192.168.2.4', speed_mbps: 1000 },
+            { id: 7, name: 'LAN4', type: 'ethernet', status: 'Disconnected', mac_address: '20:67:DB:79:CB:E4', speed_mbps: 1000 }
           ],
           connections: [
             { 
@@ -117,7 +128,12 @@ export function TestDevices() {
           ipAddress: '192.168.3.1',
           lanClients: [],
           interfaces: [
-            { id: 1, name: 'WAN1', type: 'ethernet', status: 'connected', mac_address: '30:78:EC:8A:DC:E3', ip: '192.168.3.100' }
+            { id: 1, name: 'WAN1', type: 'ethernet', virtualType: 'wan', status: 'Connected', mac_address: '30:78:EC:8A:DC:E3', ip: '192.168.3.100', speed_mbps: 1000 },
+            { id: 2, name: 'WAN2', type: 'ethernet', virtualType: 'wan', status: 'Disconnected', mac_address: '30:78:EC:8A:DC:E4', speed_mbps: 1000 },
+            { id: 3, name: 'LAN1', type: 'lan', status: 'Connected', mac_address: '30:78:EC:8A:DC:F1', ip: '192.168.3.2', speed_mbps: 1000 },
+            { id: 4, name: 'LAN2', type: 'lan', status: 'Connected', mac_address: '30:78:EC:8A:DC:F2', ip: '192.168.3.3', speed_mbps: 1000 },
+            { id: 5, name: 'LAN3', type: 'ethernet', status: 'Disconnected', mac_address: '30:78:EC:8A:DC:F3', speed_mbps: 100 },
+            { id: 6, name: 'LAN4', type: 'ethernet', status: 'Connected', mac_address: '30:78:EC:8A:DC:F4', ip: '192.168.3.4', speed_mbps: 1000 }
           ],
           connections: [
             { 
