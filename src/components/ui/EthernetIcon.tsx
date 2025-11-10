@@ -72,20 +72,23 @@ export const EthernetIcon: React.FC<EthernetIconProps> = ({
   return (
     <svg
       ref={iconRef}
-      viewBox="0 0 24 24"
+      viewBox="0 0 16 16"
       width={size}
       height={size}
-      fill="none"
+      fill={isConnected && useAnimation ? undefined : baseColor}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
         ref={pathRef}
-        d="M3 9h18M3 15h18M7 3v18M17 3v18M3 7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
-        stroke={isConnected && useAnimation ? undefined : baseColor}
-        fill={isConnected && useAnimation ? baseColor : 'none'}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        d="M14 13.5v-7a.5.5 0 0 0-.5-.5H12V4.5a.5.5 0 0 0-.5-.5h-1v-.5A.5.5 0 0 0 10 3H6a.5.5 0 0 0-.5.5V4h-1a.5.5 0 0 0-.5.5V6H2.5a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5M3.75 11h.5a.25.25 0 0 1 .25.25v1.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-1.5a.25.25 0 0 1 .25-.25m2 0h.5a.25.25 0 0 1 .25.25v1.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-1.5a.25.25 0 0 1 .25-.25m1.75.25a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v1.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm2.25-.25h.5a.25.25 0 0 1 .25.25v1.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-1.5a.25.25 0 0 1 .25-.25m1.75.25a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v1.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25z"
+        fill={isConnected && useAnimation ? baseColor : undefined}
+        style={{
+          transition: isConnected && useAnimation ? 'none' : 'fill 0.3s ease',
+        }}
+      />
+      <path
+        d="M6 4.5H4.75a.75.75 0 0 0 0 1.5h.5a.25.25 0 0 1 .25.25v4.5a.25.25 0 0 1-.25.25h-.5a.75.75 0 0 0 0 1.5H6zm4 0h1.25a.75.75 0 0 1 0 1.5h-.5a.25.25 0 0 0-.25.25v4.5c0 .138.112.25.25.25h.5a.75.75 0 0 1 0 1.5H10z"
+        fill={isConnected && useAnimation ? baseColor : undefined}
         style={{
           transition: isConnected && useAnimation ? 'none' : 'fill 0.3s ease',
         }}

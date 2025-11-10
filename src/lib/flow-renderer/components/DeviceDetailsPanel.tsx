@@ -338,7 +338,9 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         </div>
         
         {/* LAN Ports Section */}
-        {device.interfaces && device.interfaces.filter(iface => iface.type === 'lan' || iface.type === 'ethernet').length > 0 && (
+        {device.interfaces && device.interfaces.filter(iface => 
+          (iface.type === 'lan' || iface.type === 'ethernet') && iface.virtualType !== 'wan'
+        ).length > 0 && (
           <div style={{ marginBottom: 16 }}>
             <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               LAN PORTS
@@ -346,18 +348,18 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
                 gap: '8px',
               }}
             >
               {device.interfaces
-                .filter(iface => iface.type === 'lan' || iface.type === 'ethernet')
+                .filter(iface => (iface.type === 'lan' || iface.type === 'ethernet') && iface.virtualType !== 'wan')
                 .map(port => (
                   <EthernetPort
                     key={port.id}
                     name={port.name}
-                    type={port.conn_mode || 'Access'}
-                    speed={formatSpeed(port.speed_mbps)}
+                    status={port.status?.toLowerCase() === 'connected' ? formatSpeed(port.speed_mbps) : 'Disconnected'}
+                    ip={port.ip || 'N/A'}
                     isConnected={port.status?.toLowerCase() === 'connected'}
                     colors={themeColors}
                   />
