@@ -6,15 +6,13 @@ interface PortProps {
   type: string;
   speed: string;
   isConnected: boolean;
-  colors?: string[];
 }
 
 export const EthernetPort: React.FC<PortProps> = ({ 
   name, 
   type, 
   speed, 
-  isConnected,
-  colors = ['#3b82f6', '#8b5cf6', '#ec4899']
+  isConnected
 }) => {
   return (
     <div
@@ -51,8 +49,6 @@ export const EthernetPort: React.FC<PortProps> = ({
       >
         <EthernetIcon
           isConnected={isConnected}
-          useAnimation={isConnected}
-          colors={colors}
           size={48}
         />
       </div>
