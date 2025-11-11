@@ -369,9 +369,19 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         {/* Connections */}
         <div>
           <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            WAN CONNECTIONS ({device.connections.length})
+            WAN CONNECTIONS ({device.connections.filter(conn => {
+              // Exclude LAN connections from count and display
+              const connName = conn.wanDetails?.name || conn.type;
+              return !connName?.toLowerCase().includes('lan');
+            }).length})
           </div>
-          {device.connections.map((conn, index) => {
+          {device.connections
+            .filter(conn => {
+              // Exclude LAN connections from display (but keep in connections array for grid lines)
+              const connName = conn.wanDetails?.name || conn.type;
+              return !connName?.toLowerCase().includes('lan');
+            })
+            .map((conn, index, filteredArray) => {
             const isExpanded = wanExpandedState.get(conn.id) ?? true;
             const isAccessPoint = device.model.toLowerCase().includes('ap one') || 
                                  device.model.toLowerCase().includes('ap pro');
@@ -389,7 +399,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
                   background: 'rgba(255, 255, 255, 0.05)',
                   borderRadius: 8,
                   overflow: 'hidden',
-                  marginBottom: index < device.connections.length - 1 ? 8 : 0,
+                  marginBottom: index < filteredArray.length - 1 ? 8 : 0,
                 }}
               >
                 {/* WAN Header - Collapsible */}
