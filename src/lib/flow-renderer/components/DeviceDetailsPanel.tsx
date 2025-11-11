@@ -338,7 +338,16 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         </div>
         
         {/* LAN Ports Section */}
-        {device.interfaces && device.interfaces.filter(iface => (iface.type === 'lan' || iface.type === 'ethernet') && iface.virtualType !== 'wan').length > 0 && (
+        {device.interfaces && device.interfaces.filter(iface => {
+          // Exclude if virtualType is explicitly 'wan' (for test data compatibility)
+          if (iface.virtualType === 'wan') return false;
+          
+          // Exclude if name contains 'wan' (case-insensitive) - for ACTUAL API data
+          if (iface.name?.toLowerCase().includes('wan')) return false;
+          
+          // Include only 'lan' or 'ethernet' types
+          return iface.type === 'lan' || iface.type === 'ethernet';
+        }).length > 0 && (
           <div style={{ marginBottom: 16 }}>
             <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               LAN PORTS
@@ -351,7 +360,16 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
               }}
             >
               {device.interfaces
-                .filter(iface => (iface.type === 'lan' || iface.type === 'ethernet') && iface.virtualType !== 'wan')
+                .filter(iface => {
+                  // Exclude if virtualType is explicitly 'wan' (for test data compatibility)
+                  if (iface.virtualType === 'wan') return false;
+                  
+                  // Exclude if name contains 'wan' (case-insensitive) - for ACTUAL API data
+                  if (iface.name?.toLowerCase().includes('wan')) return false;
+                  
+                  // Include only 'lan' or 'ethernet' types
+                  return iface.type === 'lan' || iface.type === 'ethernet';
+                })
                 .map(port => (
                   <EthernetPort
                     key={port.id}
