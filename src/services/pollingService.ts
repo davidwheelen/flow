@@ -568,10 +568,21 @@ export class PollingService {
       connections,
       position,
       lanClients: (device as IC2DeviceData & { lanClients?: LanClient[] }).lanClients || [], // Include LAN clients
-      interfaces: device.interfaces?.map(iface => ({
-        ...iface,
-        mac_address: macAddressMap.get(iface.id) // ADD MAC ADDRESS from pre-built map
-      })),
+      interfaces: device.interfaces?.map(iface => {
+        // Debug: Log interface data to see what InControl2 is returning
+        console.log(`[DEBUG] Device: ${device.name}, Interface:`, {
+          id: iface.id,
+          name: iface.name,
+          type: iface.type,
+          virtualType: iface.virtualType,
+          status: iface.status
+        });
+        
+        return {
+          ...iface,
+          mac_address: macAddressMap.get(iface.id)
+        };
+      }),
     };
   }
 
