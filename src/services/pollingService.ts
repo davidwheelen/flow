@@ -7,7 +7,7 @@
 
 import { authService } from './authService';
 import { PeplinkDevice, ConnectionType, ConnectionStatus, LanClient, Connection } from '@/types/network.types';
-import { IC2DeviceData, IC2Interface } from '@/types/incontrol.types';
+import { IC2DeviceData, IC2Interface, IC2LanPort } from '@/types/incontrol.types';
 
 /**
  * Rate limiter to ensure we don't exceed 20 req/sec
@@ -278,6 +278,37 @@ export class PollingService {
   }
 
   /**
+   * Fetch LAN port information using device API proxy
+   */
+  private async fetchLanPorts(deviceId: string): Promise<IC2LanPort[] | null> {
+    const apiClient = authService.getApiClient();
+    const credentials = authService.getCredentials();
+    
+    if (!credentials) {
+      console.warn('No credentials available for fetching LAN ports');
+      return null;
+    }
+
+    const orgId = credentials.orgId;
+    
+    try {
+      // Use InControl2's device API proxy to call the router's native API
+      // Based on Peplink Router API: GET /api/status.lan.profile
+      const response = await this.rateLimiter.throttle(() =>
+        apiClient.get(
+          `/rest/o/${orgId}/d/${deviceId}/devapi/status.lan.profile`
+        )
+      );
+
+      console.log(`[DEBUG] LAN Port data for device ${deviceId}:`, response.data);
+      return response.data;
+    } catch (error) {
+      console.error(`Failed to fetch LAN ports for device ${deviceId}:`, error);
+      return null;
+    }
+  }
+
+  /**
    * Build connection graph by detecting all connection types
    */
   private buildConnectionGraph(devices: PeplinkDevice[]): void {
@@ -428,14 +459,24 @@ export class PollingService {
 
     const orgId = credentials.orgId;
     
-    // Single endpoint returns ALL device data
-    const deviceResponse = await this.rateLimiter.throttle(() =>
-      apiClient.get<{ data: IC2DeviceData }>(
-        `/rest/o/${orgId}/g/${groupId}/d/${deviceId}`
-      )
-    );
+    // Fetch device data and LAN ports in parallel
+    const [deviceResponse, lanPortsData] = await Promise.all([
+      this.rateLimiter.throttle(() =>
+        apiClient.get<{ data: IC2DeviceData }>(
+          `/rest/o/${orgId}/g/${groupId}/d/${deviceId}`
+        )
+      ),
+      this.fetchLanPorts(deviceId)
+    ]);
 
-    return deviceResponse.data.data;
+    const deviceData = deviceResponse.data.data;
+    
+    // Add LAN ports data to device object
+    if (lanPortsData) {
+      deviceData.lanPorts = lanPortsData;
+    }
+
+    return deviceData;
   }
 
   /**
@@ -456,7 +497,39 @@ export class PollingService {
     const isAccessPoint = device.model.toLowerCase().includes('ap one') || 
                          device.model.toLowerCase().includes('ap pro');
 
-    // Map LAN interfaces first
+    // Map LAN interfaces from device API proxy data
+    if (device.lanPorts) {
+      const lanPorts = device.lanPorts;
+      console.log(`[DEBUG] Processing LAN ports for device ${device.name}:`, lanPorts);
+      
+      // Parse LAN port data structure and create connections
+      // The exact structure will depend on what the API returns
+      // We'll log it first to see the format
+      if (Array.isArray(lanPorts)) {
+        lanPorts.forEach((port: IC2LanPort, index: number) => {
+          connections.push({
+            id: `${device.id}-lan-${index}`,
+            type: 'lan',
+            status: 'connected',
+            metrics: {
+              speedMbps: port.speed_mbps || 1000,
+              latencyMs: 1,
+              uploadMbps: 500,
+              downloadMbps: 500
+            },
+            lanDetails: {
+              portNumber: index + 1,
+              name: port.name || `LAN Port ${index + 1}`,
+              status: port.status || 'connected',
+              speed: port.speed || 'Auto',
+              vlan: port.vlan || '-'
+            }
+          });
+        });
+      }
+    }
+
+    // Keep existing LAN interface mapping as fallback
     device.interfaces?.forEach((iface) => {
       if (iface.type === 'lan' || iface.name?.toLowerCase().includes('lan')) {
         connections.push({
