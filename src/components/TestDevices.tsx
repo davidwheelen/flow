@@ -39,9 +39,35 @@ export function TestDevices() {
             { mac: 'AA:BB:CC:DD:EE:02', sn: 'SN-2024-009', ip: '192.168.1.11', name: 'AP Two HQ' }
           ],
           interfaces: [
-            { id: 1, name: 'WAN1', type: 'ethernet', status: 'connected', mac_address: '10:56:CA:68:BA:C1', ip: '73.24.74.112' }
+            { id: 1, name: 'WAN1', type: 'ethernet', virtualType: 'wan', status: 'connected', mac_address: '10:56:CA:68:BA:C1', ip: '73.24.74.112', speed_mbps: 1000 },
+            { id: 2, name: 'WAN2', type: 'ethernet', virtualType: 'wan', status: 'disconnected', mac_address: '10:56:CA:68:BA:C2', speed_mbps: 1000 },
+            { id: 3, name: 'LAN 1', type: 'lan', status: 'connected', mac_address: '10:56:CA:68:BA:C3', speed_mbps: 1000 },
+            { id: 4, name: 'LAN 2', type: 'lan', status: 'connected', mac_address: '10:56:CA:68:BA:C4', speed_mbps: 1000 },
+            { id: 5, name: 'LAN 3', type: 'lan', status: 'disconnected', mac_address: '10:56:CA:68:BA:C5', speed_mbps: 1000 },
+            { id: 6, name: 'LAN 4', type: 'lan', status: 'disconnected', mac_address: '10:56:CA:68:BA:C6', speed_mbps: 1000 }
           ],
           connections: [
+            { 
+              id: 'device-1-wan1', 
+              type: 'wan', 
+              status: 'connected',
+              metrics: { speedMbps: 1000, latencyMs: 15, uploadMbps: 100, downloadMbps: 500 },
+              wanDetails: {
+                id: 'wan1',
+                name: 'WAN1',
+                type: 'ethernet',
+                status: 'connected',
+                ipAddress: '73.24.74.112',
+                subnetMask: '255.255.255.0',
+                macAddress: '10:56:CA:68:BA:C1',
+                gateway: '73.24.74.1',
+                dnsServers: ['8.8.8.8', '8.8.4.4'],
+                connectionMethod: 'DHCP',
+                routingMode: 'NAT',
+                mtu: 1500,
+                healthCheckMethod: 'ping'
+              }
+            },
             { 
               id: 'device-1-to-device-8', 
               type: 'lan', 
