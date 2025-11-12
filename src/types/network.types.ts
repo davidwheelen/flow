@@ -51,11 +51,16 @@ export interface Connection {
   wanDetails?: WANConnection; // Add WAN-specific details
   apDetails?: APDetails; // Add AP-specific details for wireless mesh
   lanDetails?: {
-    portNumber: number;
+    portNumber: number; // 0 = LAN Network, -1 = VLAN, 1+ = physical port
     name: string;
     status: string;
-    speed: string;
-    vlan: string;
+    speed?: string;
+    vlan?: string;
+    mac?: string;        // MAC address for LAN Network
+    ipRange?: string;    // IP range (CIDR notation)
+    gateway?: string;    // Gateway IP
+    clientCount?: number;// Connected clients count
+    vlanId?: number;     // VLAN ID for VLAN connections
   };
 }
 
