@@ -53,6 +53,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [wanExpandedState, setWanExpandedState] = useState<Map<string, boolean>>(new Map());
+  const [vlanExpanded, setVlanExpanded] = useState(true);
   const panelRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { appearanceSettings } = useAppStore();
@@ -340,104 +341,78 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         {/* LAN Network & VLANs Section */}
         {device.connections && device.connections.filter(c => c.type === 'lan').length > 0 && (
           <div style={{ marginBottom: 16 }}>
-            <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              LAN NETWORK & VLANs
-            </div>
-            
-            {/* LAN Network Section */}
+            {/* LAN Network Section - Plain Text */}
             {device.connections.find(c => c.lanDetails?.portNumber === 0) && (() => {
               const lanNetworkConn = device.connections.find(c => c.lanDetails?.portNumber === 0);
               return (
-                <div style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  borderRadius: 8,
-                  padding: 12,
-                  marginBottom: 8,
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: '50%',
-                        background: lanNetworkConn?.status === 'connected' ? '#22c55e' : '#6b7280'
-                      }} />
-                      <span style={{ fontSize: 14, fontWeight: 500, color: '#e0e0e0' }}>
-                        LAN Network
-                      </span>
-                    </div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: '#e0e0e0', marginBottom: 4 }}>
+                    LAN Network
                   </div>
-                  
-                  <div style={{ fontSize: 12, color: '#a0a0a0', display: 'flex', flexDirection: 'column', gap: 4, marginTop: 8 }}>
-                    {lanNetworkConn?.lanDetails?.mac && (
-                      <div>MAC: {lanNetworkConn.lanDetails.mac}</div>
-                    )}
-                    {lanNetworkConn?.lanDetails?.ipRange && (
-                      <div>IP Range: {lanNetworkConn.lanDetails.ipRange}</div>
-                    )}
-                    {lanNetworkConn?.lanDetails?.gateway && (
-                      <div>Gateway: {lanNetworkConn.lanDetails.gateway}</div>
-                    )}
-                    {lanNetworkConn?.lanDetails?.clientCount !== undefined && (
-                      <div style={{
-                        paddingTop: 4,
-                        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                        marginTop: 4
-                      }}>
-                        <span style={{ fontWeight: 500, color: '#e0e0e0' }}>
-                          Connected Clients: {lanNetworkConn.lanDetails.clientCount}
-                        </span>
-                      </div>
-                    )}
+                  <div style={{ fontSize: 12, color: '#a0a0a0' }}>
+                    MAC: {lanNetworkConn?.lanDetails?.mac || 'N/A'}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#a0a0a0' }}>
+                    Connected Clients: {lanNetworkConn?.lanDetails?.clientCount || 0}
                   </div>
                 </div>
               );
             })()}
             
-            {/* VLANs Section */}
+            {/* VLANs Section - Collapsible */}
             {device.connections.filter(c => c.lanDetails?.portNumber === -1).length > 0 && (
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  VLANs ({device.connections.filter(c => c.lanDetails?.portNumber === -1).length})
-                </div>
-                {device.connections
-                  .filter(c => c.lanDetails?.portNumber === -1)
-                  .map(conn => (
-                    <div
-                      key={conn.id}
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        borderRadius: 8,
-                        padding: 12,
-                        marginBottom: 8,
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: '50%',
-                            background: conn.status === 'connected' ? '#22c55e' : '#6b7280'
-                          }} />
-                          <span style={{ fontSize: 14, fontWeight: 500, color: '#e0e0e0' }}>
+              <div style={{ marginBottom: 12 }}>
+                <button
+                  onClick={() => setVlanExpanded(!vlanExpanded)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    color: '#a0a0a0',
+                    fontSize: 11,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    fontWeight: 600,
+                    marginBottom: 8,
+                    width: '100%',
+                    transition: 'color 0.2s',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#d0d0d0'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#a0a0a0'}
+                >
+                  <span>{vlanExpanded ? '▼' : '▶'}</span>
+                  <span>VLANS ({device.connections.filter(c => c.lanDetails?.portNumber === -1).length})</span>
+                </button>
+                
+                {vlanExpanded && (
+                  <div style={{ paddingLeft: 16 }}>
+                    {device.connections
+                      .filter(c => c.lanDetails?.portNumber === -1)
+                      .sort((a, b) => (a.lanDetails?.vlanId || 0) - (b.lanDetails?.vlanId || 0))
+                      .map(conn => (
+                        <div
+                          key={conn.id}
+                          style={{
+                            marginBottom: 12,
+                          }}
+                        >
+                          <div style={{ fontSize: 14, fontWeight: 500, color: '#e0e0e0', marginBottom: 4 }}>
                             {conn.lanDetails?.name}
-                          </span>
+                          </div>
+                          <div style={{ fontSize: 12, color: '#a0a0a0' }}>
+                            IP Range: {conn.lanDetails?.ipRange || 'N/A'}
+                          </div>
+                          <div style={{ fontSize: 12, color: '#a0a0a0' }}>
+                            Gateway: {conn.lanDetails?.gateway || 'N/A'}
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div style={{ fontSize: 12, color: '#a0a0a0', display: 'flex', flexDirection: 'column', gap: 4, marginTop: 8 }}>
-                        {conn.lanDetails?.ipRange && (
-                          <div>IP Range: {conn.lanDetails.ipRange}</div>
-                        )}
-                        {conn.lanDetails?.gateway && (
-                          <div>Gateway: {conn.lanDetails.gateway}</div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                      ))}
+                  </div>
+                )}
               </div>
             )}
             

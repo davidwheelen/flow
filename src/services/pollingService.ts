@@ -757,7 +757,10 @@ export class PollingService {
 
     // For APs, check both hardwired WAN and WiFi mesh connections
     device.interfaces?.forEach((iface) => {
-      if (iface.type !== 'lan' && !iface.name?.toLowerCase().includes('lan')) {
+      // WOVLAN/WOWLAN interfaces should be treated as WAN, not LAN
+      const isWOVLAN = iface.virtualType === 'wovlan' || iface.virtualType === 'wowlan';
+      
+      if ((iface.type !== 'lan' && !iface.name?.toLowerCase().includes('lan')) || isWOVLAN) {
         let connType: ConnectionType;
         let connStatus: ConnectionStatus = 'disconnected';
         
@@ -779,7 +782,7 @@ export class PollingService {
           connType = 'wan';
           if (iface.virtualType === 'cellular' || iface.type === 'gobi') {
             connType = 'cellular';
-          } else if (iface.type === 'wifi' || iface.type === 'wlan') {
+          } else if (iface.type === 'wifi' || iface.type === 'wlan' || isWOVLAN) {
             connType = 'wifi';
           } else if (iface.type === 'sfp') {
             connType = 'sfp';
