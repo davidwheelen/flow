@@ -277,6 +277,47 @@ export class PollingService {
     }
   }
 
+  /**
+   * Fetch LAN port information using device API proxy
+   * Uses the router's native API endpoint: GET /api/status.lan.profile
+   */
+  private async fetchLanPorts(deviceId: string): Promise<unknown> {
+    const apiClient = authService.getApiClient();
+    const credentials = authService.getCredentials();
+    
+    if (!credentials) {
+      console.warn('No credentials available for fetching LAN ports');
+      return null;
+    }
+
+    const orgId = credentials.orgId;
+    
+    try {
+      // Use InControl2's device API proxy to call the router's native API
+      // Format: /rest/o/{orgId}/d/{deviceId}/devapi/api/{router_api_endpoint}
+      const response = await this.rateLimiter.throttle(() =>
+        apiClient.get(
+          `/rest/o/${orgId}/d/${deviceId}/devapi/api/status.lan.profile`
+        )
+      );
+
+      console.log(`[DEBUG] LAN Port API response for device ${deviceId}:`, response.data);
+      return response.data;
+    } catch (error) {
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 404) {
+          console.warn(`[DEBUG] LAN port endpoint not found (404) for device ${deviceId} - device may not support this API`);
+        } else {
+          console.error(`[DEBUG] Failed to fetch LAN ports for device ${deviceId}:`, error);
+        }
+      } else {
+        console.error(`[DEBUG] Failed to fetch LAN ports for device ${deviceId}:`, error);
+      }
+      return null;
+    }
+  }
+
 
 
   /**
@@ -430,11 +471,15 @@ export class PollingService {
 
     const orgId = credentials.orgId;
     
-    const deviceResponse = await this.rateLimiter.throttle(() =>
-      apiClient.get<{ data: IC2DeviceData }>(
-        `/rest/o/${orgId}/g/${groupId}/d/${deviceId}`
-      )
-    );
+    // Fetch device data and LAN ports in parallel
+    const [deviceResponse, lanPortsData] = await Promise.all([
+      this.rateLimiter.throttle(() =>
+        apiClient.get<{ data: IC2DeviceData }>(
+          `/rest/o/${orgId}/g/${groupId}/d/${deviceId}`
+        )
+      ),
+      this.fetchLanPorts(deviceId)
+    ]);
 
     const deviceData = deviceResponse.data.data;
     
@@ -442,6 +487,12 @@ export class PollingService {
     console.log(`[DEBUG] Device ${deviceId} response keys:`, Object.keys(deviceData));
     if (deviceData.port_status) {
       console.log(`[DEBUG] Device ${deviceId} has port_status:`, deviceData.port_status);
+    }
+    
+    // Add LAN ports data to device object if available
+    if (lanPortsData) {
+      (deviceData as IC2DeviceData & { lanPortsApi?: unknown }).lanPortsApi = lanPortsData;
+      console.log(`[DEBUG] Added LAN ports data to device ${deviceId}`);
     }
 
     return deviceData;
@@ -465,8 +516,85 @@ export class PollingService {
     const isAccessPoint = device.model.toLowerCase().includes('ap one') || 
                          device.model.toLowerCase().includes('ap pro');
 
-    // Map LAN ports from port_status.lan_list (if available)
-    if (device.port_status?.lan_list) {
+    // First, try to map LAN ports from the device API proxy data
+    const deviceWithLanApi = device as IC2DeviceData & { lanPortsApi?: unknown };
+    if (deviceWithLanApi.lanPortsApi) {
+      const lanData = deviceWithLanApi.lanPortsApi as Record<string, unknown>;
+      console.log(`[DEBUG] Processing LAN ports API data for device ${device.name}:`, lanData);
+      
+      // The response structure will depend on what the API returns
+      // We'll need to inspect the actual response to parse it correctly
+      // Common patterns in Peplink APIs:
+      // - { resp: { port: { "1": {...}, "2": {...} } } }
+      // - { port: [ {...}, {...} ] }
+      // - { lan_port: [ {...}, {...} ] }
+      
+      let ports: Array<Record<string, unknown>> = [];
+      
+      // Try to find the port data in the response
+      const respData = lanData.resp as Record<string, unknown> | undefined;
+      if (respData?.port) {
+        // Object format: { "1": {...}, "2": {...} }
+        const portObj = respData.port as Record<string, unknown>;
+        ports = Object.entries(portObj).map(([id, data]) => ({ id, ...(data as Record<string, unknown>) }));
+      } else if (lanData.port) {
+        const portData = lanData.port;
+        ports = Array.isArray(portData) ? portData : Object.entries(portData as Record<string, unknown>).map(([id, data]) => ({ id, ...(data as Record<string, unknown>) }));
+      } else if (lanData.lan_port) {
+        const lanPortData = lanData.lan_port;
+        ports = Array.isArray(lanPortData) ? lanPortData : Object.entries(lanPortData as Record<string, unknown>).map(([id, data]) => ({ id, ...(data as Record<string, unknown>) }));
+      } else if (Array.isArray(lanData)) {
+        ports = lanData;
+      }
+      
+      console.log(`[DEBUG] Extracted ${ports.length} LAN ports from API response`);
+      
+      ports.forEach((port: Record<string, unknown>, index: number) => {
+        const portId = port.id || port.port_id || index + 1;
+        const portName = String(port.name || port.port_name || `LAN Port ${portId}`);
+        const isEnabled = port.enabled !== false && port.enable !== false;
+        const isLinkUp = port.link_up === true || port.linkUp === true || port.link === 'up';
+        const portStatus = isEnabled && isLinkUp ? 'connected' : isEnabled ? 'standby' : 'disabled';
+        
+        // Parse speed
+        let speedMbps = 1000;
+        if (port.speed) {
+          const speedMatch = String(port.speed).match(/(\d+)/);
+          if (speedMatch) {
+            speedMbps = parseInt(speedMatch[1], 10);
+          }
+        }
+        
+        connections.push({
+          id: `${device.id}-lan-port-${portId}`,
+          type: 'lan',
+          status: portStatus as ConnectionStatus,
+          metrics: {
+            speedMbps: speedMbps,
+            latencyMs: 1,
+            uploadMbps: isLinkUp ? speedMbps / 2 : 0,
+            downloadMbps: isLinkUp ? speedMbps / 2 : 0
+          },
+          lanDetails: {
+            portNumber: typeof portId === 'number' ? portId : parseInt(String(portId), 10),
+            name: portName,
+            status: portStatus,
+            speed: String(port.speed || port.link_speed || 'Auto'),
+            vlan: String(port.vlan || port.vlan_id || '-')
+          }
+        });
+        
+        console.log(`[DEBUG] Created LAN connection for port ${portId}:`, {
+          name: portName,
+          status: portStatus,
+          speed: port.speed,
+          isLinkUp
+        });
+      });
+    }
+
+    // Fallback: Check for port_status.lan_list (for private InControl2 instances)
+    if (connections.filter(c => c.type === 'lan').length === 0 && device.port_status?.lan_list) {
       const lanPorts = device.port_status.lan_list;
       console.log(`[DEBUG] Found port_status.lan_list for device ${device.name}:`, lanPorts);
       
@@ -513,9 +641,9 @@ export class PollingService {
       });
     }
 
-    // Keep existing interface-based LAN mapping as fallback
+    // Last fallback: Check interfaces array for LAN type
     if (connections.filter(c => c.type === 'lan').length === 0) {
-      console.log(`[DEBUG] No LAN ports found in port_status, checking interfaces...`);
+      console.log(`[DEBUG] No LAN ports found via API, checking interfaces array...`);
       device.interfaces?.forEach((iface) => {
         if (iface.type === 'lan' || iface.name?.toLowerCase().includes('lan')) {
           connections.push({
@@ -529,8 +657,13 @@ export class PollingService {
               downloadMbps: 500
             }
           });
+          console.log(`[DEBUG] Created LAN connection from interface:`, iface.name);
         }
       });
+    }
+
+    if (connections.filter(c => c.type === 'lan').length === 0) {
+      console.log(`[DEBUG] No LAN ports found for device ${device.name}`);
     }
 
     // For APs, check both hardwired WAN and WiFi mesh connections
