@@ -50,6 +50,13 @@ export interface Connection {
   device_id?: string; // Optional device ID for device-to-device connections
   wanDetails?: WANConnection; // Add WAN-specific details
   apDetails?: APDetails; // Add AP-specific details for wireless mesh
+  lanDetails?: {
+    portNumber: number;
+    name: string;
+    status: string;
+    speed: string;
+    vlan: string;
+  };
 }
 
 export interface PeplinkDevice {

@@ -5,6 +5,18 @@
  */
 
 /**
+ * LAN Port data from device API proxy
+ */
+export interface IC2LanPort {
+  name?: string;
+  status?: string;
+  speed?: string;
+  speed_mbps?: number;
+  vlan?: string;
+  [key: string]: unknown; // Allow for additional fields from API
+}
+
+/**
  * Interface/WAN connection from InControl2 API
  */
 export interface IC2Interface {
@@ -68,4 +80,6 @@ export interface IC2DeviceData {
     status: 'connected' | 'disconnected';
     throughput_mbps?: number;
   }>;
+  // LAN ports from device API proxy
+  lanPorts?: IC2LanPort[];
 }
