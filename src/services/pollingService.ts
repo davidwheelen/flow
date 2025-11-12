@@ -7,7 +7,7 @@
 
 import { authService } from './authService';
 import { PeplinkDevice, ConnectionType, ConnectionStatus, LanClient, Connection } from '@/types/network.types';
-import { IC2DeviceData, IC2Interface, IC2LanPort } from '@/types/incontrol.types';
+import { IC2DeviceData, IC2Interface } from '@/types/incontrol.types';
 
 /**
  * Rate limiter to ensure we don't exceed 20 req/sec
@@ -277,36 +277,7 @@ export class PollingService {
     }
   }
 
-  /**
-   * Fetch LAN port information using device API proxy
-   */
-  private async fetchLanPorts(deviceId: string): Promise<IC2LanPort[] | null> {
-    const apiClient = authService.getApiClient();
-    const credentials = authService.getCredentials();
-    
-    if (!credentials) {
-      console.warn('No credentials available for fetching LAN ports');
-      return null;
-    }
 
-    const orgId = credentials.orgId;
-    
-    try {
-      // Use InControl2's device API proxy to call the router's native API
-      // Based on Peplink Router API: GET /api/status.lan.profile
-      const response = await this.rateLimiter.throttle(() =>
-        apiClient.get(
-          `/rest/o/${orgId}/d/${deviceId}/devapi/status.lan.profile`
-        )
-      );
-
-      console.log(`[DEBUG] LAN Port data for device ${deviceId}:`, response.data);
-      return response.data;
-    } catch (error) {
-      console.error(`Failed to fetch LAN ports for device ${deviceId}:`, error);
-      return null;
-    }
-  }
 
   /**
    * Build connection graph by detecting all connection types
@@ -459,21 +430,18 @@ export class PollingService {
 
     const orgId = credentials.orgId;
     
-    // Fetch device data and LAN ports in parallel
-    const [deviceResponse, lanPortsData] = await Promise.all([
-      this.rateLimiter.throttle(() =>
-        apiClient.get<{ data: IC2DeviceData }>(
-          `/rest/o/${orgId}/g/${groupId}/d/${deviceId}`
-        )
-      ),
-      this.fetchLanPorts(deviceId)
-    ]);
+    const deviceResponse = await this.rateLimiter.throttle(() =>
+      apiClient.get<{ data: IC2DeviceData }>(
+        `/rest/o/${orgId}/g/${groupId}/d/${deviceId}`
+      )
+    );
 
     const deviceData = deviceResponse.data.data;
     
-    // Add LAN ports data to device object
-    if (lanPortsData) {
-      deviceData.lanPorts = lanPortsData;
+    // Debug log to see if port_status exists
+    console.log(`[DEBUG] Device ${deviceId} response keys:`, Object.keys(deviceData));
+    if (deviceData.port_status) {
+      console.log(`[DEBUG] Device ${deviceId} has port_status:`, deviceData.port_status);
     }
 
     return deviceData;
@@ -497,54 +465,73 @@ export class PollingService {
     const isAccessPoint = device.model.toLowerCase().includes('ap one') || 
                          device.model.toLowerCase().includes('ap pro');
 
-    // Map LAN interfaces from device API proxy data
-    if (device.lanPorts) {
-      const lanPorts = device.lanPorts;
-      console.log(`[DEBUG] Processing LAN ports for device ${device.name}:`, lanPorts);
+    // Map LAN ports from port_status.lan_list (if available)
+    if (device.port_status?.lan_list) {
+      const lanPorts = device.port_status.lan_list;
+      console.log(`[DEBUG] Found port_status.lan_list for device ${device.name}:`, lanPorts);
       
-      // Parse LAN port data structure and create connections
-      // The exact structure will depend on what the API returns
-      // We'll log it first to see the format
-      if (Array.isArray(lanPorts)) {
-        lanPorts.forEach((port: IC2LanPort, index: number) => {
+      // lan_list is an object with numeric keys: { "1": {...}, "2": {...}, ... }
+      Object.entries(lanPorts).forEach(([portId, portData]) => {
+        const isEnabled = portData.enable === true;
+        const isLinkUp = portData.linkUp === true;
+        const portStatus = isEnabled && isLinkUp ? 'connected' : isEnabled ? 'standby' : 'disabled';
+        
+        // Parse speed (e.g., "1000FD" -> 1000 Mbps)
+        let speedMbps = 1000; // default
+        if (portData.speed) {
+          const speedMatch = portData.speed.match(/(\d+)/);
+          if (speedMatch) {
+            speedMbps = parseInt(speedMatch[1], 10);
+          }
+        }
+        
+        connections.push({
+          id: `${device.id}-lan-port-${portId}`,
+          type: 'lan',
+          status: portStatus as ConnectionStatus,
+          metrics: {
+            speedMbps: speedMbps,
+            latencyMs: 1,
+            uploadMbps: isLinkUp ? speedMbps / 2 : 0,
+            downloadMbps: isLinkUp ? speedMbps / 2 : 0
+          },
+          lanDetails: {
+            portNumber: parseInt(portId, 10),
+            name: portData.name || `LAN Port ${portId}`,
+            status: portStatus,
+            speed: portData.speed || 'Auto',
+            vlan: portData.vlanMode || '-'
+          }
+        });
+        
+        console.log(`[DEBUG] Created LAN connection for port ${portId}:`, {
+          name: portData.name,
+          status: portStatus,
+          speed: portData.speed,
+          linkUp: isLinkUp
+        });
+      });
+    }
+
+    // Keep existing interface-based LAN mapping as fallback
+    if (connections.filter(c => c.type === 'lan').length === 0) {
+      console.log(`[DEBUG] No LAN ports found in port_status, checking interfaces...`);
+      device.interfaces?.forEach((iface) => {
+        if (iface.type === 'lan' || iface.name?.toLowerCase().includes('lan')) {
           connections.push({
-            id: `${device.id}-lan-${index}`,
+            id: `${device.id}-lan-${iface.id}`,
             type: 'lan',
             status: 'connected',
             metrics: {
-              speedMbps: port.speed_mbps || 1000,
+              speedMbps: iface.speed_mbps || 1000,
               latencyMs: 1,
               uploadMbps: 500,
               downloadMbps: 500
-            },
-            lanDetails: {
-              portNumber: index + 1,
-              name: port.name || `LAN Port ${index + 1}`,
-              status: port.status || 'connected',
-              speed: port.speed || 'Auto',
-              vlan: port.vlan || '-'
             }
           });
-        });
-      }
+        }
+      });
     }
-
-    // Keep existing LAN interface mapping as fallback
-    device.interfaces?.forEach((iface) => {
-      if (iface.type === 'lan' || iface.name?.toLowerCase().includes('lan')) {
-        connections.push({
-          id: `${device.id}-lan-${iface.id}`,
-          type: 'lan',
-          status: 'connected',
-          metrics: {
-            speedMbps: iface.speed_mbps || 1000,
-            latencyMs: 1,
-            uploadMbps: 500,
-            downloadMbps: 500
-          }
-        });
-      }
-    });
 
     // For APs, check both hardwired WAN and WiFi mesh connections
     device.interfaces?.forEach((iface) => {

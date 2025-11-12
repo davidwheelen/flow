@@ -5,7 +5,35 @@
  */
 
 /**
- * LAN Port data from device API proxy
+ * LAN Port data from port_status.lan_list
+ */
+export interface IC2LanPortStatus {
+  id: number;
+  enable: boolean;
+  linkUp: boolean;
+  autoSpeed?: boolean;
+  speed?: string; // e.g., "1000FD"
+  name?: string;
+  vlanMode?: string; // e.g., "trunk"
+  mode?: string;
+  hardwareInfo?: {
+    portType?: string;
+    supportSpeed?: string[];
+  };
+}
+
+/**
+ * Port status from device API response
+ */
+export interface IC2PortStatus {
+  count?: number;
+  timestamp?: number;
+  wan_list?: Record<string, unknown>;
+  lan_list?: Record<string, IC2LanPortStatus>;
+}
+
+/**
+ * LAN Port data from device API proxy (legacy)
  */
 export interface IC2LanPort {
   name?: string;
@@ -80,6 +108,8 @@ export interface IC2DeviceData {
     status: 'connected' | 'disconnected';
     throughput_mbps?: number;
   }>;
-  // LAN ports from device API proxy
+  // LAN ports from device API proxy (legacy)
   lanPorts?: IC2LanPort[];
+  // Port status from device API response
+  port_status?: IC2PortStatus;
 }
