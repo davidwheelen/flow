@@ -112,4 +112,16 @@ export interface IC2DeviceData {
   lanPorts?: IC2LanPort[];
   // Port status from device API response
   port_status?: IC2PortStatus;
+  // VLAN interfaces configuration
+  vlan_interfaces?: Array<{
+    vlan_id: number;
+    vlan_ip?: string;
+    netmask?: string;
+    vlan_ips?: Array<{
+      ip: string;
+      netmask: string;
+    }>;
+  }>;
+  // Connected clients count
+  client_count?: number;
 }

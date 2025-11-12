@@ -143,6 +143,23 @@ function getConnectedClients(lanClients?: LanClient[]): number {
 }
 
 /**
+ * Helper: Convert netmask to CIDR notation
+ */
+function calculateCIDR(netmask: string): number {
+  if (!netmask) return 24; // Default to /24
+  
+  const parts = netmask.split('.');
+  let cidr = 0;
+  
+  for (const part of parts) {
+    const num = parseInt(part, 10);
+    cidr += (num >>> 0).toString(2).split('1').length - 1;
+  }
+  
+  return cidr;
+}
+
+/**
  * Helper: Map AP interface with wireless mesh details
  */
 function mapAPInterface(iface: IC2Interface, device: IC2DeviceData): Connection {
@@ -645,7 +662,12 @@ export class PollingService {
     if (connections.filter(c => c.type === 'lan').length === 0) {
       console.log(`[DEBUG] No LAN ports found via API, checking interfaces array...`);
       device.interfaces?.forEach((iface) => {
-        if (iface.type === 'lan' || iface.name?.toLowerCase().includes('lan')) {
+        // IMPORTANT: Exclude wovlan and wowlan types - these are WAN-over-LAN/WiFi, not LAN ports
+        if (
+          iface.type === 'lan' && 
+          iface.virtualType !== 'wovlan' && 
+          iface.virtualType !== 'wowlan'
+        ) {
           connections.push({
             id: `${device.id}-lan-${iface.id}`,
             type: 'lan',
@@ -665,6 +687,73 @@ export class PollingService {
     if (connections.filter(c => c.type === 'lan').length === 0) {
       console.log(`[DEBUG] No LAN ports found for device ${device.name}`);
     }
+
+    // Add LAN Network section based on mac_info data
+    const lanMacInfo = device.mac_info?.find((info) => info.interfaceType === 'lan');
+    
+    if (lanMacInfo) {
+      // Get LAN VLAN info (usually VLAN 0)
+      const lanVlan = device.vlan_interfaces?.find((vlan) => vlan.vlan_id === 0);
+      
+      connections.push({
+        id: `${device.id}-lan-network`,
+        type: 'lan',
+        status: 'connected',
+        metrics: {
+          speedMbps: 1000,
+          latencyMs: 1,
+          uploadMbps: 0,
+          downloadMbps: 0
+        },
+        lanDetails: {
+          portNumber: 0, // 0 indicates this is the LAN network, not a physical port
+          name: 'LAN Network',
+          status: 'connected',
+          mac: lanMacInfo.mac,
+          ipRange: lanVlan ? `${lanVlan.vlan_ip}/${calculateCIDR(lanVlan.netmask || '')}` : 'N/A',
+          gateway: lanVlan?.vlan_ip || 'N/A',
+          clientCount: device.client_count || 0,
+          vlanId: 0
+        }
+      });
+      
+      console.log(`[DEBUG] Created LAN Network connection for device ${device.name}:`, {
+        mac: lanMacInfo.mac,
+        ipRange: lanVlan ? `${lanVlan.vlan_ip}/${calculateCIDR(lanVlan.netmask || '')}` : 'N/A',
+        clientCount: device.client_count
+      });
+    }
+
+    // Process VLANs (skip VLAN 0 as it's included in LAN Network)
+    if (device.vlan_interfaces) {
+      device.vlan_interfaces.forEach((vlan) => {
+        if (vlan.vlan_id === 0) return; // Skip VLAN 0, already shown in LAN Network
+        
+        connections.push({
+          id: `${device.id}-vlan-${vlan.vlan_id}`,
+          type: 'lan',
+          status: 'connected',
+          metrics: {
+            speedMbps: 1000,
+            latencyMs: 1,
+            uploadMbps: 0,
+            downloadMbps: 0
+          },
+          lanDetails: {
+            portNumber: -1, // -1 indicates this is a VLAN, not a physical port
+            name: `VLAN ${vlan.vlan_id}`,
+            status: 'connected',
+            ipRange: vlan.vlan_ips?.map((ip) => `${ip.ip}/${calculateCIDR(ip.netmask)}`).join(', ') || 
+                     (vlan.vlan_ip ? `${vlan.vlan_ip}/${calculateCIDR(vlan.netmask || '')}` : 'N/A'),
+            gateway: vlan.vlan_ip || 'N/A',
+            vlanId: vlan.vlan_id
+          }
+        });
+        
+        console.log(`[DEBUG] Created VLAN ${vlan.vlan_id} connection for device ${device.name}`);
+      });
+    }
+
 
     // For APs, check both hardwired WAN and WiFi mesh connections
     device.interfaces?.forEach((iface) => {

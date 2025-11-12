@@ -337,50 +337,139 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
           </div>
         </div>
         
-        {/* LAN Ports Section */}
-        {device.interfaces && device.interfaces.filter(iface => {
-          // Exclude if virtualType is explicitly 'wan' (for test data compatibility)
-          if (iface.virtualType === 'wan') return false;
-          
-          // Exclude if name contains 'wan' (case-insensitive) - for ACTUAL API data
-          if (iface.name?.toLowerCase().includes('wan')) return false;
-          
-          // Include only 'lan' or 'ethernet' types
-          return iface.type === 'lan' || iface.type === 'ethernet';
-        }).length > 0 && (
+        {/* LAN Network & VLANs Section */}
+        {device.connections && device.connections.filter(c => c.type === 'lan').length > 0 && (
           <div style={{ marginBottom: 16 }}>
             <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              LAN PORTS
+              LAN NETWORK & VLANs
             </div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-                gap: '8px',
-              }}
-            >
-              {device.interfaces
-                .filter(iface => {
-                  // Exclude if virtualType is explicitly 'wan' (for test data compatibility)
-                  if (iface.virtualType === 'wan') return false;
+            
+            {/* LAN Network Section */}
+            {device.connections.find(c => c.lanDetails?.portNumber === 0) && (() => {
+              const lanNetworkConn = device.connections.find(c => c.lanDetails?.portNumber === 0);
+              return (
+                <div style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: 8,
+                  padding: 12,
+                  marginBottom: 8,
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        background: lanNetworkConn?.status === 'connected' ? '#22c55e' : '#6b7280'
+                      }} />
+                      <span style={{ fontSize: 14, fontWeight: 500, color: '#e0e0e0' }}>
+                        LAN Network
+                      </span>
+                    </div>
+                  </div>
                   
-                  // Exclude if name contains 'wan' (case-insensitive) - for ACTUAL API data
-                  if (iface.name?.toLowerCase().includes('wan')) return false;
-                  
-                  // Include only 'lan' or 'ethernet' types
-                  return iface.type === 'lan' || iface.type === 'ethernet';
-                })
-                .map(port => (
-                  <EthernetPort
-                    key={port.id}
-                    name={port.name}
-                    type={port.conn_mode || 'Access'}
-                    speed={formatSpeed(port.speed_mbps)}
-                    isConnected={port.status?.toLowerCase() === 'connected'}
-                    colors={themeColors}
-                  />
-                ))}
-            </div>
+                  <div style={{ fontSize: 12, color: '#a0a0a0', display: 'flex', flexDirection: 'column', gap: 4, marginTop: 8 }}>
+                    {lanNetworkConn?.lanDetails?.mac && (
+                      <div>MAC: {lanNetworkConn.lanDetails.mac}</div>
+                    )}
+                    {lanNetworkConn?.lanDetails?.ipRange && (
+                      <div>IP Range: {lanNetworkConn.lanDetails.ipRange}</div>
+                    )}
+                    {lanNetworkConn?.lanDetails?.gateway && (
+                      <div>Gateway: {lanNetworkConn.lanDetails.gateway}</div>
+                    )}
+                    {lanNetworkConn?.lanDetails?.clientCount !== undefined && (
+                      <div style={{
+                        paddingTop: 4,
+                        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                        marginTop: 4
+                      }}>
+                        <span style={{ fontWeight: 500, color: '#e0e0e0' }}>
+                          Connected Clients: {lanNetworkConn.lanDetails.clientCount}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+            
+            {/* VLANs Section */}
+            {device.connections.filter(c => c.lanDetails?.portNumber === -1).length > 0 && (
+              <div style={{ marginBottom: 8 }}>
+                <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  VLANs ({device.connections.filter(c => c.lanDetails?.portNumber === -1).length})
+                </div>
+                {device.connections
+                  .filter(c => c.lanDetails?.portNumber === -1)
+                  .map(conn => (
+                    <div
+                      key={conn.id}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        borderRadius: 8,
+                        padding: 12,
+                        marginBottom: 8,
+                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: '50%',
+                            background: conn.status === 'connected' ? '#22c55e' : '#6b7280'
+                          }} />
+                          <span style={{ fontSize: 14, fontWeight: 500, color: '#e0e0e0' }}>
+                            {conn.lanDetails?.name}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div style={{ fontSize: 12, color: '#a0a0a0', display: 'flex', flexDirection: 'column', gap: 4, marginTop: 8 }}>
+                        {conn.lanDetails?.ipRange && (
+                          <div>IP Range: {conn.lanDetails.ipRange}</div>
+                        )}
+                        {conn.lanDetails?.gateway && (
+                          <div>Gateway: {conn.lanDetails.gateway}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+            
+            {/* Physical LAN Ports (if available) */}
+            {device.connections.filter(c => c.lanDetails && c.lanDetails.portNumber > 0).length > 0 && (
+              <div>
+                <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Physical LAN Ports ({device.connections.filter(c => c.lanDetails && c.lanDetails.portNumber > 0).length})
+                </div>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                    gap: '8px',
+                  }}
+                >
+                  {device.connections
+                    .filter(c => c.lanDetails && c.lanDetails.portNumber > 0)
+                    .sort((a, b) => (a.lanDetails?.portNumber || 0) - (b.lanDetails?.portNumber || 0))
+                    .map(conn => (
+                      <EthernetPort
+                        key={conn.id}
+                        name={conn.lanDetails?.name || `Port ${conn.lanDetails?.portNumber}`}
+                        type={conn.lanDetails?.vlan || 'Access'}
+                        speed={conn.lanDetails?.speed || formatSpeed(conn.metrics.speedMbps)}
+                        isConnected={conn.status === 'connected'}
+                        colors={themeColors}
+                      />
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
         
