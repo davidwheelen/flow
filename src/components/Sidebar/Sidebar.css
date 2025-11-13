@@ -53,3 +53,140 @@
   opacity: 0.2;
   animation: wave 20s linear infinite;
 }
+
+/* Stars icon twinkle animation */
+.stars-icon-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.stars-icon {
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.stars-icon-container:hover .stars-icon {
+  animation: twinkle 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.8));
+}
+
+/* Twinkle keyframe animation */
+@keyframes twinkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  10% {
+    transform: scale(1.2) rotate(5deg);
+    opacity: 0.9;
+  }
+  20% {
+    transform: scale(0.95) rotate(-5deg);
+    opacity: 0.8;
+  }
+  30% {
+    transform: scale(1.15) rotate(8deg);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.1) rotate(-3deg);
+    opacity: 1;
+  }
+  60% {
+    transform: scale(0.98) rotate(3deg);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.08) rotate(-6deg);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(1.02) rotate(2deg);
+    opacity: 0.95;
+  }
+  90% {
+    transform: scale(1.05) rotate(-2deg);
+    opacity: 1;
+  }
+}
+
+/* Sparkle effect on hover */
+.stars-icon-container::before,
+.stars-icon-container::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #3b82f6;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stars-icon-container:hover::before {
+  animation: sparkle1 1.5s ease-in-out infinite;
+}
+
+.stars-icon-container:hover::after {
+  animation: sparkle2 1.5s ease-in-out infinite 0.75s;
+}
+
+@keyframes sparkle1 {
+  0% {
+    top: 0;
+    right: 0;
+    opacity: 0;
+    transform: scale(0);
+  }
+  20% {
+    top: -4px;
+    right: -4px;
+    opacity: 1;
+    transform: scale(1);
+  }
+  40% {
+    top: -6px;
+    right: -6px;
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    top: -6px;
+    right: -6px;
+    opacity: 0;
+    transform: scale(0);
+  }
+}
+
+@keyframes sparkle2 {
+  0% {
+    bottom: 0;
+    left: 0;
+    opacity: 0;
+    transform: scale(0);
+  }
+  20% {
+    bottom: -4px;
+    left: -4px;
+    opacity: 1;
+    transform: scale(1);
+  }
+  40% {
+    bottom: -6px;
+    left: -6px;
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    bottom: -6px;
+    left: -6px;
+    opacity: 0;
+    transform: scale(0);
+  }
+}

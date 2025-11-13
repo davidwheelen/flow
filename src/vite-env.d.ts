@@ -27,3 +27,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+// Global constants defined by Vite
+declare const __APP_VERSION__: string;
