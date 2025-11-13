@@ -141,24 +141,8 @@ export function Sidebar() {
         <div className="liquid-glass-panel m-4 overflow-hidden relative" style={{ padding: '8px 16px' }}>
           <SwirlBackground />
           <div className="relative z-10">
-            <h2 
-              className="font-bold text-2xl" 
-              style={{ 
-                color: '#e0e0e0', 
-                fontFamily: 'Abricos, sans-serif',
-                textShadow: '1px 1px 0 rgba(45, 45, 45, 0.25), -1px -1px 0 rgba(45, 45, 45, 0.25), 1px -1px 0 rgba(45, 45, 45, 0.25), -1px 1px 0 rgba(45, 45, 45, 0.25)'
-              }}
-            >
-              FLOW 
-              <span 
-                className="font-normal text-xl ml-2" 
-                style={{ 
-                  color: '#e0e0e0',
-                  textShadow: '1px 1px 0 rgba(45, 45, 45, 0.25), -1px -1px 0 rgba(45, 45, 45, 0.25), 1px -1px 0 rgba(45, 45, 45, 0.25), -1px 1px 0 rgba(45, 45, 45, 0.25)'
-                }}
-              >
-                - Network Visualizer
-              </span>
+            <h2 className="font-bold text-2xl" style={{ color: '#e0e0e0', fontFamily: 'Abricos, sans-serif' }}>
+              Flow
             </h2>
           </div>
         </div>
