@@ -1,5 +1,8 @@
 # Flow - Peplink InControl Network Visualizer
 
+![Version](https://img.shields.io/badge/version-0.13.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+
 Real-time network visualization tool for Peplink InControl devices with isometric 3D rendering using custom Flow renderer.
 
 ## Features
