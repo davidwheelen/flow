@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Loader2, RefreshCw } from 'lucide-react';
+import { ChevronRight, Loader2, RefreshCw } from 'lucide-react';
 import { useAppStore } from '@/store/appStore';
 import { useAuth, useDeviceData } from '@/hooks/useInControl2';
 import { getGroups } from '@/services/groupsService';
@@ -122,11 +122,17 @@ export function Sidebar() {
         }}
         title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
-        {isSidebarCollapsed ? (
-          <ChevronRight className="w-4 h-4" style={{ color: '#e0e0e0' }} />
-        ) : (
-          <ChevronLeft className="w-4 h-4" style={{ color: '#e0e0e0' }} />
-        )}
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          width="16" 
+          height="16" 
+          fill="currentColor" 
+          className="bi bi-arrows-collapse-vertical" 
+          viewBox="0 0 16 16"
+          style={{ color: '#e0e0e0' }}
+        >
+          <path d="M8 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M0 8a.5.5 0 0 1 .5-.5h3.793L3.146 6.354a.5.5 0 1 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L4.293 8.5H.5A.5.5 0 0 1 0 8m11.707.5 1.147 1.146a.5.5 0 0 1-.708.708l-2-2a.5.5 0 0 1 0-.708l2-2a.5.5 0 0 1 .708.708L11.707 7.5H15.5a.5.5 0 0 1 0 1z"/>
+        </svg>
       </button>
 
       {/* Sidebar Content - Hidden when collapsed */}
@@ -291,7 +297,7 @@ export function Sidebar() {
 
         {/* Version Footer */}
         <div className="liquid-glass-panel m-4 mt-auto">
-          <div className="flex items-center justify-between text-xs" style={{ color: '#a0a0a0' }}>
+          <div className="flex items-center justify-between text-xs version-footer" style={{ color: '#a0a0a0' }}>
             <div className="flex items-center gap-2">
               <div className="stars-icon-container">
                 <svg 

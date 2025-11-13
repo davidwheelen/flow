@@ -54,7 +54,8 @@
   animation: wave 20s linear infinite;
 }
 
-/* Stars icon twinkle animation */
+/* Stars icon twinkle animation - COMMENTED OUT */
+/*
 .stars-icon-container {
   position: relative;
   display: inline-flex;
@@ -71,8 +72,10 @@
   animation: twinkle 1.5s ease-in-out infinite;
   filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.8));
 }
+*/
 
-/* Twinkle keyframe animation */
+/* Twinkle keyframe animation - COMMENTED OUT */
+/*
 @keyframes twinkle {
   0%, 100% {
     transform: scale(1) rotate(0deg);
@@ -115,8 +118,10 @@
     opacity: 1;
   }
 }
+*/
 
-/* Sparkle effect on hover */
+/* Sparkle effect on hover - COMMENTED OUT */
+/*
 .stars-icon-container::before,
 .stars-icon-container::after {
   content: '';
@@ -189,4 +194,41 @@
     opacity: 0;
     transform: scale(0);
   }
+}
+*/
+
+/* Version footer hover effect */
+.liquid-glass-panel:has(.version-footer) {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.version-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.liquid-glass-panel:has(.version-footer)::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+  pointer-events: none;
+}
+
+.liquid-glass-panel:has(.version-footer):hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.liquid-glass-panel:has(.version-footer):hover {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 }

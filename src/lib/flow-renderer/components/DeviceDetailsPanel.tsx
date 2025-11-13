@@ -3,15 +3,10 @@ import { PeplinkDevice } from '@/types/network.types';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useAppStore } from '@/store/appStore';
 import { X, ChevronRight, ChevronDown } from 'lucide-react';
-import { ParticleAnimation } from '@/lib/animations/ParticleAnimation';
 import { defaultThemes } from '@/themes/defaultThemes';
 import { EthernetPort } from '@/components/ui/EthernetPort';
 import { pollingService } from '@/services/pollingService';
-
-// Particle animation configuration
-const PARTICLE_OPACITY = 0.4;
-const PARTICLE_COUNT = 50;
-const PARTICLE_SPEED = 0.5; // Slowed down particle movement
+import './DeviceDetailsPanel.css';
 
 // Refresh interval configuration (in milliseconds)
 const REFRESH_INTERVAL_MS = 5000; // 5 seconds
@@ -53,9 +48,8 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [wanExpandedState, setWanExpandedState] = useState<Map<string, boolean>>(new Map());
-  const [vlanExpanded, setVlanExpanded] = useState(true);
+  const [vlanExpanded, setVlanExpanded] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const { appearanceSettings } = useAppStore();
   
   // Memoize theme colors to avoid recalculation on every render
@@ -87,6 +81,8 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
   }, [device.id]); // Only reset when device ID changes, not when connections update
   
   // Initialize horizontal particle animation (only for online devices)
+  // COMMENTED OUT - Particle effect disabled
+  /*
   useEffect(() => {
     if (!canvasRef.current || device.status !== 'online') return;
     
@@ -102,6 +98,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
     animation.start();
     return () => animation.stop();
   }, [themeColors, device.status]);
+  */
   
   // Refresh device data when panel opens and periodically while open
   useEffect(() => {
@@ -201,6 +198,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
       onWheel={(e) => e.stopPropagation()}
+      className="device-details-panel"
       style={{
         position: 'absolute',
         left: position.x,
@@ -233,8 +231,8 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
           cursor: isDragging ? 'grabbing' : 'grab',
         }}
       >
-        {/* Particle Animation Background - Only for online devices */}
-        {device.status === 'online' && (
+        {/* Particle Animation Background - COMMENTED OUT */}
+        {/* {device.status === 'online' && (
           <canvas
             ref={canvasRef}
             style={{
@@ -247,7 +245,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
               pointerEvents: 'none',
             }}
           />
-        )}
+        )} */}
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 18, marginBottom: 4, color: '#e0e0e0', fontWeight: 600 }}>
@@ -290,6 +288,22 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
       >
         {/* Device Details */}
         <div style={{ marginBottom: 16, display: 'grid', gap: 12 }}>
+          {device.status && (
+            <div>
+              <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Status
+              </div>
+              <div style={{ 
+                color: device.status === 'online' ? '#10b981' : '#a855f7', 
+                fontSize: 14,
+                fontWeight: 600,
+                textTransform: 'capitalize'
+              }}>
+                {device.status}
+              </div>
+            </div>
+          )}
+          
           {device.serial && (
             <div>
               <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -308,22 +322,6 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
               </div>
               <div style={{ color: '#e0e0e0', fontSize: 14 }}>
                 {device.firmware_version}
-              </div>
-            </div>
-          )}
-          
-          {device.status && (
-            <div>
-              <div style={{ color: '#a0a0a0', fontSize: 11, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Status
-              </div>
-              <div style={{ 
-                color: device.status === 'online' ? '#22c55e' : '#ef4444', 
-                fontSize: 14,
-                fontWeight: 500,
-                textTransform: 'capitalize'
-              }}>
-                {device.status}
               </div>
             </div>
           )}
@@ -511,7 +509,12 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
                       width: 8,
                       height: 8,
                       borderRadius: '50%',
-                      background: conn.status === 'connected' ? '#22c55e' : conn.status === 'degraded' ? '#f59e0b' : '#ef4444',
+                      background: conn.status === 'connected' ? '#10b981' : conn.status === 'degraded' ? '#f59e0b' : '#a855f7',
+                      boxShadow: conn.status === 'connected' 
+                        ? '0 0 8px rgba(16, 185, 129, 0.6)' 
+                        : conn.status === 'degraded' 
+                        ? '0 0 8px rgba(245, 158, 11, 0.6)' 
+                        : '0 0 8px rgba(168, 85, 247, 0.6)',
                     }}
                   />
                 </div>
@@ -525,7 +528,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
                       </span>
                       <span
                         style={{
-                          color: conn.status === 'connected' ? '#22c55e' : conn.status === 'degraded' ? '#f59e0b' : '#ef4444',
+                          color: conn.status === 'connected' ? '#10b981' : conn.status === 'degraded' ? '#f59e0b' : '#a855f7',
                           fontSize: 11,
                           textTransform: 'uppercase',
                           letterSpacing: '0.5px',
