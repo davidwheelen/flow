@@ -1,0 +1,115 @@
+name: Auto Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Determine version bump
+        id: bump
+        run: |
+          LABELS="${{ join(github.event.pull_request.labels.*.name, ',') }}"
+          if echo "$LABELS" | grep -qiE "breaking|major"; then
+            echo "type=major" >> $GITHUB_OUTPUT
+            echo "category=⚠️ Breaking Changes" >> $GITHUB_OUTPUT
+          elif echo "$LABELS" | grep -qiE "feature|enhancement|minor"; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+            echo "category=✨ Added" >> $GITHUB_OUTPUT
+          else
+            echo "type=patch" >> $GITHUB_OUTPUT
+            echo "category=🐛 Fixed" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Get versions
+        id: version
+        run: |
+          CURRENT=$(node -p "require('./package.json').version")
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          
+          if [ "${{ steps.bump.outputs.type }}" = "major" ]; then
+            NEW="$((MAJOR + 1)).0.0"
+          elif [ "${{ steps.bump.outputs.type }}" = "minor" ]; then
+            NEW="$MAJOR.$((MINOR + 1)).0"
+          else
+            NEW="$MAJOR.$MINOR.$((PATCH + 1))"
+          fi
+          
+          echo "current=$CURRENT" >> $GITHUB_OUTPUT
+          echo "new=$NEW" >> $GITHUB_OUTPUT
+      
+      - name: Update files
+        run: |
+          npm version ${{ steps.version.outputs.new }} --no-git-tag-version
+          
+          TODAY=$(date -u +"%Y-%m-%d")
+          PR_NUM="${{ github.event.pull_request.number }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          VERSION="${{ steps.version.outputs.new }}"
+          CATEGORY="${{ steps.bump.outputs.category }}"
+          
+          if [ ! -f CHANGELOG.md ]; then
+            echo "# Flow - Network Visualizer Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+          
+          cat > /tmp/entry.md <<EOF
+          ## [$VERSION] - $TODAY
+          
+          ### $CATEGORY
+          - **$PR_TITLE** (#$PR_NUM) by @$PR_AUTHOR
+          
+          ---
+          
+          EOF
+          
+          cat /tmp/entry.md CHANGELOG.md > /tmp/new.md
+          mv /tmp/new.md CHANGELOG.md
+      
+      - name: Commit and push
+        run: |
+          git add package.json CHANGELOG.md package-lock.json
+          git commit -m "chore: release v${{ steps.version.outputs.new }} [skip ci]"
+          git push origin main
+          git tag "v${{ steps.version.outputs.new }}"
+          git push origin "v${{ steps.version.outputs.new }}"
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.new }}
+          name: Release v${{ steps.version.outputs.new }}
+          body: |
+            ### ${{ steps.bump.outputs.category }}
+            
+            **${{ github.event.pull_request.title }}** (#${{ github.event.pull_request.number }})
+            
+            Merged by @${{ github.event.pull_request.user.login }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
