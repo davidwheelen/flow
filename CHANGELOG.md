@@ -1,3 +1,10 @@
+## [0.13.1] - 2025-11-13
+
+### 🐛 Fixed
+- **Add automated GitHub release workflow with label-based version bumping** (#118) by @Copilot
+
+---
+
 # Flow - Network Visualizer Changelog
 
 All notable changes to this project will be documented in this file.
