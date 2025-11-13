@@ -7,7 +7,7 @@ import { SwirlBackground } from '@/components/SwirlBackground';
 import { RefreshButton } from '@/components/ui/RefreshButton';
 import './Sidebar.css';
 
-const APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.3.0';
+const APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.13.0';
 
 export function Sidebar() {
   const {
