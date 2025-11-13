@@ -7,7 +7,6 @@ import { SwirlBackground } from '@/components/SwirlBackground';
 import { RefreshButton } from '@/components/ui/RefreshButton';
 import './Sidebar.css';
 
-// @ts-ignore - Injected at build time via Vite define
 const APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.3.0';
 
 export function Sidebar() {
