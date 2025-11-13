@@ -32,6 +32,9 @@ interface AppState {
   // Sidebar state
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
+  isSidebarCollapsed: boolean;
+  toggleSidebarCollapse: () => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
 
   // Appearance settings
   appearanceSettings: AppearanceSettings;
@@ -48,6 +51,14 @@ export const useAppStore = create<AppState>()(
     isLoadingDevices: false,
     error: null,
     isSidebarOpen: true,
+    isSidebarCollapsed: (() => {
+      try {
+        const saved = localStorage.getItem('flow-sidebar-collapsed');
+        return saved ? JSON.parse(saved) : false;
+      } catch {
+        return false;
+      }
+    })(),
     appearanceSettings: {
       theme: 'dark',
       sidebarBackground: undefined,
@@ -87,6 +98,16 @@ export const useAppStore = create<AppState>()(
     
     toggleSidebar: () => set((state) => {
       state.isSidebarOpen = !state.isSidebarOpen;
+    }),
+
+    toggleSidebarCollapse: () => set((state) => {
+      state.isSidebarCollapsed = !state.isSidebarCollapsed;
+      localStorage.setItem('flow-sidebar-collapsed', JSON.stringify(state.isSidebarCollapsed));
+    }),
+
+    setSidebarCollapsed: (collapsed) => set((state) => {
+      state.isSidebarCollapsed = collapsed;
+      localStorage.setItem('flow-sidebar-collapsed', JSON.stringify(collapsed));
     }),
 
     setAppearanceSettings: (settings) => set((state) => {

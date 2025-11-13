@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ChevronRight, Loader2, RefreshCw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, RefreshCw } from 'lucide-react';
 import { useAppStore } from '@/store/appStore';
 import { useAuth, useDeviceData } from '@/hooks/useInControl2';
 import { getGroups } from '@/services/groupsService';
@@ -23,6 +23,8 @@ export function Sidebar() {
     setIsLoadingDevices,
     setError,
     isSidebarOpen,
+    isSidebarCollapsed,
+    toggleSidebarCollapse,
   } = useAppStore();
 
   const { isAuthenticated } = useAuth();
@@ -101,168 +103,235 @@ export function Sidebar() {
   }
 
   return (
-    <div className="liquid-glass-sidebar w-72 flex flex-col h-full">
-      {/* Flow Title Section */}
-      <div className="liquid-glass-panel m-4 overflow-hidden relative" style={{ padding: '8px 16px' }}>
-        <SwirlBackground />
-        <div className="relative z-10">
-          <h2 className="font-bold text-2xl" style={{ color: '#e0e0e0', fontFamily: 'Abricos, sans-serif' }}>
-            Flow
-          </h2>
-        </div>
-      </div>
-
-      {/* Horizontal Divider */}
-      <div className="border-t border-gray-700 mx-4"></div>
-
-      {/* Network Groups Section */}
-      <div className="px-4 py-3 flex items-center justify-between">
-        <p className="text-sm font-medium" style={{ color: '#a0a0a0' }}>Network Groups</p>
-        {isAuthenticated && (
-          <RefreshButton
-            onClick={handleRefreshGroups}
-            isLoading={isRefreshingGroups}
-            icon={<RefreshCw size={14} />}
-            size="sm"
-          />
-        )}
-      </div>
-
-      {/* Groups List */}
-      <div className="flex-1 overflow-y-auto px-4">
-        {isLoadingGroups ? (
-          <div className="flex items-center justify-center p-8">
-            <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#3b82f6' }} />
-          </div>
-        ) : error ? (
-          <div className="p-4">
-            <div className="liquid-glass-card" style={{ 
-              background: 'rgba(239, 68, 68, 0.2)',
-              borderColor: 'rgba(239, 68, 68, 0.5)'
-            }}>
-              <p className="text-sm" style={{ color: '#fca5a5' }}>{error}</p>
-              <button
-                onClick={() => {
-                  const loadGroups = async () => {
-                    setIsLoadingGroups(true);
-                    setError(null);
-                    
-                    try {
-                      const groupsData = await getGroups();
-                      setGroups(groupsData);
-                    } catch (err) {
-                      setError(err instanceof Error ? err.message : 'Failed to load groups');
-                    } finally {
-                      setIsLoadingGroups(false);
-                    }
-                  };
-                  loadGroups();
-                }}
-                className="mt-2 text-xs underline"
-                style={{ color: '#fca5a5' }}
-              >
-                Retry
-              </button>
-            </div>
-          </div>
-        ) : groups.length === 0 ? (
-          <div className="p-4 text-center text-sm" style={{ color: '#a0a0a0' }}>
-            {!isAuthenticated 
-              ? 'Configure your InControl2 credentials in Settings to get started.'
-              : 'No groups found'}
-          </div>
+    <div 
+      className="liquid-glass-sidebar flex flex-col h-full relative transition-all duration-300 ease-in-out"
+      style={{
+        width: isSidebarCollapsed ? '48px' : '288px',
+      }}
+    >
+      {/* Toggle Handle - Always Visible */}
+      <button
+        onClick={toggleSidebarCollapse}
+        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-50 p-2 rounded-lg transition-all hover:scale-110"
+        style={{
+          background: 'rgba(45, 45, 45, 0.5)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+        }}
+        title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      >
+        {isSidebarCollapsed ? (
+          <ChevronRight className="w-4 h-4" style={{ color: '#e0e0e0' }} />
         ) : (
-          <div className="space-y-2">
-            {groups.map((group) => (
-              <button
-                key={group.id}
-                onClick={() => handleGroupSelect(group.id)}
-                className={`
-                  liquid-glass-card w-full text-left transition-all
-                  ${selectedGroup?.id === group.id ? 'selected-group' : ''}
-                `}
-                style={{
-                  background: selectedGroup?.id === group.id 
-                    ? 'rgba(59, 130, 246, 0.25)' 
-                    : 'rgba(255, 255, 255, 0.18)',
-                  borderColor: selectedGroup?.id === group.id
-                    ? 'rgba(59, 130, 246, 0.5)'
-                    : 'rgba(255, 255, 255, 0.3)'
+          <ChevronLeft className="w-4 h-4" style={{ color: '#e0e0e0' }} />
+        )}
+      </button>
+
+      {/* Sidebar Content - Hidden when collapsed */}
+      <div 
+        className="flex flex-col h-full transition-opacity duration-300"
+        style={{
+          opacity: isSidebarCollapsed ? 0 : 1,
+          pointerEvents: isSidebarCollapsed ? 'none' : 'auto',
+        }}
+      >
+        {/* Flow Title Section */}
+        <div className="liquid-glass-panel m-4 overflow-hidden relative" style={{ padding: '8px 16px' }}>
+          <SwirlBackground />
+          <div className="relative z-10">
+            <h2 
+              className="font-bold text-2xl" 
+              style={{ 
+                color: '#e0e0e0', 
+                fontFamily: 'Abricos, sans-serif',
+                textShadow: '1px 1px 0 rgba(45, 45, 45, 0.25), -1px -1px 0 rgba(45, 45, 45, 0.25), 1px -1px 0 rgba(45, 45, 45, 0.25), -1px 1px 0 rgba(45, 45, 45, 0.25)'
+              }}
+            >
+              FLOW 
+              <span 
+                className="font-normal text-xl ml-2" 
+                style={{ 
+                  color: '#e0e0e0',
+                  textShadow: '1px 1px 0 rgba(45, 45, 45, 0.25), -1px -1px 0 rgba(45, 45, 45, 0.25), 1px -1px 0 rgba(45, 45, 45, 0.25), -1px 1px 0 rgba(45, 45, 45, 0.25)'
                 }}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm truncate font-medium" style={{ 
-                      color: selectedGroup?.id === group.id ? '#93c5fd' : '#e0e0e0' 
-                    }}>
-                      {group.name}
-                    </div>
-                    {group.description && (
-                      <div className="text-xs truncate mt-0.5" style={{ color: '#a0a0a0' }}>
-                        {group.description}
-                      </div>
-                    )}
-                    <div 
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full mt-1.5" 
-                      style={{ 
-                        fontSize: '11px',
-                        background: 'rgba(59, 130, 246, 0.2)',
-                        border: '1px solid rgba(59, 130, 246, 0.4)'
-                      }}
-                    >
-                      <span style={{ color: '#93c5fd', fontWeight: '500' }}>
-                        {group.device_count}
-                      </span>
-                      <span style={{ color: '#a0a0a0' }}>
-                        {group.device_count === 1 ? 'device' : 'devices'}
-                      </span>
-                    </div>
-                  </div>
-                  <ChevronRight
-                    className={`w-4 h-4 ml-2 flex-shrink-0 transition-opacity ${
-                      selectedGroup?.id === group.id ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    style={{ color: '#93c5fd' }}
-                  />
-                </div>
-              </button>
-            ))}
+                - Network Visualizer
+              </span>
+            </h2>
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* Footer */}
-      {selectedGroup && (
-        <div className="liquid-glass-panel m-4">
-          <div className="text-xs" style={{ color: '#a0a0a0' }}>
-            <div className="font-medium mb-1">Selected:</div>
-            <div className="truncate" style={{ color: '#e0e0e0' }}>{selectedGroup.name}</div>
-          </div>
-          {isLoadingDevices && (
-            <div className="flex items-center gap-2 mt-2 text-xs" style={{ color: '#3b82f6' }}>
-              <Loader2 className="w-3 h-3 animate-spin" />
-              Loading devices...
+        {/* Horizontal Divider */}
+        <div className="border-t border-gray-700 mx-4"></div>
+
+        {/* Network Groups Section */}
+        <div className="px-4 py-3 flex items-center justify-between">
+          <p className="text-sm font-medium" style={{ color: '#a0a0a0' }}>Network Groups</p>
+          {isAuthenticated && (
+            <RefreshButton
+              onClick={handleRefreshGroups}
+              isLoading={isRefreshingGroups}
+              icon={<RefreshCw size={14} />}
+              size="sm"
+            />
+          )}
+        </div>
+
+        {/* Groups List */}
+        <div className="flex-1 overflow-y-auto px-4">
+          {isLoadingGroups ? (
+            <div className="flex items-center justify-center p-8">
+              <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#3b82f6' }} />
+            </div>
+          ) : error ? (
+            <div className="p-4">
+              <div className="liquid-glass-card" style={{ 
+                background: 'rgba(239, 68, 68, 0.2)',
+                borderColor: 'rgba(239, 68, 68, 0.5)'
+              }}>
+                <p className="text-sm" style={{ color: '#fca5a5' }}>{error}</p>
+                <button
+                  onClick={() => {
+                    const loadGroups = async () => {
+                      setIsLoadingGroups(true);
+                      setError(null);
+                      
+                      try {
+                        const groupsData = await getGroups();
+                        setGroups(groupsData);
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : 'Failed to load groups');
+                      } finally {
+                        setIsLoadingGroups(false);
+                      }
+                    };
+                    loadGroups();
+                  }}
+                  className="mt-2 text-xs underline"
+                  style={{ color: '#fca5a5' }}
+                >
+                  Retry
+                </button>
+              </div>
+            </div>
+          ) : groups.length === 0 ? (
+            <div className="p-4 text-center text-sm" style={{ color: '#a0a0a0' }}>
+              {!isAuthenticated 
+                ? 'Configure your InControl2 credentials in Settings to get started.'
+                : 'No groups found'}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {groups.map((group) => (
+                <button
+                  key={group.id}
+                  onClick={() => handleGroupSelect(group.id)}
+                  className={`
+                    liquid-glass-card w-full text-left transition-all
+                    ${selectedGroup?.id === group.id ? 'selected-group' : ''}
+                  `}
+                  style={{
+                    background: selectedGroup?.id === group.id 
+                      ? 'rgba(59, 130, 246, 0.25)' 
+                      : 'rgba(255, 255, 255, 0.18)',
+                    borderColor: selectedGroup?.id === group.id
+                      ? 'rgba(59, 130, 246, 0.5)'
+                      : 'rgba(255, 255, 255, 0.3)'
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm truncate font-medium" style={{ 
+                        color: selectedGroup?.id === group.id ? '#93c5fd' : '#e0e0e0' 
+                      }}>
+                        {group.name}
+                      </div>
+                      {group.description && (
+                        <div className="text-xs truncate mt-0.5" style={{ color: '#a0a0a0' }}>
+                          {group.description}
+                        </div>
+                      )}
+                      <div 
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full mt-1.5" 
+                        style={{ 
+                          fontSize: '11px',
+                          background: 'rgba(59, 130, 246, 0.2)',
+                          border: '1px solid rgba(59, 130, 246, 0.4)'
+                        }}
+                      >
+                        <span style={{ color: '#93c5fd', fontWeight: '500' }}>
+                          {group.device_count}
+                        </span>
+                        <span style={{ color: '#a0a0a0' }}>
+                          {group.device_count === 1 ? 'device' : 'devices'}
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight
+                      className={`w-4 h-4 ml-2 flex-shrink-0 transition-opacity ${
+                        selectedGroup?.id === group.id ? 'opacity-100' : 'opacity-0'
+                      }`}
+                      style={{ color: '#93c5fd' }}
+                    />
+                  </div>
+                </button>
+              ))}
             </div>
           )}
         </div>
-      )}
 
-      {/* Version Footer */}
-      <div className="liquid-glass-panel m-4 mt-auto">
-        <div className="flex items-center justify-between text-xs" style={{ color: '#a0a0a0' }}>
-          <div className="flex items-center gap-2">
-            <span style={{ color: '#3b82f6' }}>✦</span>
-            <span>v{APP_VERSION}</span>
+        {/* Footer */}
+        {selectedGroup && (
+          <div className="liquid-glass-panel m-4">
+            <div className="text-xs" style={{ color: '#a0a0a0' }}>
+              <div className="font-medium mb-1">Selected:</div>
+              <div className="truncate" style={{ color: '#e0e0e0' }}>{selectedGroup.name}</div>
+            </div>
+            {isLoadingDevices && (
+              <div className="flex items-center gap-2 mt-2 text-xs" style={{ color: '#3b82f6' }}>
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Loading devices...
+              </div>
+            )}
           </div>
-          <button 
-            className="text-xs hover:underline"
-            style={{ color: '#3b82f6' }}
-            onClick={() => window.open('https://github.com/davidwheelen/flow/releases', '_blank')}
-          >
-            What's new
-          </button>
+        )}
+
+        {/* Version Footer */}
+        <div className="liquid-glass-panel m-4 mt-auto">
+          <div className="flex items-center justify-between text-xs" style={{ color: '#a0a0a0' }}>
+            <div className="flex items-center gap-2">
+              <span style={{ color: '#3b82f6' }}>✦</span>
+              <span>v{APP_VERSION}</span>
+            </div>
+            <button 
+              className="text-xs hover:underline"
+              style={{ color: '#3b82f6' }}
+              onClick={() => window.open('https://github.com/davidwheelen/flow/releases', '_blank')}
+            >
+              What's new
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Collapsed State Icon - Only visible when collapsed */}
+      {isSidebarCollapsed && (
+        <div className="flex items-center justify-center h-full">
+          <div className="transform -rotate-90 whitespace-nowrap">
+            <p 
+              className="text-xs font-medium tracking-wider"
+              style={{ 
+                color: '#a0a0a0',
+                textShadow: '1px 1px 0 rgba(45, 45, 45, 0.25), -1px -1px 0 rgba(45, 45, 45, 0.25), 1px -1px 0 rgba(45, 45, 45, 0.25), -1px 1px 0 rgba(45, 45, 45, 0.25)'
+              }}
+            >
+              FLOW
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
