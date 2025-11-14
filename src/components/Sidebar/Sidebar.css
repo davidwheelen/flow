@@ -197,7 +197,7 @@
 }
 */
 
-/* Animated gradient underglow effect from https://codepen.io/pugson/pen/eYNXvyN */
+/* Animated gradient underglow effect - ONLY ON HOVER */
 .version-footer-container {
   position: relative;
   padding: 12px 16px;
@@ -205,45 +205,46 @@
   z-index: 1;
 }
 
-/* Blurred multicolor gradient underneath container */
-.version-footer-container::before {
-  content: '';
+.version-footer-container::after {
   position: absolute;
-  inset: -30px;
-  border-radius: 20px;
-  background: linear-gradient(
-    45deg,
-    #ff0080,
-    #ff8c00,
-    #40e0d0,
-    #9370db,
-    #ff0080
-  );
-  background-size: 400% 400%;
-  filter: blur(50px);
-  opacity: 0.5;
-  animation: gradient-underglow 8s ease infinite;
+  content: "";
+  top: 15px;
+  left: 0;
+  right: 0;
   z-index: -1;
-  pointer-events: none;
+  height: 100%;
+  width: 100%;
+  transform: scale(0.9) translateZ(0);
+  filter: blur(15px);
+  background: linear-gradient(
+    to left,
+    #ff5770,
+    #e4428d,
+    #c42da8,
+    #9e16c3,
+    #6501de,
+    #9e16c3,
+    #c42da8,
+    #e4428d,
+    #ff5770
+  );
+  background-size: 200% 200%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-@keyframes gradient-underglow {
+.version-footer-container:hover::after {
+  opacity: 1;
+  animation: animateGlow 1.25s linear infinite;
+}
+
+@keyframes animateGlow {
   0% {
     background-position: 0% 50%;
   }
-  50% {
-    background-position: 100% 50%;
-  }
   100% {
-    background-position: 0% 50%;
+    background-position: 200% 50%;
   }
-}
-
-/* Slightly increase glow on hover */
-.version-footer-container:hover::before {
-  opacity: 0.7;
-  filter: blur(60px);
-  transition: opacity 0.5s ease, filter 0.5s ease;
 }
 
 .version-footer {

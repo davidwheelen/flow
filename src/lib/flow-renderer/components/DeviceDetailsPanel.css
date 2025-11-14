@@ -1,68 +1,104 @@
-/* Base panel styling */
+/* Mouse-tracking rainbow glow effect on details panel */
 .device-details-panel {
   position: relative;
-  --mouse-x: 50%;
-  --mouse-y: 50%;
-  background: rgba(23, 23, 23, 0.85) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
+  --x: 0;
+  --y: 0;
+  --xp: 0;
+  --yp: 0;
+  --border-size: 2px;
+  --spotlight-size: 150px;
+  --base: 210;
+  --spread: 500;
+  --hue: calc(var(--base) + (var(--xp) * var(--spread)));
+  --saturation: 100;
+  --lightness: 50;
+  --bg-spot-opacity: 0.1;
+  --border-spot-opacity: 1;
+  --border-light-opacity: 1;
 }
 
-/* Interior spotlight glow */
+/* Background glow inside the panel */
+.device-details-panel {
+  background-image: radial-gradient(
+    var(--spotlight-size) var(--spotlight-size) at
+    calc(var(--x) * 1px)
+    calc(var(--y) * 1px),
+    hsl(var(--hue) calc(var(--saturation) * 1%) calc(var(--lightness) * 1%) / var(--bg-spot-opacity)), 
+    transparent
+  );
+  background-color: rgba(23, 23, 23, 0.85);
+  background-size: 100% 100%;
+  background-position: 50% 50%;
+  background-attachment: fixed;
+}
+
+/* Border emphasis light (colored glow) */
 .device-details-panel::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  opacity: 0;
-  transition: opacity 0.3s;
-  background: radial-gradient(
-    600px circle at var(--mouse-x) var(--mouse-y),
-    rgba(59, 130, 246, 0.15),
-    transparent 40%
-  );
   pointer-events: none;
-  z-index: 1;
-}
-
-.device-details-panel:hover::before {
-  opacity: 1;
-}
-
-/* Edge glow border */
-.device-details-panel::after {
-  content: '';
+  content: "";
   position: absolute;
-  inset: -2px;
+  inset: calc(var(--border-size) * -1);
+  border: var(--border-size) solid transparent;
   border-radius: 12px;
-  padding: 2px;
-  background: radial-gradient(
-    400px circle at var(--mouse-x) var(--mouse-y),
-    rgba(59, 130, 246, 0.8),
-    rgba(59, 130, 246, 0.4) 20%,
-    transparent 50%
+  background-image: radial-gradient(
+    calc(var(--spotlight-size) * 0.75) calc(var(--spotlight-size) * 0.75) at
+    calc(var(--x) * 1px)
+    calc(var(--y) * 1px),
+    hsl(var(--hue) calc(var(--saturation) * 1%) calc(var(--lightness) * 1%) / var(--border-spot-opacity)), 
+    transparent 100%
   );
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
+  background-attachment: fixed;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  mask:
+    linear-gradient(transparent, transparent),
+    linear-gradient(white, white);
+  mask-clip: padding-box, border-box;
+  mask-composite: intersect;
+  -webkit-mask:
+    linear-gradient(transparent, transparent),
+    linear-gradient(white, white);
+  -webkit-mask-clip: padding-box, border-box;
   -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.3s;
-  pointer-events: none;
-  z-index: 0;
+  z-index: 2;
+  filter: brightness(2);
 }
 
-.device-details-panel:hover::after {
-  opacity: 1;
+/* White spotlight in the center */
+.device-details-panel::after {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  inset: calc(var(--border-size) * -1);
+  border: var(--border-size) solid transparent;
+  border-radius: 12px;
+  background-image: radial-gradient(
+    calc(var(--spotlight-size) * 0.5) calc(var(--spotlight-size) * 0.5) at
+    calc(var(--x) * 1px)
+    calc(var(--y) * 1px),
+    hsl(0 100% 100% / var(--border-light-opacity)), 
+    transparent 100%
+  );
+  background-attachment: fixed;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  mask:
+    linear-gradient(transparent, transparent),
+    linear-gradient(white, white);
+  mask-clip: padding-box, border-box;
+  mask-composite: intersect;
+  -webkit-mask:
+    linear-gradient(transparent, transparent),
+    linear-gradient(white, white);
+  -webkit-mask-clip: padding-box, border-box;
+  -webkit-mask-composite: xor;
+  z-index: 2;
 }
 
 /* Ensure content is above glow layers */
 .device-details-panel > * {
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }

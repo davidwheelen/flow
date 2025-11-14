@@ -61,16 +61,24 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
-    panel.style.setProperty('--mouse-x', `${x}px`);
-    panel.style.setProperty('--mouse-y', `${y}px`);
+    // Set exact pixel coordinates
+    panel.style.setProperty('--x', x.toFixed(2));
+    panel.style.setProperty('--y', y.toFixed(2));
+    
+    // Set percentage coordinates (0 to 1)
+    panel.style.setProperty('--xp', (x / rect.width).toFixed(2));
+    panel.style.setProperty('--yp', (y / rect.height).toFixed(2));
   };
   
   const handlePointerLeave = () => {
     const panel = panelRef.current;
     if (!panel) return;
     
-    panel.style.setProperty('--mouse-x', `50%`);
-    panel.style.setProperty('--mouse-y', `50%`);
+    const rect = panel.getBoundingClientRect();
+    panel.style.setProperty('--x', (rect.width / 2).toFixed(2));
+    panel.style.setProperty('--y', (rect.height / 2).toFixed(2));
+    panel.style.setProperty('--xp', '0.5');
+    panel.style.setProperty('--yp', '0.5');
   };
   
   // Memoize theme colors to avoid recalculation on every render
@@ -228,10 +236,15 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         top: position.y,
         width: 320,
         maxHeight: 'calc(100vh - 100px)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        borderRadius: 12,
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         zIndex: 1000 + zIndex,
         display: 'flex',
         flexDirection: 'column',
         userSelect: isDragging ? 'none' : 'auto',
+        overflow: 'hidden',
       }}
     >
       {/* Animated Header */}
