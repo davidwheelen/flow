@@ -1,0 +1,8 @@
+{
+  "name": "flow-release-scripts",
+  "version": "1.0.0",
+  "description": "Scripts for managing Flow releases",
+  "dependencies": {
+    "@octokit/rest": "^20.0.0"
+  }
+}
