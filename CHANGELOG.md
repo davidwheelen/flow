@@ -1,3 +1,10 @@
+## [0.13.4] - 2025-11-14
+
+### 🐛 Fixed
+- **Implement exact CodePen effects for sidebar and device details panel** (#124) by @Copilot
+
+---
+
 ## [0.13.3] - 2025-11-14
 
 ### 🐛 Fixed
