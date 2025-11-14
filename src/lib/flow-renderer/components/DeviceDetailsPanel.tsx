@@ -52,6 +52,27 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
   const panelRef = useRef<HTMLDivElement>(null);
   const { appearanceSettings } = useAppStore();
   
+  // Mouse-tracking glow effect handlers
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    
+    const rect = panel.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    panel.style.setProperty('--mouse-x', `${x}px`);
+    panel.style.setProperty('--mouse-y', `${y}px`);
+  };
+  
+  const handlePointerLeave = () => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    
+    panel.style.setProperty('--mouse-x', `50%`);
+    panel.style.setProperty('--mouse-y', `50%`);
+  };
+  
   // Memoize theme colors to avoid recalculation on every render
   const themeColors = useMemo(() => {
     if (appearanceSettings.customTheme) {
@@ -198,6 +219,8 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
       onWheel={(e) => e.stopPropagation()}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
       className="device-details-panel"
       style={{
         position: 'absolute',
