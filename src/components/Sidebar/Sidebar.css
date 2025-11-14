@@ -202,7 +202,7 @@
   position: relative;
   padding: 12px 16px;
   border-radius: 8px;
-  z-index: 1;
+  isolation: isolate; /* Create new stacking context */
 }
 
 .version-footer-container::after {
