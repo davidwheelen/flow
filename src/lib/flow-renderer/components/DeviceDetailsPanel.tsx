@@ -50,11 +50,12 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
   const [wanExpandedState, setWanExpandedState] = useState<Map<string, boolean>>(new Map());
   const [vlanExpanded, setVlanExpanded] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null); // For mouse tracking
   const { appearanceSettings } = useAppStore();
   
   // Mouse-tracking glow effect handlers
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    const panel = panelRef.current;
+    const panel = contentRef.current;
     if (!panel) return;
     
     const rect = panel.getBoundingClientRect();
@@ -66,7 +67,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
   };
   
   const handlePointerLeave = () => {
-    const panel = panelRef.current;
+    const panel = contentRef.current;
     if (!panel) return;
     
     panel.style.setProperty('--mouse-x', `50%`);
@@ -219,8 +220,6 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
       onWheel={(e) => e.stopPropagation()}
-      onPointerMove={handlePointerMove}
-      onPointerLeave={handlePointerLeave}
       className="device-details-panel"
       style={{
         position: 'absolute',
@@ -228,19 +227,24 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         top: position.y,
         width: 320,
         maxHeight: 'calc(100vh - 100px)',
-        background: 'transparent',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: 12,
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         zIndex: 1000 + zIndex,
         display: 'flex',
         flexDirection: 'column',
         userSelect: isDragging ? 'none' : 'auto',
-        overflow: 'hidden',
       }}
     >
+      <div 
+        ref={contentRef}
+        className="panel-content"
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
       {/* Animated Header */}
       <div
         onMouseDown={handleMouseDown}
@@ -685,6 +689,7 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
             );
           })}
         </div>
+      </div>
       </div>
     </div>
   );
