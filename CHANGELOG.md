@@ -1,3 +1,10 @@
+## [0.13.3] - 2025-11-14
+
+### 🐛 Fixed
+- **Fix interactive effects: Replace rainbow border with mouse-tracking glow, add liquid ripple to version footer** (#120) by @Copilot
+
+---
+
 ## [0.13.2] - 2025-11-14
 
 ### 🐛 Fixed
