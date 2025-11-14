@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronRight, Loader2, RefreshCw } from 'lucide-react';
 import { useAppStore } from '@/store/appStore';
 import { useAuth, useDeviceData } from '@/hooks/useInControl2';
@@ -29,20 +29,6 @@ export function Sidebar() {
 
   const { isAuthenticated } = useAuth();
   const [isRefreshingGroups, setIsRefreshingGroups] = useState(false);
-  const whatsNewRef = useRef<HTMLDivElement>(null);
-  
-  // Handle mouse movement for liquid ripple effect
-  const handleWhatsNewMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    const container = whatsNewRef.current;
-    if (!container) return;
-    
-    const rect = container.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    container.style.setProperty('--ripple-x', `${x}px`);
-    container.style.setProperty('--ripple-y', `${y}px`);
-  };
   
   // Use device data polling when authenticated
   const { devices: polledDevices } = useDeviceData(
@@ -311,9 +297,7 @@ export function Sidebar() {
 
         {/* Version Footer */}
         <div 
-          ref={whatsNewRef}
-          className="liquid-glass-panel version-footer-container m-4 mt-auto"
-          onPointerMove={handleWhatsNewMove}
+          className="version-footer-container m-4 mt-auto"
         >
           <div className="flex items-center justify-between text-xs version-footer" style={{ color: '#a0a0a0' }}>
             <div className="flex items-center gap-2">
