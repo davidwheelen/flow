@@ -1,3 +1,10 @@
+## [0.13.2] - 2025-11-14
+
+### 🐛 Fixed
+- **UI improvements: collapse icon, glowing borders, purple offline status, layout refinements** (#119) by @Copilot
+
+---
+
 ## [0.13.1] - 2025-11-13
 
 ### 🐛 Fixed
