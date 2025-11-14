@@ -197,16 +197,60 @@
 }
 */
 
-/* Version footer hover effect */
-.liquid-glass-panel:has(.version-footer) {
+/* Version footer hover effect - replaced with liquid ripple effect */
+.version-footer-container {
   position: relative;
   overflow: hidden;
+  --ripple-x: 50%;
+  --ripple-y: 50%;
+}
+
+.version-footer-container::before {
+  content: '';
+  position: absolute;
+  top: var(--ripple-y);
+  left: var(--ripple-x);
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.3) 0%,
+    rgba(59, 130, 246, 0.1) 40%,
+    transparent 70%
+  );
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease-out, height 0.6s ease-out;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.version-footer-container:hover::before {
+  width: 400px;
+  height: 400px;
+  opacity: 1;
+  transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              opacity 0.3s;
+}
+
+/* Subtle glass effect on hover */
+.version-footer-container:hover {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
 
 .version-footer {
   position: relative;
   z-index: 1;
+}
+
+/* Old version footer effect - kept for backwards compatibility if needed */
+.liquid-glass-panel:has(.version-footer) {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 .liquid-glass-panel:has(.version-footer)::before {
