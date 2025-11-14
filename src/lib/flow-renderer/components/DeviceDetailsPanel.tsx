@@ -228,17 +228,10 @@ const SingleDevicePanel: React.FC<SinglePanelProps> = ({
         top: position.y,
         width: 320,
         maxHeight: 'calc(100vh - 100px)',
-        background: 'transparent',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: 12,
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         zIndex: 1000 + zIndex,
         display: 'flex',
         flexDirection: 'column',
         userSelect: isDragging ? 'none' : 'auto',
-        overflow: 'hidden',
       }}
     >
       {/* Animated Header */}

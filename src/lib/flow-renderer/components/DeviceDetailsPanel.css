@@ -1,10 +1,18 @@
-/* Mouse-tracking glow effect on details panel */
+/* Base panel styling */
 .device-details-panel {
   position: relative;
   --mouse-x: 50%;
   --mouse-y: 50%;
+  background: rgba(23, 23, 23, 0.85) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
 }
 
+/* Interior spotlight glow */
 .device-details-panel::before {
   content: '';
   position: absolute;
@@ -18,24 +26,25 @@
     transparent 40%
   );
   pointer-events: none;
-  z-index: 0;
+  z-index: 1;
 }
 
 .device-details-panel:hover::before {
   opacity: 1;
 }
 
-/* Add glow border on hover */
+/* Edge glow border */
 .device-details-panel::after {
   content: '';
   position: absolute;
-  inset: -1px;
+  inset: -2px;
   border-radius: 12px;
-  padding: 1px;
+  padding: 2px;
   background: radial-gradient(
     400px circle at var(--mouse-x) var(--mouse-y),
-    rgba(59, 130, 246, 0.6),
-    transparent 40%
+    rgba(59, 130, 246, 0.8),
+    rgba(59, 130, 246, 0.4) 20%,
+    transparent 50%
   );
   -webkit-mask: 
     linear-gradient(#fff 0 0) content-box, 
@@ -45,9 +54,15 @@
   opacity: 0;
   transition: opacity 0.3s;
   pointer-events: none;
-  z-index: -1;
+  z-index: 0;
 }
 
 .device-details-panel:hover::after {
   opacity: 1;
+}
+
+/* Ensure content is above glow layers */
+.device-details-panel > * {
+  position: relative;
+  z-index: 2;
 }

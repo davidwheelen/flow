@@ -251,33 +251,4 @@
   z-index: 1;
 }
 
-/* Old version footer effect - kept for backwards compatibility if needed */
-.liquid-glass-panel:has(.version-footer) {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
 
-.liquid-glass-panel:has(.version-footer)::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s ease, height 0.6s ease;
-  pointer-events: none;
-}
-
-.liquid-glass-panel:has(.version-footer):hover::before {
-  width: 300px;
-  height: 300px;
-}
-
-.liquid-glass-panel:has(.version-footer):hover {
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-}
