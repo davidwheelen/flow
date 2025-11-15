@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- 3D Isometric Box -->
+  <!-- Top face (light grey) -->
+  <path d="M 80,65 L 170,105 L 170,135 L 80,95 Z" 
+        fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+  
+  <!-- Front face (medium grey) -->
+  <path d="M 80,95 L 170,135 L 170,200 L 80,160 Z" 
+        fill="#7f8c8d" stroke="#5d6d7e" stroke-width="1"/>
+  
+  <!-- Side face (dark grey) -->
+  <path d="M 170,105 L 195,118 L 195,183 L 170,200 L 170,135 Z" 
+        fill="#5d6d7e" stroke="#34495e" stroke-width="1"/>
+  
+  <!-- 5G Badge on top -->
+  <rect x="110" y="72" width="30" height="12" fill="#e74c3c" stroke="#c0392b" stroke-width="1" rx="2"/>
+  <text x="116" y="81" font-size="10" fill="#ffffff" font-weight="bold">5G</text>
+  
+  <!-- Status LEDs on front -->
+  <!-- Power LED (green) -->
+  <circle cx="95" cy="115" r="3" fill="#2ecc71" filter="url(#glow)"/>
+  <text x="90" y="126" font-size="6" fill="#ecf0f1">PWR</text>
+  
+  <!-- WAN1 LED (blue) -->
+  <circle cx="110" cy="115" r="3" fill="#3498db" filter="url(#glow)"/>
+  <text x="106" y="126" font-size="6" fill="#ecf0f1">W1</text>
+  
+  <!-- WAN2 LED (blue) -->
+  <circle cx="125" cy="115" r="3" fill="#3498db" filter="url(#glow)"/>
+  <text x="121" y="126" font-size="6" fill="#ecf0f1">W2</text>
+  
+  <!-- WAN3 LED (blue) -->
+  <circle cx="140" cy="115" r="3" fill="#3498db" filter="url(#glow)"/>
+  <text x="136" y="126" font-size="6" fill="#ecf0f1">W3</text>
+  
+  <!-- 5G LED (red) -->
+  <circle cx="152" cy="115" r="3" fill="#e74c3c" filter="url(#glow)"/>
+  <text x="147" y="126" font-size="6" fill="#ecf0f1">5G</text>
+  
+  <!-- WAN Ports -->
+  <rect x="95" y="138" width="12" height="8" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="1"/>
+  <text x="98" y="144" font-size="5" fill="#95a5a6">1</text>
+  
+  <rect x="113" y="138" width="12" height="8" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="1"/>
+  <text x="116" y="144" font-size="5" fill="#95a5a6">2</text>
+  
+  <rect x="131" y="138" width="12" height="8" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="1"/>
+  <text x="134" y="144" font-size="5" fill="#95a5a6">3</text>
+  
+  <!-- LAN Ports -->
+  <rect x="95" y="152" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <rect x="105" y="152" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <rect x="115" y="152" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <rect x="125" y="152" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <rect x="135" y="152" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  
+  <!-- 5G antenna indicators -->
+  <circle cx="158" cy="70" r="5" fill="#e74c3c" opacity="0.8"/>
+  <line x1="158" y1="70" x2="158" y2="58" stroke="#e74c3c" stroke-width="2.5"/>
+  <line x1="153" y1="62" x2="163" y2="62" stroke="#e74c3c" stroke-width="2"/>
+  <line x1="155" y1="66" x2="161" y2="66" stroke="#e74c3c" stroke-width="1.5"/>
+  
+  <circle cx="172" cy="73" r="5" fill="#e74c3c" opacity="0.8"/>
+  <line x1="172" y1="73" x2="172" y2="61" stroke="#e74c3c" stroke-width="2.5"/>
+  <line x1="167" y1="65" x2="177" y2="65" stroke="#e74c3c" stroke-width="2"/>
+  <line x1="169" y1="69" x2="175" y2="69" stroke="#e74c3c" stroke-width="1.5"/>
+  
+  <!-- 5G signal waves -->
+  <path d="M 165,83 Q 170,78 175,83" fill="none" stroke="#e74c3c" stroke-width="1.5" opacity="0.7"/>
+  <path d="M 163,87 Q 170,79 177,87" fill="none" stroke="#e74c3c" stroke-width="1.5" opacity="0.5"/>
+  <path d="M 161,91 Q 170,81 179,91" fill="none" stroke="#e74c3c" stroke-width="1.5" opacity="0.3"/>
+  
+  <!-- Model label -->
+  <text x="95" y="172" font-size="10" fill="#ecf0f1" font-weight="bold">Balance 305 5G</text>
+  
+  <!-- Peplink branding -->
+  <text x="110" y="185" font-size="7" fill="#95a5a6">Peplink</text>
+</svg>

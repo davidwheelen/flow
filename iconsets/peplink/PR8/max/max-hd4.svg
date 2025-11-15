@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- 3D Isometric Box -->
+  <!-- Top face (light grey) -->
+  <path d="M 80,75 L 175,110 L 175,140 L 80,105 Z" 
+        fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+  
+  <!-- Front face (medium grey) -->
+  <path d="M 80,105 L 175,140 L 175,205 L 80,170 Z" 
+        fill="#7f8c8d" stroke="#5d6d7e" stroke-width="1"/>
+  
+  <!-- Side face (dark grey) -->
+  <path d="M 175,110 L 195,120 L 195,185 L 175,205 L 175,140 Z" 
+        fill="#5d6d7e" stroke="#34495e" stroke-width="1"/>
+  
+  <!-- Status LEDs on front -->
+  <!-- Power LED (green) -->
+  <circle cx="95" cy="125" r="3" fill="#2ecc71" filter="url(#glow)"/>
+  <text x="90" y="136" font-size="6" fill="#ecf0f1">PWR</text>
+  
+  <!-- WAN LED (blue) -->
+  <circle cx="110" cy="125" r="3" fill="#3498db" filter="url(#glow)"/>
+  <text x="106" y="136" font-size="6" fill="#ecf0f1">WAN</text>
+  
+  <!-- Cellular 1 LED (purple) -->
+  <circle cx="123" cy="125" r="3" fill="#9b59b6" filter="url(#glow)"/>
+  <text x="119" y="136" font-size="6" fill="#ecf0f1">C1</text>
+  
+  <!-- Cellular 2 LED (purple) -->
+  <circle cx="136" cy="125" r="3" fill="#9b59b6" filter="url(#glow)"/>
+  <text x="132" y="136" font-size="6" fill="#ecf0f1">C2</text>
+  
+  <!-- Cellular 3 LED (purple) -->
+  <circle cx="149" cy="125" r="3" fill="#9b59b6" filter="url(#glow)"/>
+  <text x="145" y="136" font-size="6" fill="#ecf0f1">C3</text>
+  
+  <!-- Cellular 4 LED (purple) -->
+  <circle cx="162" cy="125" r="3" fill="#9b59b6" filter="url(#glow)"/>
+  <text x="158" y="136" font-size="6" fill="#ecf0f1">C4</text>
+  
+  <!-- WAN Port -->
+  <rect x="105" y="148" width="12" height="8" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="1"/>
+  <text x="107" y="154" font-size="5" fill="#95a5a6">WAN</text>
+  
+  <!-- LAN Ports -->
+  <rect x="100" y="162" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <rect x="110" y="162" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <rect x="120" y="162" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <rect x="130" y="162" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  
+  <!-- 4 Cellular antenna indicators -->
+  <circle cx="145" cy="83" r="3.5" fill="#9b59b6" opacity="0.8"/>
+  <line x1="145" y1="83" x2="145" y2="74" stroke="#9b59b6" stroke-width="2"/>
+  <line x1="142" y1="77" x2="148" y2="77" stroke="#9b59b6" stroke-width="1.5"/>
+  
+  <circle cx="156" cy="86" r="3.5" fill="#9b59b6" opacity="0.8"/>
+  <line x1="156" y1="86" x2="156" y2="77" stroke="#9b59b6" stroke-width="2"/>
+  <line x1="153" y1="80" x2="159" y2="80" stroke="#9b59b6" stroke-width="1.5"/>
+  
+  <circle cx="167" cy="89" r="3.5" fill="#9b59b6" opacity="0.8"/>
+  <line x1="167" y1="89" x2="167" y2="80" stroke="#9b59b6" stroke-width="2"/>
+  <line x1="164" y1="83" x2="170" y2="83" stroke="#9b59b6" stroke-width="1.5"/>
+  
+  <circle cx="178" cy="92" r="3.5" fill="#9b59b6" opacity="0.8"/>
+  <line x1="178" y1="92" x2="178" y2="83" stroke="#9b59b6" stroke-width="2"/>
+  <line x1="175" y1="86" x2="181" y2="86" stroke="#9b59b6" stroke-width="1.5"/>
+  
+  <!-- Model label -->
+  <text x="105" y="182" font-size="10" fill="#ecf0f1" font-weight="bold">MAX HD4</text>
+  
+  <!-- Peplink branding -->
+  <text x="115" y="195" font-size="7" fill="#95a5a6">Peplink</text>
+</svg>

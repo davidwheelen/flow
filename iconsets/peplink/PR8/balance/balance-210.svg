@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- 3D Isometric Box -->
+  <!-- Top face (light grey) -->
+  <path d="M 85,70 L 170,105 L 170,130 L 85,95 Z" 
+        fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+  
+  <!-- Front face (medium grey) -->
+  <path d="M 85,95 L 170,130 L 170,195 L 85,160 Z" 
+        fill="#7f8c8d" stroke="#5d6d7e" stroke-width="1"/>
+  
+  <!-- Side face (dark grey) -->
+  <path d="M 170,105 L 190,115 L 190,180 L 170,195 L 170,130 Z" 
+        fill="#5d6d7e" stroke="#34495e" stroke-width="1"/>
+  
+  <!-- Status LEDs on front -->
+  <!-- Power LED (green) -->
+  <circle cx="100" cy="115" r="3" fill="#2ecc71" filter="url(#glow)"/>
+  <text x="95" y="126" font-size="6" fill="#ecf0f1">PWR</text>
+  
+  <!-- WAN1 LED (blue) -->
+  <circle cx="115" cy="115" r="3" fill="#3498db" filter="url(#glow)"/>
+  <text x="111" y="126" font-size="6" fill="#ecf0f1">W1</text>
+  
+  <!-- WAN2 LED (blue) -->
+  <circle cx="130" cy="115" r="3" fill="#3498db" filter="url(#glow)"/>
+  <text x="126" y="126" font-size="6" fill="#ecf0f1">W2</text>
+  
+  <!-- WAN3 LED (blue) -->
+  <circle cx="145" cy="115" r="3" fill="#3498db" filter="url(#glow)"/>
+  <text x="141" y="126" font-size="6" fill="#ecf0f1">W3</text>
+  
+  <!-- WAN Ports -->
+  <rect x="100" y="138" width="12" height="8" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="1"/>
+  <text x="103" y="144" font-size="5" fill="#95a5a6">1</text>
+  
+  <rect x="118" y="138" width="12" height="8" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="1"/>
+  <text x="121" y="144" font-size="5" fill="#95a5a6">2</text>
+  
+  <rect x="136" y="138" width="12" height="8" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="1"/>
+  <text x="139" y="144" font-size="5" fill="#95a5a6">3</text>
+  
+  <!-- LAN Ports -->
+  <rect x="100" y="152" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <rect x="110" y="152" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <rect x="120" y="152" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <rect x="130" y="152" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  <rect x="140" y="152" width="8" height="6" fill="#34495e" stroke="#2c3e50" stroke-width="0.5" rx="0.5"/>
+  
+  <!-- Model label -->
+  <text x="105" y="172" font-size="10" fill="#ecf0f1" font-weight="bold">Balance 210</text>
+  
+  <!-- Peplink branding -->
+  <text x="115" y="185" font-size="7" fill="#95a5a6">Peplink</text>
+</svg>
